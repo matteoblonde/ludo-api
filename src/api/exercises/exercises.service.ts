@@ -1,10 +1,7 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
-import mongoose, { connection } from 'mongoose';
 import { QueryOptions } from 'mongoose-query-parser';
-import { DATABASE_CONNECTION } from '../../database/database.providers';
 import ExerciseModel from '../../database/models/Exercise/Exercise';
-import { getModelFromPool } from '../../database/utils';
 
 
 export class ExercisesService {

@@ -1,6 +1,4 @@
-import mongoose from 'mongoose';
-import * as uuid from 'uuid';
-import { buildSchema, getModelForClass, modelOptions, prop, Ref } from '@typegoose/typegoose';
+import { getModelForClass, modelOptions, prop, Ref } from '@typegoose/typegoose';
 import { Company } from '../Company/Company';
 import { Role } from '../Role/Role';
 

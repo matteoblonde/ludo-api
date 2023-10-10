@@ -124,7 +124,6 @@ export class AuthService {
   public async getByIdAsync(id: string): Promise<IUserData | null> {
     /** Search the user into IndirizziRubrica */
     const privateUserData = await this.getByIdFromUsersAsync(id);
-    console.log(privateUserData);
 
     /** If a private user has been found, return its minimal data */
     if (privateUserData) {
