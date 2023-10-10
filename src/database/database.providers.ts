@@ -24,31 +24,57 @@ export const ROUTE_MODEL = 'RouteModel';
 
 
 /* --------
+ * Create the default System Database Connection
+ * -------- */
+const createConnection = (db: string): mongoose.ConnectOptions & { uri: string } => ({
+  uri            : `mongodb://${process.env.DB_URL}:${process.env.DB_PORT}/${db}`,
+  authSource     : process.env.DB_AUTH_SOURCE,
+  auth           : {
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD
+  },
+  maxPoolSize    : 25,
+  socketTimeoutMS: 3_000
+});
+
+const { uri: systemDatabaseUri, ...systemDatabaseConnectionOptions } = createConnection('__system');
+export const systemDatabaseConnection = mongoose.createConnection(systemDatabaseUri, systemDatabaseConnectionOptions);
+
+
+/* --------
  * Provider to load the Mongoose Connection based on Client Request
  * -------- */
 const mongooseConnectionsPool = new AugmentedMap<string, mongoose.Connection>();
+mongooseConnectionsPool.set(systemDatabaseUri, systemDatabaseConnection);
 
 export const DatabaseConnectionProvider: FactoryProvider = {
   provide   : DATABASE_CONNECTION,
   scope     : Scope.REQUEST,
-  inject    : [ REQUEST ],
-  useFactory: (): mongoose.Connection => {
+  inject    : [ REQUEST, AccessTokenService, RefreshTokenService ],
+  useFactory: (
+    request: Request,
+    accessTokenService: AccessTokenService,
+    refreshTokenService: RefreshTokenService
+  ): mongoose.Connection => {
+
+    if (request.url.match(/auth\/(login|refresh)/)) {
+      return systemDatabaseConnection;
+    }
 
     const mongooseModuleOptions: mongoose.ConnectOptions & { uri: string } = (() => {
-      /** Initialize the db name container */
-      const db: string = 'ludo';
+      /** Else, try to load the database from access token */
+      const db = accessTokenService.getMongoDatabaseName(request) ?? refreshTokenService.getMongoDatabaseName(request);
+
+      /** Assert the right db has been selected */
+      if (db == null) {
+        throw new BadRequestException(
+          'Could not find a valid database to connect for this request',
+          'system/invalid-database'
+        );
+      }
 
       /** Return defaults without customDb query param */
-      return {
-        uri            : `mongodb://${process.env.DB_URL}:${process.env.DB_PORT}/${db}`,
-        authSource     : process.env.DB_AUTH_SOURCE,
-        auth           : {
-          username: process.env.DB_USER,
-          password: process.env.DB_PASSWORD
-        },
-        maxPoolSize    : 25,
-        socketTimeoutMS: 3000
-      };
+      return createConnection(db);
     })();
 
     const { uri, ...connectOptions } = mongooseModuleOptions;

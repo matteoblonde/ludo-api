@@ -8,9 +8,7 @@ export type TUserType = 'user';
 export interface IUserData {
   username: string;
 
-  company: Ref<Company> | undefined;
+  company: string;
 
   userId: string;
-
-  role: Ref<Role> | undefined;
 }

@@ -14,7 +14,7 @@ export class User {
   @prop({
     required: true
   })
-  public username?: string;
+  public username!: string;
 
   @prop({})
   public firstName?: string;
@@ -34,9 +34,10 @@ export class User {
   public password?: string;
 
   @prop({
-    ref: () => Company
+    ref: () => Company,
+    required: true
   })
-  public company?: Ref<Company>;
+  public company!: Ref<Company>;
 
   @prop({
     ref: () => Role

@@ -5,11 +5,8 @@ import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 /* --------
 * Schema Definition
 * -------- */
-@modelOptions({ schemaOptions: { collection: 'exercises' }, options: { customName: 'exercises' } })
+@modelOptions({ schemaOptions: { collection: 'exercises' }})
 export class Exercise {
-
-  @prop({ required: true })
-  public _id!: string;
 
   @prop()
   public exerciseName?: string;
@@ -26,9 +23,6 @@ export class Exercise {
   // TODO: add ref to exercise types collection in prop decorator
   @prop()
   public exerciseTypeName?: string;
-
-  @prop({ required: true })
-  public companyId!: string;
 
   @prop({ required: true })
   public userId!: string;

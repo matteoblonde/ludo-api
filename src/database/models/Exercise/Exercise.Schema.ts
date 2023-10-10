@@ -1,5 +1,5 @@
 import { buildSchema } from '@typegoose/typegoose';
-import Exercise from './Exercise';
+import { Exercise } from './Exercise';
 
 
 const ExerciseSchema = buildSchema(Exercise);

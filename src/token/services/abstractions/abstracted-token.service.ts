@@ -32,7 +32,7 @@ export default function AbstractedTokenService(secret: string, validity: string 
 
       /** Decode the token and return the correct field */
       try {
-        return this.decode(token)?.username ?? null;
+        return this.decode(token)?.company ?? null;
       }
       catch {
         return null;

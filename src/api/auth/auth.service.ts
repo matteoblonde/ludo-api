@@ -65,9 +65,8 @@ export class AuthService {
     if (privateUserData) {
       return this.createUserData(
         privateUserData.username,
-        privateUserData.company,
-        privateUserData._id,
-        privateUserData.role
+        privateUserData.company.toString(),
+        privateUserData._id.toString()
       );
     }
 
@@ -125,14 +124,14 @@ export class AuthService {
   public async getByIdAsync(id: string): Promise<IUserData | null> {
     /** Search the user into IndirizziRubrica */
     const privateUserData = await this.getByIdFromUsersAsync(id);
+    console.log(privateUserData);
 
     /** If a private user has been found, return its minimal data */
     if (privateUserData) {
       return this.createUserData(
         privateUserData.username,
-        privateUserData.company,
-        privateUserData._id,
-        privateUserData.role
+        privateUserData.company.toString(),
+        privateUserData._id.toString()
       );
     }
 
@@ -156,16 +155,14 @@ export class AuthService {
    * @param role
    */
   private createUserData(
-    username: any,
-    company: Ref<Company> | undefined,
-    userId: any,
-    role: Ref<Role> | undefined
+    username: string,
+    company: string,
+    userId: string
   ): IUserData {
     return {
       username,
       company: company,
-      userId : userId,
-      role   : role
+      userId : userId
     };
   }
 

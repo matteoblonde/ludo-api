@@ -1,20 +1,17 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
-import mongoose from 'mongoose';
+import mongoose, { connection } from 'mongoose';
 import { QueryOptions } from 'mongoose-query-parser';
-import { v4 } from 'uuid';
 import { DATABASE_CONNECTION } from '../../database/database.providers';
+import ExerciseModel from '../../database/models/Exercise/Exercise';
 import { getModelFromPool } from '../../database/utils';
 
 
 export class ExercisesService {
 
-  exerciseModel: any = getModelFromPool(this.connection, 'Exercise');
-
-
   constructor(
-    @Inject(DATABASE_CONNECTION)
-    private connection: mongoose.Connection
+    @Inject(ExerciseModel.collection.name)
+    private readonly exerciseModel: typeof ExerciseModel
   ) {
 
   }
@@ -27,17 +24,14 @@ export class ExercisesService {
   public async insertNewExercise(exercise: any) {
 
     /* build the record */
-    const _id = v4();
-    const record = new this.exerciseModel({ _id, ...exercise });
+    /*const _id = v4();*/
+    const record = new this.exerciseModel(exercise);
 
     /* save the record, mongo.insertOne() */
     await record.save();
 
     /* return Id of the created record */
-    return {
-      id     : _id,
-      message: 'Record created successfully'
-    };
+    return record;
 
   }
 
@@ -137,9 +131,9 @@ export class ExercisesService {
       query = query.skip(skip);
     }
 
-    if (select) {
+    /*if (select) {
       query = query.select(select);
-    }
+    }*/
 
     /** Execute the Query */
     const [ error, docs ] = await will(query.exec());
