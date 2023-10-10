@@ -4,6 +4,7 @@ import { DatabaseModule } from '../database/database.module';
 
 import { AuthModule } from './auth/auth.module';
 import { ExercisesModule } from './exercises/exercises.module';
+import { PlayersModule } from './players/players.module';
 
 
 @Module({
@@ -11,7 +12,8 @@ import { ExercisesModule } from './exercises/exercises.module';
   imports: [
     DatabaseModule,
     AuthModule,
-    ExercisesModule
+    ExercisesModule,
+    PlayersModule
   ]
 
 })

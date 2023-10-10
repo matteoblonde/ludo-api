@@ -37,3 +37,10 @@ export {
 export {
   default as Role
 } from './Role/Role';
+
+/**
+ * Player Model
+ */
+export {
+  default as Player
+} from './Player/Player';

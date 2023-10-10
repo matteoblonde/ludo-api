@@ -1,28 +1,28 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
-import ExerciseModel from '../../database/models/Exercise/Exercise';
+
+import PlayerModel, { Player } from '../../database/models/Player/Player';
 
 
-export class ExercisesService {
+export class PlayersService {
 
   constructor(
-    @Inject(ExerciseModel.collection.name)
-    private readonly exerciseModel: typeof ExerciseModel
+    @Inject(PlayerModel.collection.name)
+    private readonly playerModel: typeof PlayerModel
   ) {
 
   }
 
 
   /**
-   * Insert new exercise into database
-   * @param exercise
+   * Insert new player into database
+   * @param player
    */
-  public async insertNewExercise(exercise: any) {
+  public async insertNewPlayer(player: Player) {
 
     /* build the record */
-    /*const _id = v4();*/
-    const record = new this.exerciseModel(exercise);
+    const record = new this.playerModel(player);
 
     /* save the record, mongo.insertOne() */
     await record.save();
@@ -34,11 +34,11 @@ export class ExercisesService {
 
 
   /**
-   * Update an exercise into Database
+   * Update a player into Database
    * @param id
-   * @param exercise
+   * @param player
    */
-  public async updateOneExercise(id: string, exercise: any) {
+  public async updateOnePlayer(id: string, player: Player) {
 
     /* Check if id has been passed */
     if (!id) {
@@ -46,14 +46,15 @@ export class ExercisesService {
     }
 
     /* Find the recordId */
-    await this.exerciseModel.findById(id).exec().then(async (exist: any) => {
+    await this.playerModel.findById(id).exec().then(async (exist: any) => {
 
+      console.log(exist);
       /* If none records found, exit */
       if (exist !== null) {
-        await this.exerciseModel.replaceOne({ _id: id }, exercise);
+        await this.playerModel.replaceOne({ _id: id }, player);
       }
       else {
-        return;
+        throw new InternalServerErrorException('Query', 'player/query-error');
       }
     }).catch(() => {
       throw new BadRequestException(
@@ -62,20 +63,17 @@ export class ExercisesService {
       );
     });
 
-    /* Return a JSON with ID and message */
-    return {
-      id     : id,
-      message: 'Record has been successfully updated'
-    };
+    /* Return the record */
+    return player;
 
   }
 
 
   /**
-   * Delete one exercise into Database
+   * Delete one player into Database
    * @param id
    */
-  public async deleteExercise(id: string) {
+  public async deletePlayer(id: string) {
 
     /** Check required variables */
     if (id === undefined) {
@@ -86,7 +84,7 @@ export class ExercisesService {
     }
 
     /** Call mongoose method to delete document */
-    await this.exerciseModel.findByIdAndDelete(id);
+    await this.playerModel.findByIdAndDelete(id);
 
     /** Return a JSON with ID and message */
     return {
@@ -101,7 +99,7 @@ export class ExercisesService {
    * Get exercises from Database
    * @param queryOptions
    */
-  public async getExercises(queryOptions?: QueryOptions) {
+  public async getPlayers(queryOptions?: QueryOptions) {
 
     /** Extract Query Options */
     const {
@@ -112,7 +110,7 @@ export class ExercisesService {
     } = queryOptions || {};
 
     /** Build the query */
-    let query = this.exerciseModel.find(filter);
+    let query = this.playerModel.find(filter);
 
     /** Append extra options */
     if (sort) {
@@ -127,16 +125,12 @@ export class ExercisesService {
       query = query.skip(skip);
     }
 
-    /*if (select) {
-      query = query.select(select);
-    }*/
-
     /** Execute the Query */
     const [ error, docs ] = await will(query.exec());
 
     /** Assert no error has been found */
     if (error) {
-      throw new InternalServerErrorException(error, 'data-accessor/query-error');
+      throw new InternalServerErrorException(error, 'player/query-error');
     }
 
     return docs;

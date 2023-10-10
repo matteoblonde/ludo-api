@@ -1,9 +1,6 @@
-import { Ref } from '@typegoose/typegoose';
 import * as crypto from 'crypto';
 
-import { Injectable, Inject, InternalServerErrorException, NotImplementedException } from '@nestjs/common';
-import { Company } from '../../database/models/Company/Company';
-import { Role } from '../../database/models/Role/Role';
+import { Injectable, Inject } from '@nestjs/common';
 import UserModel from '../../database/models/User/User';
 
 
@@ -110,12 +107,6 @@ export class AuthService {
   }
 
 
-  // TODO: Use login data to check credentials in Societa collection
-  /*private async verifyLoginFromSocietaAsync(loginDto: UserLoginDto): Promise<unknown | null> {
-    throw new NotImplementedException();
-  }*/
-
-
   /**
    * Starting from an id, search into all auth sources to get the right UserData object
    * @param id
@@ -151,7 +142,6 @@ export class AuthService {
    * @param username
    * @param company
    * @param userId
-   * @param role
    */
   private createUserData(
     username: string,

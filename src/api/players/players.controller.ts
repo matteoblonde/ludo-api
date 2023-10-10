@@ -1,48 +1,49 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
+import { Player } from '../../database/models/Player/Player';
 import { AccessTokenGuard } from '../auth/guards';
-import { ExercisesService } from './exercises.service';
+import { PlayersService } from './players.service';
 
 
 const parser = new MongooseQueryParser();
 
-@ApiTags('Exercises')
-@Controller('exercises')
-export class ExercisesController {
+@ApiTags('Players')
+@Controller('players')
+export class PlayersController {
 
   constructor(
-    private exercisesService: ExercisesService
+    private playersService: PlayersService
   ) {
   }
 
 
   /**
    * Endpoint to insert a record in mongoDB Database
-   * @param exercise
+   * @param player
    */
   @UseGuards(AccessTokenGuard)
   @Post()
   public async insertNewExercise(
-    @Body() exercise: any
+    @Body() player: Player
   ) {
-    return this.exercisesService.insertNewExercise(exercise);
+    return this.playersService.insertNewPlayer(player);
   }
 
 
   /**
    * Endpoint to update one Exercise into mongoDB Database
    * @param id
-   * @param exercise
+   * @param player
    */
   @UseGuards(AccessTokenGuard)
   @Put(':id')
   public async updateExercise(
     @Param('id') id: string,
-    @Body() exercise: any
+    @Body() player: Player
   ) {
 
-    return this.exercisesService.updateOneExercise(id, exercise);
+    return this.playersService.updateOnePlayer(id, player);
 
   }
 
@@ -57,7 +58,7 @@ export class ExercisesController {
     @Param('id') id: string
   ) {
 
-    return this.exercisesService.deleteExercise(id);
+    return this.playersService.deletePlayer(id);
 
   }
 
@@ -71,7 +72,7 @@ export class ExercisesController {
   public async getExercises(
     @Query() query: string
   ) {
-    return this.exercisesService.getExercises(parser.parse(query));
+    return this.playersService.getPlayers(parser.parse(query));
   }
 
 
