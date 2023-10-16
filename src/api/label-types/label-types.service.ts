@@ -1,16 +1,12 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
-import LabelTypeModel from '../../database/models/LabelType/LabelType';
-
-import PlayerModel, { Player } from '../../database/models/Player/Player';
+import LabelTypeModel, { LabelType } from '../../database/models/LabelType/LabelType';
 
 
-export class PlayersService {
+export class LabelTypesService {
 
   constructor(
-    @Inject(PlayerModel.collection.name)
-    private readonly playerModel: typeof PlayerModel,
     @Inject(LabelTypeModel.collection.name)
     private readonly labelTypeModel: typeof LabelTypeModel
   ) {
@@ -19,30 +15,13 @@ export class PlayersService {
 
 
   /**
-   * Insert new player into database
-   * @param player
+   * Insert new label type into database
+   * @param labelType
    */
-  public async insertNewPlayer(player: Player) {
+  public async insertNewLabelType(labelType: LabelType) {
 
-    /**
-     * Find all labels to append to the record
-     */
-    const labelTypes = await this.labelTypeModel.find({ 'sections': 'players' });
-    const labels = labelTypes.map((labelType) => {
-      return {
-        labelName          : labelType.labelTypeName,
-        labelPossibleValues: labelType.isValueList ? labelType.labelTypeValuesList : null,
-        isFreeText         : labelType.isFreeText,
-        isValueList        : labelType.isValueList,
-        labelValue         : '',
-        labelValueType     : labelType.labelValueType
-      };
-    });
-
-    /**
-     * Build the final record
-     */
-    const record = new this.playerModel({ labels: labels, ...player });
+    /* build the record */
+    const record = new this.labelTypeModel(labelType);
 
     /* save the record, mongo.insertOne() */
     await record.save();
@@ -54,11 +33,11 @@ export class PlayersService {
 
 
   /**
-   * Update a player into Database
+   * Update a label type into Database
    * @param id
-   * @param player
+   * @param labelType
    */
-  public async updateOnePlayer(id: string, player: Player) {
+  public async updateOneLabelType(id: string, labelType: LabelType) {
 
     /* Check if id has been passed */
     if (!id) {
@@ -66,12 +45,12 @@ export class PlayersService {
     }
 
     /* Find the recordId */
-    await this.playerModel.findById(id).exec().then(async (exist: any) => {
+    await this.labelTypeModel.findById(id).exec().then(async (exist: any) => {
 
       console.log(exist);
       /* If none records found, exit */
       if (exist !== null) {
-        await this.playerModel.replaceOne({ _id: id }, player);
+        await this.labelTypeModel.replaceOne({ _id: id }, labelType);
       }
       else {
         throw new InternalServerErrorException('Query', 'player/query-error');
@@ -84,16 +63,16 @@ export class PlayersService {
     });
 
     /* Return the record */
-    return player;
+    return labelType;
 
   }
 
 
   /**
-   * Delete one player into Database
+   * Delete one label type into Database
    * @param id
    */
-  public async deletePlayer(id: string) {
+  public async deleteLabelType(id: string) {
 
     /** Check required variables */
     if (id === undefined) {
@@ -104,7 +83,7 @@ export class PlayersService {
     }
 
     /** Call mongoose method to delete document */
-    await this.playerModel.findByIdAndDelete(id);
+    await this.labelTypeModel.findByIdAndDelete(id);
 
     /** Return a JSON with ID and message */
     return {
@@ -116,10 +95,10 @@ export class PlayersService {
 
 
   /**
-   * Get exercises from Database
+   * Get label types from Database
    * @param queryOptions
    */
-  public async getPlayers(queryOptions?: QueryOptions) {
+  public async getLabelTypes(queryOptions?: QueryOptions) {
 
     /** Extract Query Options */
     const {
@@ -130,7 +109,7 @@ export class PlayersService {
     } = queryOptions || {};
 
     /** Build the query */
-    let query = this.playerModel.find(filter);
+    let query = this.labelTypeModel.find(filter);
 
     /** Append extra options */
     if (sort) {
@@ -150,7 +129,7 @@ export class PlayersService {
 
     /** Assert no error has been found */
     if (error) {
-      throw new InternalServerErrorException(error, 'player/query-error');
+      throw new InternalServerErrorException(error, 'label-types/query-error');
     }
 
     return docs;

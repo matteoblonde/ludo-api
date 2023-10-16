@@ -1,9 +1,9 @@
-import * as uuid from 'uuid';
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { Label } from '../Label/Label';
 
 
 /* --------
-* Schema Definition
+* Define the class
 * -------- */
 @modelOptions({ schemaOptions: { collection: 'exercises' }})
 export class Exercise {
@@ -27,8 +27,14 @@ export class Exercise {
   @prop({ required: true })
   public userId!: string;
 
+  @prop({allowMixed: Severity.ALLOW})
+  public labels?: ArraySubDocumentType<Label>
+
 }
 
+/**
+ * Get Model from Class
+ */
 const ExerciseModel = getModelForClass(Exercise);
 
 /* --------

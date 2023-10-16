@@ -2,13 +2,17 @@ import { BadRequestException, Inject, InternalServerErrorException } from '@nest
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import ExerciseModel from '../../database/models/Exercise/Exercise';
+import LabelTypeModel from '../../database/models/LabelType/LabelType';
 
 
 export class ExercisesService {
 
   constructor(
     @Inject(ExerciseModel.collection.name)
-    private readonly exerciseModel: typeof ExerciseModel
+    private readonly exerciseModel: typeof ExerciseModel,
+
+    @Inject(LabelTypeModel.collection.name)
+    private readonly labelTypeModel: typeof LabelTypeModel
   ) {
 
   }
@@ -20,9 +24,25 @@ export class ExercisesService {
    */
   public async insertNewExercise(exercise: any) {
 
-    /* build the record */
-    /*const _id = v4();*/
-    const record = new this.exerciseModel(exercise);
+    /**
+     * Find all labels to append to the record
+     */
+    const labelTypes = await this.labelTypeModel.find({'sections':'exercises'});
+    const labels = labelTypes.map((labelType) => {
+      return {
+        labelName: labelType.labelTypeName,
+        labelPossibleValues: labelType.isValueList ? labelType.labelTypeValuesList : null,
+        isFreeText: labelType.isFreeText,
+        isValueList: labelType.isValueList,
+        labelValue: '',
+        labelValueType: labelType.labelValueType
+      }
+    })
+
+    /**
+     * Build the final record
+     */
+    const record = new this.exerciseModel({ labels: labels, ...exercise });
 
     /* save the record, mongo.insertOne() */
     await record.save();

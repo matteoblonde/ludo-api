@@ -1,16 +1,19 @@
-import * as uuid from 'uuid';
+import { ArraySubDocumentType, buildSchema, getModelForClass, prop, Severity } from '@typegoose/typegoose';
 import DateConverter from '../../setters/date-converter';
-import { buildSchema, getModelForClass, prop, Ref } from '@typegoose/typegoose';
 import { Exercise } from '../Exercise/Exercise';
+import { Label } from '../Label/Label';
 
 
 /* --------
 * Schema Definition
 * -------- */
-class Training {
+export class Training {
+
+  @prop({ required: true })
+  public userId!: string;
 
   @prop()
-  public description?: string;
+  public trainingDescription?: string;
 
   @prop({
     set: (value: any) => {
@@ -28,22 +31,23 @@ class Training {
   public trainingType?: string;
 
   @prop({
-    ref: () => Exercise
-  })
-  public trainingExercises?: Ref<Exercise>[];
-
-  @prop({
     default: function (this: Training) {
       return `Allenamento ${this.trainingDate}`;
     }
   })
   public trainingTitle?: string;
 
+  @prop({allowMixed: Severity.ALLOW})
+  public exercise?: ArraySubDocumentType<Exercise>
+
+  @prop({allowMixed: Severity.ALLOW})
+  public labels?: ArraySubDocumentType<Label>
+
 }
 
-const TrainingSchema = buildSchema(Training);
-export { TrainingSchema };
-
+/**
+ * Get Model from Class
+ */
 const TrainingModel = getModelForClass(Training);
 
 /* --------

@@ -1,6 +1,9 @@
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { Label } from '../Label/Label';
 
-
+/* --------
+* Define the class
+* -------- */
 @modelOptions({schemaOptions: {collection: 'players'}})
 export class Player {
 
@@ -38,8 +41,14 @@ export class Player {
   @prop()
   public shirtNumber?: number;
 
+  @prop({allowMixed: Severity.ALLOW})
+  public labels?: ArraySubDocumentType<Label>
+
 }
 
+/**
+ * Get Model from Class
+ */
 const PlayerModel = getModelForClass(Player);
 
 /* --------

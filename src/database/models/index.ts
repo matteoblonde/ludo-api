@@ -44,3 +44,17 @@ export {
 export {
   default as Player
 } from './Player/Player';
+
+/**
+ * LabelType Model
+ */
+export {
+  default as LabelType
+} from './LabelType/LabelType';
+
+/**
+ * Label Model
+ */
+export {
+  default as Label
+} from './Label/Label';
