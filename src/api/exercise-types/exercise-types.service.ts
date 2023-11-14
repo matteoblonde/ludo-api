@@ -1,27 +1,27 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
-import LabelTypeModel, { LabelType } from '../../database/models/LabelType/LabelType';
+import ExerciseTypeModel, { ExerciseType } from '../../database/models/ExerciseType/ExerciseType';
 
 
-export class LabelTypesService {
+export class ExerciseTypesService {
 
   constructor(
-    @Inject(LabelTypeModel.collection.name)
-    private readonly labelTypeModel: typeof LabelTypeModel
+    @Inject(ExerciseTypeModel.collection.name)
+    private readonly exerciseTypeModel: typeof ExerciseTypeModel
   ) {
 
   }
 
 
   /**
-   * Insert new label type into database
-   * @param labelType
+   * Insert new exercise type into database
+   * @param exerciseType
    */
-  public async insertNewLabelType(labelType: LabelType) {
+  public async insertNewExerciseType(exerciseType: ExerciseType) {
 
     /* build the record */
-    const record = new this.labelTypeModel(labelType);
+    const record = new this.exerciseTypeModel(exerciseType);
 
     /* save the record, mongo.insertOne() */
     await record.save();
@@ -33,11 +33,11 @@ export class LabelTypesService {
 
 
   /**
-   * Update a label type into Database
+   * Update a exercise type into Database
    * @param id
-   * @param labelType
+   * @param exerciseType
    */
-  public async updateOneLabelType(id: string, labelType: LabelType) {
+  public async updateOneExerciseType(id: string, exerciseType: ExerciseType) {
 
     /* Check if id has been passed */
     if (!id) {
@@ -45,14 +45,14 @@ export class LabelTypesService {
     }
 
     /* Find the recordId */
-    await this.labelTypeModel.findById(id).exec().then(async (exist: any) => {
+    await this.exerciseTypeModel.findById(id).exec().then(async (exist: any) => {
       
       /* If none records found, exit */
       if (exist !== null) {
-        await this.labelTypeModel.replaceOne({ _id: id }, labelType);
+        await this.exerciseTypeModel.replaceOne({ _id: id }, exerciseType);
       }
       else {
-        throw new InternalServerErrorException('Query', 'label-types/query-error');
+        throw new InternalServerErrorException('Query', 'exercise-type/query-error');
       }
     }).catch(() => {
       throw new BadRequestException(
@@ -62,16 +62,16 @@ export class LabelTypesService {
     });
 
     /* Return the record */
-    return labelType;
+    return exerciseType;
 
   }
 
 
   /**
-   * Delete one label type into Database
+   * Delete one exercise type into Database
    * @param id
    */
-  public async deleteLabelType(id: string) {
+  public async deleteExerciseType(id: string) {
 
     /** Check required variables */
     if (id === undefined) {
@@ -82,7 +82,7 @@ export class LabelTypesService {
     }
 
     /** Call mongoose method to delete document */
-    await this.labelTypeModel.findByIdAndDelete(id);
+    await this.exerciseTypeModel.findByIdAndDelete(id);
 
     /** Return a JSON with ID and message */
     return {
@@ -94,10 +94,10 @@ export class LabelTypesService {
 
 
   /**
-   * Get label types from Database
+   * Get exercise types from Database
    * @param queryOptions
    */
-  public async getLabelTypes(queryOptions?: QueryOptions) {
+  public async getExerciseTypes(queryOptions?: QueryOptions) {
 
     /** Extract Query Options */
     const {
@@ -108,7 +108,7 @@ export class LabelTypesService {
     } = queryOptions || {};
 
     /** Build the query */
-    let query = this.labelTypeModel.find(filter);
+    let query = this.exerciseTypeModel.find(filter);
 
     /** Append extra options */
     if (sort) {
@@ -128,7 +128,7 @@ export class LabelTypesService {
 
     /** Assert no error has been found */
     if (error) {
-      throw new InternalServerErrorException(error, 'label-types/query-error');
+      throw new InternalServerErrorException(error, 'exercise-types/query-error');
     }
 
     return docs;

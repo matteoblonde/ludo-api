@@ -1,15 +1,16 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
-import ExerciseModel from '../../database/models/Exercise/Exercise';
+
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
+import TrainingModel from '../../database/models/Training/Training';
 
 
-export class ExercisesService {
+export class TrainingsService {
 
   constructor(
-    @Inject(ExerciseModel.collection.name)
-    private readonly exerciseModel: typeof ExerciseModel,
+    @Inject(TrainingModel.collection.name)
+    private readonly trainingModel: typeof TrainingModel,
     @Inject(LabelTypeModel.collection.name)
     private readonly labelTypeModel: typeof LabelTypeModel
   ) {
@@ -18,15 +19,15 @@ export class ExercisesService {
 
 
   /**
-   * Insert new exercise into database
-   * @param exercise
+   * Insert new training into database
+   * @param training
    */
-  public async insertNewExercise(exercise: any) {
+  public async insertNewTraining(training: any) {
 
     /**
      * Find all labels to append to the record
      */
-    const labelTypes = await this.labelTypeModel.find({ 'sections': 'exercises' });
+    const labelTypes = await this.labelTypeModel.find({ 'sections': 'trainings' });
     const labels = labelTypes.map((labelType) => {
       return {
         labelName          : labelType.labelTypeName,
@@ -41,7 +42,7 @@ export class ExercisesService {
     /**
      * Build the final record
      */
-    const record = new this.exerciseModel({ labels: labels, ...exercise });
+    const record = new this.trainingModel({ labels: labels, ...training });
 
     /* save the record, mongo.insertOne() */
     await record.save();
@@ -53,11 +54,11 @@ export class ExercisesService {
 
 
   /**
-   * Update an exercise into Database
+   * Update a training into Database
    * @param id
-   * @param exercise
+   * @param training
    */
-  public async updateOneExercise(id: string, exercise: any) {
+  public async updateOneTraining(id: string, training: any) {
 
     /* Check if id has been passed */
     if (!id) {
@@ -65,11 +66,11 @@ export class ExercisesService {
     }
 
     /* Find the recordId */
-    await this.exerciseModel.findById(id).exec().then(async (exist: any) => {
+    await this.trainingModel.findById(id).exec().then(async (exist: any) => {
 
       /* If none records found, exit */
       if (exist !== null) {
-        await this.exerciseModel.replaceOne({ _id: id }, exercise);
+        await this.trainingModel.replaceOne({ _id: id }, training);
       }
       else {
         return;
@@ -94,7 +95,7 @@ export class ExercisesService {
    * Delete one exercise into Database
    * @param id
    */
-  public async deleteExercise(id: string) {
+  public async deleteTraining(id: string) {
 
     /** Check required variables */
     if (id === undefined) {
@@ -105,7 +106,7 @@ export class ExercisesService {
     }
 
     /** Call mongoose method to delete document */
-    await this.exerciseModel.findByIdAndDelete(id);
+    await this.trainingModel.findByIdAndDelete(id);
 
     /** Return a JSON with ID and message */
     return {
@@ -117,10 +118,10 @@ export class ExercisesService {
 
 
   /**
-   * Get exercises from Database
+   * Get trainings from Database
    * @param queryOptions
    */
-  public async getExercises(queryOptions?: QueryOptions) {
+  public async getTrainings(queryOptions?: QueryOptions) {
 
     /** Extract Query Options */
     const {
@@ -131,7 +132,7 @@ export class ExercisesService {
     } = queryOptions || {};
 
     /** Build the query */
-    let query = this.exerciseModel.find(filter);
+    let query = this.trainingModel.find(filter);
 
     /** Append extra options */
     if (sort) {
@@ -146,16 +147,12 @@ export class ExercisesService {
       query = query.skip(skip);
     }
 
-    /*if (select) {
-      query = query.select(select);
-    }*/
-
     /** Execute the Query */
     const [ error, docs ] = await will(query.exec());
 
     /** Assert no error has been found */
     if (error) {
-      throw new InternalServerErrorException(error, 'data-accessor/query-error');
+      throw new InternalServerErrorException(error, 'trainings/query-error');
     }
 
     return docs;

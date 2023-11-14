@@ -1,10 +1,13 @@
 import * as crypto from 'crypto';
+import * as nodemailer from 'nodemailer';
 
 import { Injectable, Inject } from '@nestjs/common';
+import CompanyModel from '../../database/models/Company/Company';
 import UserModel from '../../database/models/User/User';
 
 
 import type { UserLoginDto } from './dto/UserLoginDto';
+import { UserSignUpDto } from './dto/UserSignUpDto';
 
 import { InvalidCredentialsException } from './exceptions/InvalidCredentialsException';
 import { UserNotFoundException } from './exceptions/UserNotFoundException';
@@ -21,6 +24,8 @@ export class AuthService {
   constructor(
     @Inject(UserModel.collection.name)
     private readonly User: typeof UserModel,
+    @Inject(CompanyModel.collection.name)
+    private readonly Company: typeof CompanyModel,
     private readonly accessTokenService: AccessTokenService,
     private readonly refreshTokenService: RefreshTokenService
   ) {
@@ -74,8 +79,53 @@ export class AuthService {
   }
 
 
+  public async performSignUpAsync(signUpDto: UserSignUpDto) {
+
+    const company = new this.Company({
+      companyName: signUpDto.companyName
+    });
+    await company.save();
+
+    const user = new this.User({
+      username: signUpDto.username,
+      password: signUpDto.password,
+      company : company._id
+    });
+    await user.save();
+
+    const emailTransporter = nodemailer.createTransport({
+      host  : 'smtp.qboxmail.com',
+      port  : 465,
+      secure: true,
+      auth  : {
+        user: 'info@ludo-sport.com',
+        pass: 'Delpiero10'
+      }
+
+    });
+
+    await emailTransporter.sendMail({
+      to     : user.username,
+      from   : 'Ludo Sport <info@ludo-sport.com>',
+      subject: 'Welcome to Ludo',
+      html   : `<p> ${user._id} </p>`
+    });
+
+    // verify connection configuration
+    /*    emailTransporter.verify(function (error, success) {
+          if (error) {
+            console.log(error);
+          }
+          else {
+            console.log('Server is ready to take our messages');
+          }
+        });*/
+
+  }
+
+
   /**
-   * Search for a user using the IndirizziRubrica collection for private user login
+   * Search for a user using the collection for private user login
    * @param loginDto
    * @private
    */
@@ -112,9 +162,9 @@ export class AuthService {
    * @param id
    * @private
    */
-  public async getByIdAsync(id: string): Promise<IUserData | null> {
-    /** Search the user into IndirizziRubrica */
-    const privateUserData = await this.getByIdFromUsersAsync(id);
+  public async getUserByIdAsync(id: string): Promise<IUserData | null> {
+    /** Search the user into Database */
+    const privateUserData = await this.User.findById(id).exec();
 
     /** If a private user has been found, return its minimal data */
     if (privateUserData) {
@@ -130,8 +180,8 @@ export class AuthService {
   }
 
 
-  private async getByIdFromUsersAsync(id: string) {
-    return this.User.findById(id).exec();
+  public async getRoleByIdAsync(id: string): Promise<any> {
+
   }
 
 

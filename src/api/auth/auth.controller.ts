@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { UserLoginDto } from './dto/UserLoginDto';
 
 import { UserData } from './decorators';
+import { UserSignUpDto } from './dto/UserSignUpDto';
 import { AccessTokenGuard, RefreshTokenGuard } from './guards';
 import { IUserData } from './interfaces/UserData';
 
@@ -33,6 +34,14 @@ export class AuthController {
   ) {
     const userData = await this.authService.verifyLoginAsync(loginDto);
     return this.authService.createAuthData(userData);
+  }
+
+
+  @Post('signup')
+  public async signUp(
+    @Body() signUpDto: UserSignUpDto
+  ) {
+    return this.authService.performSignUpAsync(signUpDto);
   }
 
 

@@ -33,8 +33,9 @@ export abstract class AbstractedTokenGuard implements CanActivate {
       /** Extract the payload from the received token */
       const payload = this.tokenService.verify(token);
 
+      // TODO: While searching for the user, assert it is in the company scope of the request
       /** Search for the user from auth service */
-      const user = await this.authService.getByIdAsync(payload.userId);
+      const user = await this.authService.getUserByIdAsync(payload.userId);
 
       /** Assert a valid user has been found */
       if (!user) {
@@ -43,6 +44,8 @@ export abstract class AbstractedTokenGuard implements CanActivate {
 
       /** Save the user into the current request object */
       request.user = user;
+      // TODO: Inject the role into Request, searching in company's role
+      // request.role = role;
 
       return true;
     }

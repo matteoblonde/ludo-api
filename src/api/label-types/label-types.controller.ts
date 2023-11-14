@@ -25,7 +25,7 @@ export class LabelTypesController {
    */
   @UseGuards(AccessTokenGuard)
   @Post()
-  public async insertNewExercise(
+  public async insertNewLabelType(
     @Body() labelType: LabelType
   ) {
     return this.labelTypesService.insertNewLabelType(labelType);
@@ -39,7 +39,7 @@ export class LabelTypesController {
    */
   @UseGuards(AccessTokenGuard)
   @Put(':id')
-  public async updateExercise(
+  public async updateLabelType(
     @Param('id') id: string,
     @Body() labelType: LabelType
   ) {
@@ -55,7 +55,7 @@ export class LabelTypesController {
    */
   @UseGuards(AccessTokenGuard)
   @Delete(':id')
-  public async deleteExercise(
+  public async deleteLabelType(
     @Param('id') id: string
   ) {
 
@@ -70,7 +70,7 @@ export class LabelTypesController {
    */
   @UseGuards(AccessTokenGuard)
   @Get()
-  public async getExercises(
+  public async getLabelTypes(
     @Query() query: string
   ) {
     return this.labelTypesService.getLabelTypes(parser.parse(query));

@@ -58,3 +58,31 @@ export {
 export {
   default as Label
 } from './Label/Label';
+
+/**
+ * ExerciseType Model
+ */
+export {
+  default as ExerciseType
+} from './ExerciseType/ExerciseType';
+
+/**
+ * Training Type Model
+ */
+export {
+  default as TrainingType
+} from './TrainingType/TrainingType';
+
+/**
+ * PlayerRole Model
+ */
+export {
+  default as PlayerRole
+} from './PlayerRole/PlayerRole';
+
+/**
+ * PlayerStat Model
+ */
+export {
+  default as PlayerStat
+} from './PlayerStat/PlayerStat';

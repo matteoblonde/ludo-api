@@ -1,11 +1,19 @@
-import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import {
+  ArraySubDocumentType,
+  getModelForClass,
+  modelOptions,
+  prop,
+  Severity,
+  SubDocumentType
+} from '@typegoose/typegoose';
+import { ExerciseType } from '../ExerciseType/ExerciseType';
 import { Label } from '../Label/Label';
 
 
 /* --------
 * Define the class
 * -------- */
-@modelOptions({ schemaOptions: { collection: 'exercises' }})
+@modelOptions({ schemaOptions: { collection: 'exercises' } })
 export class Exercise {
 
   @prop()
@@ -20,15 +28,17 @@ export class Exercise {
   @prop()
   public exerciseNotes?: string;
 
-  // TODO: add ref to exercise types collection in prop decorator
-  @prop()
-  public exerciseTypeName?: string;
+  @prop({ allowMixed: Severity.ALLOW })
+  public exerciseType?: SubDocumentType<ExerciseType>;
 
   @prop({ required: true })
   public userId!: string;
 
-  @prop({allowMixed: Severity.ALLOW})
-  public labels?: ArraySubDocumentType<Label>
+  @prop({ allowMixed: Severity.ALLOW })
+  public labels?: ArraySubDocumentType<Label>;
+
+  @prop()
+  public imgUrl?: string;
 
 }
 

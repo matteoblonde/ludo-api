@@ -57,6 +57,7 @@ export const DatabaseConnectionProvider: FactoryProvider = {
     refreshTokenService: RefreshTokenService
   ): mongoose.Connection => {
 
+    //TODO: Credo che questo non serva più ad un cazzo
     if (request.url.match(/auth\/(login|refresh)/)) {
       return systemDatabaseConnection;
     }

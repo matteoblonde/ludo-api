@@ -1,10 +1,12 @@
 import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import { Label } from '../Label/Label';
+import { PlayerRole } from '../PlayerRole/PlayerRole';
+import { PlayerStat } from '../PlayerStat/PlayerStat';
 
 /* --------
 * Define the class
 * -------- */
-@modelOptions({schemaOptions: {collection: 'players'}})
+@modelOptions({ schemaOptions: { collection: 'players' } })
 export class Player {
 
   @prop({ required: true })
@@ -31,9 +33,9 @@ export class Player {
   public value?: number;
 
   @prop({
-    default: 'right'
+    default: [ 'Right' ]
   })
-  public foot?: string;
+  public foot?: string[];
 
   @prop()
   public notes?: string;
@@ -41,8 +43,14 @@ export class Player {
   @prop()
   public shirtNumber?: number;
 
-  @prop({allowMixed: Severity.ALLOW})
-  public labels?: ArraySubDocumentType<Label>
+  @prop({ allowMixed: Severity.ALLOW })
+  public labels?: ArraySubDocumentType<Label>;
+
+  @prop({ allowMixed: Severity.ALLOW })
+  public roles?: ArraySubDocumentType<PlayerRole>;
+
+  @prop({ allowMixed: Severity.ALLOW })
+  public stats?: ArraySubDocumentType<PlayerStat>;
 
 }
 

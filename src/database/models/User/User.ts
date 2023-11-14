@@ -10,7 +10,8 @@ import { Role } from '../Role/Role';
 export class User {
 
   @prop({
-    required: true
+    required: true,
+    unique  : true
   })
   public username!: string;
 
@@ -32,7 +33,7 @@ export class User {
   public password?: string;
 
   @prop({
-    ref: () => Company,
+    ref     : () => Company,
     required: true
   })
   public company!: Ref<Company>;
@@ -41,6 +42,11 @@ export class User {
     ref: () => Role
   })
   public role?: Ref<Role>;
+
+  @prop({
+    default: false
+  })
+  emailVerified?: boolean;
 }
 
 const UserModel = getModelForClass(User);

@@ -4,6 +4,7 @@ import { QueryOptions } from 'mongoose-query-parser';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 
 import PlayerModel, { Player } from '../../database/models/Player/Player';
+import PlayerStatModel from '../../database/models/PlayerStat/PlayerStat';
 
 
 export class PlayersService {
@@ -12,7 +13,9 @@ export class PlayersService {
     @Inject(PlayerModel.collection.name)
     private readonly playerModel: typeof PlayerModel,
     @Inject(LabelTypeModel.collection.name)
-    private readonly labelTypeModel: typeof LabelTypeModel
+    private readonly labelTypeModel: typeof LabelTypeModel,
+    @Inject(PlayerStatModel.collection.name)
+    private readonly playerStatModel: typeof PlayerStatModel
   ) {
 
   }
@@ -24,9 +27,7 @@ export class PlayersService {
    */
   public async insertNewPlayer(player: Player) {
 
-    /**
-     * Find all labels to append to the record
-     */
+    /** Find all labels to append to the record */
     const labelTypes = await this.labelTypeModel.find({ 'sections': 'players' });
     const labels = labelTypes.map((labelType) => {
       return {
@@ -39,10 +40,11 @@ export class PlayersService {
       };
     });
 
-    /**
-     * Build the final record
-     */
-    const record = new this.playerModel({ labels: labels, ...player });
+    /** Find all player stats to insert by default */
+    const playerStats = await this.playerStatModel.find({ 'isForAllRoles': true });
+
+    /** Build the final record */
+    const record = new this.playerModel({ labels: labels, stats: playerStats, ...player });
 
     /* save the record, mongo.insertOne() */
     await record.save();
@@ -68,7 +70,6 @@ export class PlayersService {
     /* Find the recordId */
     await this.playerModel.findById(id).exec().then(async (exist: any) => {
 
-      console.log(exist);
       /* If none records found, exit */
       if (exist !== null) {
         await this.playerModel.replaceOne({ _id: id }, player);

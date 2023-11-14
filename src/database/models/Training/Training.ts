@@ -1,12 +1,20 @@
-import { ArraySubDocumentType, buildSchema, getModelForClass, prop, Severity } from '@typegoose/typegoose';
-import DateConverter from '../../setters/date-converter';
+import {
+  ArraySubDocumentType,
+  getModelForClass,
+  modelOptions,
+  prop,
+  Severity,
+  SubDocumentType
+} from '@typegoose/typegoose';
 import { Exercise } from '../Exercise/Exercise';
 import { Label } from '../Label/Label';
+import { TrainingType } from '../TrainingType/TrainingType';
 
 
 /* --------
 * Schema Definition
 * -------- */
+@modelOptions({ schemaOptions: { collection: 'trainings' } })
 export class Training {
 
   @prop({ required: true })
@@ -16,32 +24,30 @@ export class Training {
   public trainingDescription?: string;
 
   @prop({
-    set: (value: any) => {
-      return DateConverter.convertDate(value);
-    },
-    get: (value: any) => value
+    required: true,
+    default : new Date()
   })
-  public trainingDate?: Date;
+  public trainingDate!: Date;
 
   @prop()
   public trainingNotes?: string;
 
-  // TODO: Add ref to TrainingType in prop decorator
-  @prop()
-  public trainingType?: string;
+  @prop({ allowMixed: Severity.ALLOW })
+  public trainingType?: SubDocumentType<TrainingType>;
 
   @prop({
     default: function (this: Training) {
-      return `Allenamento ${this.trainingDate}`;
+      const dateString = new Date(this.trainingDate).toDateString();
+      return `Training ${dateString}`;
     }
   })
   public trainingTitle?: string;
 
-  @prop({allowMixed: Severity.ALLOW})
-  public exercise?: ArraySubDocumentType<Exercise>
+  @prop({ allowMixed: Severity.ALLOW })
+  public exercises?: ArraySubDocumentType<Exercise>;
 
-  @prop({allowMixed: Severity.ALLOW})
-  public labels?: ArraySubDocumentType<Label>
+  @prop({ allowMixed: Severity.ALLOW })
+  public labels?: ArraySubDocumentType<Label>;
 
 }
 

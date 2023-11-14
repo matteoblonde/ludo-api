@@ -1,27 +1,29 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
-import LabelTypeModel, { LabelType } from '../../database/models/LabelType/LabelType';
+import CompanyModel, { Company } from '../../database/models/Company/Company';
 
 
-export class LabelTypesService {
+export class CompaniesService {
 
   constructor(
-    @Inject(LabelTypeModel.collection.name)
-    private readonly labelTypeModel: typeof LabelTypeModel
+    @Inject(CompanyModel.collection.name)
+    private readonly companyModel: typeof CompanyModel
   ) {
 
   }
 
 
   /**
-   * Insert new label type into database
-   * @param labelType
+   * Insert new company into database
+   * @param company
    */
-  public async insertNewLabelType(labelType: LabelType) {
+  public async insertNewCompany(company: Company) {
 
-    /* build the record */
-    const record = new this.labelTypeModel(labelType);
+    /**
+     * Build the final record
+     */
+    const record = new this.companyModel(company);
 
     /* save the record, mongo.insertOne() */
     await record.save();
@@ -33,11 +35,11 @@ export class LabelTypesService {
 
 
   /**
-   * Update a label type into Database
+   * Update a company into Database
    * @param id
-   * @param labelType
+   * @param company
    */
-  public async updateOneLabelType(id: string, labelType: LabelType) {
+  public async updateOneCompany(id: string, company: Company) {
 
     /* Check if id has been passed */
     if (!id) {
@@ -45,14 +47,14 @@ export class LabelTypesService {
     }
 
     /* Find the recordId */
-    await this.labelTypeModel.findById(id).exec().then(async (exist: any) => {
-      
+    await this.companyModel.findById(id).exec().then(async (exist: any) => {
+
       /* If none records found, exit */
       if (exist !== null) {
-        await this.labelTypeModel.replaceOne({ _id: id }, labelType);
+        await this.companyModel.replaceOne({ _id: id }, company);
       }
       else {
-        throw new InternalServerErrorException('Query', 'label-types/query-error');
+        throw new InternalServerErrorException('Query', 'companies/query-error');
       }
     }).catch(() => {
       throw new BadRequestException(
@@ -62,16 +64,16 @@ export class LabelTypesService {
     });
 
     /* Return the record */
-    return labelType;
+    return company;
 
   }
 
 
   /**
-   * Delete one label type into Database
+   * Delete one company into Database
    * @param id
    */
-  public async deleteLabelType(id: string) {
+  public async deleteCompany(id: string) {
 
     /** Check required variables */
     if (id === undefined) {
@@ -82,7 +84,7 @@ export class LabelTypesService {
     }
 
     /** Call mongoose method to delete document */
-    await this.labelTypeModel.findByIdAndDelete(id);
+    await this.companyModel.findByIdAndDelete(id);
 
     /** Return a JSON with ID and message */
     return {
@@ -94,10 +96,10 @@ export class LabelTypesService {
 
 
   /**
-   * Get label types from Database
+   * Get exercises from Database
    * @param queryOptions
    */
-  public async getLabelTypes(queryOptions?: QueryOptions) {
+  public async getCompanies(queryOptions?: QueryOptions) {
 
     /** Extract Query Options */
     const {
@@ -108,7 +110,7 @@ export class LabelTypesService {
     } = queryOptions || {};
 
     /** Build the query */
-    let query = this.labelTypeModel.find(filter);
+    let query = this.companyModel.find(filter);
 
     /** Append extra options */
     if (sort) {
@@ -128,7 +130,7 @@ export class LabelTypesService {
 
     /** Assert no error has been found */
     if (error) {
-      throw new InternalServerErrorException(error, 'label-types/query-error');
+      throw new InternalServerErrorException(error, 'companies/query-error');
     }
 
     return docs;

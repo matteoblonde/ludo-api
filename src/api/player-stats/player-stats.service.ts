@@ -1,27 +1,28 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
-import LabelTypeModel, { LabelType } from '../../database/models/LabelType/LabelType';
+import PlayerRoleModel, { PlayerRole } from '../../database/models/PlayerRole/PlayerRole';
+import PlayerStatModel, { PlayerStat } from '../../database/models/PlayerStat/PlayerStat';
 
 
-export class LabelTypesService {
+export class PlayerStatsService {
 
   constructor(
-    @Inject(LabelTypeModel.collection.name)
-    private readonly labelTypeModel: typeof LabelTypeModel
+    @Inject(PlayerStatModel.collection.name)
+    private readonly playerStatModel: typeof PlayerStatModel
   ) {
 
   }
 
 
   /**
-   * Insert new label type into database
-   * @param labelType
+   * Insert new player stat into database
+   * @param playerStat
    */
-  public async insertNewLabelType(labelType: LabelType) {
+  public async insertNewPlayerStat(playerStat: PlayerStat) {
 
     /* build the record */
-    const record = new this.labelTypeModel(labelType);
+    const record = new this.playerStatModel(playerStat);
 
     /* save the record, mongo.insertOne() */
     await record.save();
@@ -33,11 +34,11 @@ export class LabelTypesService {
 
 
   /**
-   * Update a label type into Database
+   * Update a player stat into Database
    * @param id
-   * @param labelType
+   * @param playerStat
    */
-  public async updateOneLabelType(id: string, labelType: LabelType) {
+  public async updateOnePlayerStat(id: string, playerStat: PlayerStat) {
 
     /* Check if id has been passed */
     if (!id) {
@@ -45,14 +46,14 @@ export class LabelTypesService {
     }
 
     /* Find the recordId */
-    await this.labelTypeModel.findById(id).exec().then(async (exist: any) => {
-      
+    await this.playerStatModel.findById(id).exec().then(async (exist: any) => {
+
       /* If none records found, exit */
       if (exist !== null) {
-        await this.labelTypeModel.replaceOne({ _id: id }, labelType);
+        await this.playerStatModel.replaceOne({ _id: id }, playerStat);
       }
       else {
-        throw new InternalServerErrorException('Query', 'label-types/query-error');
+        throw new InternalServerErrorException('Query', 'player-stat/query-error');
       }
     }).catch(() => {
       throw new BadRequestException(
@@ -62,16 +63,16 @@ export class LabelTypesService {
     });
 
     /* Return the record */
-    return labelType;
+    return playerStat;
 
   }
 
 
   /**
-   * Delete one label type into Database
+   * Delete one player stat into Database
    * @param id
    */
-  public async deleteLabelType(id: string) {
+  public async deletePlayerStat(id: string) {
 
     /** Check required variables */
     if (id === undefined) {
@@ -82,7 +83,7 @@ export class LabelTypesService {
     }
 
     /** Call mongoose method to delete document */
-    await this.labelTypeModel.findByIdAndDelete(id);
+    await this.playerStatModel.findByIdAndDelete(id);
 
     /** Return a JSON with ID and message */
     return {
@@ -94,10 +95,12 @@ export class LabelTypesService {
 
 
   /**
-   * Get label types from Database
+   * Get player stat from Database
    * @param queryOptions
    */
-  public async getLabelTypes(queryOptions?: QueryOptions) {
+  public async getPlayerStat(queryOptions?: QueryOptions) {
+
+    console.log(queryOptions);
 
     /** Extract Query Options */
     const {
@@ -108,7 +111,7 @@ export class LabelTypesService {
     } = queryOptions || {};
 
     /** Build the query */
-    let query = this.labelTypeModel.find(filter);
+    let query = this.playerStatModel.find(filter);
 
     /** Append extra options */
     if (sort) {
@@ -128,7 +131,7 @@ export class LabelTypesService {
 
     /** Assert no error has been found */
     if (error) {
-      throw new InternalServerErrorException(error, 'label-types/query-error');
+      throw new InternalServerErrorException(error, 'player-stats/query-error');
     }
 
     return docs;

@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { Connection } from 'mongoose';
+import CompanyModel from '../../database/models/Company/Company';
+import CompanySchema from '../../database/models/Company/Company.Schema';
 
 import UserModel from '../../database/models/User/User';
 import UserSchema from '../../database/models/User/User.Schema';
@@ -16,7 +18,7 @@ import { AuthController } from './auth.controller';
 import { AccessTokenService } from '../../token/services/access-token.service';
 import { RefreshTokenService } from '../../token/services/refresh-token.service';
 
-import { DATABASE_CONNECTION, systemDatabaseConnection } from '../../database/database.providers';
+import { systemDatabaseConnection } from '../../database/database.providers';
 
 
 @Module({
@@ -29,6 +31,10 @@ import { DATABASE_CONNECTION, systemDatabaseConnection } from '../../database/da
     {
       provide   : UserModel.collection.name,
       useFactory: () => systemDatabaseConnection.model(UserModel.collection.name, UserSchema)
+    },
+    {
+      provide   : CompanyModel.collection.name,
+      useFactory: () => systemDatabaseConnection.model(CompanyModel.collection.name, CompanySchema)
     }
   ],
 

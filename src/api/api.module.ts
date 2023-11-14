@@ -3,19 +3,39 @@ import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../database/database.module';
 
 import { AuthModule } from './auth/auth.module';
+import { CompaniesModule } from './companies/companies.module';
+import { ExerciseTypesModule } from './exercise-types/exercise-types.module';
 import { ExercisesModule } from './exercises/exercises.module';
 import { LabelTypesModule } from './label-types/label-types.module';
+import { PlayerRolesModule } from './player-roles/player-roles.module';
+import { PlayerStatsModule } from './player-stats/player-stats.module';
 import { PlayersModule } from './players/players.module';
+import { TrainingTypesModule } from './training-types/training-types.module';
+import { TrainingsModule } from './trainings/trainings.module';
 
 
 @Module({
 
   imports: [
+
+    /**
+     * System Database Connection
+     */
     DatabaseModule,
     AuthModule,
+    CompaniesModule,
+
+    /**
+     * Auth Token Connection
+     */
     ExercisesModule,
     PlayersModule,
-    LabelTypesModule
+    LabelTypesModule,
+    TrainingsModule,
+    ExerciseTypesModule,
+    TrainingTypesModule,
+    PlayerRolesModule,
+    PlayerStatsModule
   ]
 
 })

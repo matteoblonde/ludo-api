@@ -2,7 +2,10 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } fro
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { AccessTokenGuard } from '../auth/guards';
+import { IUserData } from '../auth/interfaces/UserData';
 import { ExercisesService } from './exercises.service';
+
+import { UserData } from '../auth/decorators';
 
 
 const parser = new MongooseQueryParser();
@@ -62,6 +65,8 @@ export class ExercisesController {
   }
 
 
+  // TODO: Use the two decorators (UserData, existing, Role, to create)
+  // TODO: to get right data dependent from user role
   /**
    * Endpoint to dynamically query mongoDB Database
    * @param query
