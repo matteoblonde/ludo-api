@@ -17,7 +17,11 @@ type EnvToken =
   | 'ACCESS_TOKEN_SECRET'
   | 'ACCESS_TOKEN_VALIDITY'
   | 'REFRESH_TOKEN_SECRET'
-  | 'REFRESH_TOKEN_VALIDITY';
+  | 'REFRESH_TOKEN_VALIDITY'
+  | 'SMTP_HOST'
+  | 'SMTP_PORT'
+  | 'SMTP_USER'
+  | 'SMTP_PASSWORD';
 
 
 export function getRequiredEnv(token: EnvToken): string {
