@@ -63,7 +63,7 @@ export class AuthController {
         userId  : verified._id.toString()
       };
       const { refreshToken } = this.authService.createAuthData(userData);
-      const url = `http://localhost:4200/dashboard?refresh_token=${refreshToken}`;
+      const url = `https://dev.ludo-sport.com/dashboard?refresh_token=${refreshToken}`;
 
       return verified ? { statusCode: 301, url } : false;
     }
