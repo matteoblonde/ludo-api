@@ -1,10 +1,11 @@
+import { Inject, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
 
-import { Injectable, Inject } from '@nestjs/common';
-
 import CompanyModel from '../../database/models/Company/Company';
 import UserModel from '../../database/models/User/User';
+import { AccessTokenService } from '../../token/services/access-token.service';
+import { RefreshTokenService } from '../../token/services/refresh-token.service';
 import { getRequiredEnv } from '../../utils';
 
 
@@ -13,11 +14,9 @@ import { UserSignUpDto } from './dto/UserSignUpDto';
 
 import { InvalidCredentialsException } from './exceptions/InvalidCredentialsException';
 import { UserNotFoundException } from './exceptions/UserNotFoundException';
+import { IAuthData } from './interfaces/AuthData';
 
 import type { IUserData } from './interfaces/UserData';
-import { AccessTokenService } from '../../token/services/access-token.service';
-import { RefreshTokenService } from '../../token/services/refresh-token.service';
-import { IAuthData } from './interfaces/AuthData';
 
 
 @Injectable()
@@ -83,11 +82,13 @@ export class AuthService {
 
   public async performSignUpAsync(signUpDto: UserSignUpDto) {
 
+    /** Create the company */
     const company = new this.Company({
       companyName: signUpDto.companyName
     });
     await company.save();
 
+    /** Create the user */
     const user = new this.User({
       username: signUpDto.username,
       password: crypto.createHash('md5').update(signUpDto.password).digest('hex'),
@@ -144,7 +145,7 @@ export class AuthService {
                   </head>
                   <body>
                     <div class="container">
-                      <img src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo_Text_Tr.png" style="width: 15rem; margin-bottom: 2rem">
+                      <img alt="Ludo Sport" src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo_Text_Tr.png" style="width: 15rem; margin-bottom: 2rem">
                       <span>Hi ${user.username}, <br /> We're happy you signed up for Ludo.<br /> <br />To start exploring Ludo App please confirm your email address by pressing the button <br /> <a href="http://localhost:3000/auth/registration-complete/${user._id}/${company._id}" target="_blank"><button>Verify Now</button></a> <br /> <br /> Welcome to Ludo! <br> Ludo Team</span>
                     </div>
                   </body>
@@ -152,7 +153,11 @@ export class AuthService {
               `
     });
 
-    return { user, company };
+    return this.createAuthData({
+      username: signUpDto.username,
+      company : company._id.toString(),
+      userId  : user._id.toString()
+    });
 
   }
 
