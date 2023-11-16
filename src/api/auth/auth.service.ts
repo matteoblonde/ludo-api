@@ -146,7 +146,7 @@ export class AuthService {
                   <body>
                     <div class="container">
                       <img alt="Ludo Sport" src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo_Text_Tr.png" style="width: 15rem; margin-bottom: 2rem">
-                      <span>Hi ${user.username}, <br /> We're happy you signed up for Ludo.<br /> <br />To start exploring Ludo App please confirm your email address by pressing the button <br /> <a href="http://localhost:3000/auth/registration-complete/${user._id}/${company._id}" target="_blank"><button>Verify Now</button></a> <br /> <br /> Welcome to Ludo! <br> Ludo Team</span>
+                      <span>Hi ${user.username}, <br /> We're happy you signed up for Ludo.<br /> <br />To start exploring Ludo App please confirm your email address by pressing the button <br /> <a href="https://dev.ludo-sport.com/auth/registration-complete/${user._id}/${company._id}" target="_blank"><button>Verify Now</button></a> <br /> <br /> Welcome to Ludo! <br> Ludo Team</span>
                     </div>
                   </body>
                   </html>
