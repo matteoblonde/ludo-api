@@ -2,8 +2,10 @@ import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
 
 import { Injectable, Inject } from '@nestjs/common';
+
 import CompanyModel from '../../database/models/Company/Company';
 import UserModel from '../../database/models/User/User';
+import { getRequiredEnv } from '../../utils';
 
 
 import type { UserLoginDto } from './dto/UserLoginDto';
@@ -88,18 +90,18 @@ export class AuthService {
 
     const user = new this.User({
       username: signUpDto.username,
-      password: signUpDto.password,
+      password: crypto.createHash('md5').update(signUpDto.password).digest('hex'),
       company : company._id
     });
     await user.save();
 
     const emailTransporter = nodemailer.createTransport({
-      host  : 'smtp.qboxmail.com',
+      host  : getRequiredEnv('SMTP_HOST'),
       port  : 465,
       secure: true,
       auth  : {
-        user: 'info@ludo-sport.com',
-        pass: 'Delpiero10'
+        user: getRequiredEnv('SMTP_USER'),
+        pass: getRequiredEnv('SMTP_PASSWORD')
       }
 
     });
@@ -108,18 +110,74 @@ export class AuthService {
       to     : user.username,
       from   : 'Ludo Sport <info@ludo-sport.com>',
       subject: 'Welcome to Ludo',
-      html   : `<p> ${user._id} </p>`
+      html   : `<!DOCTYPE html>
+                  <html lang="en">
+                  <head>
+                    <meta charset="UTF-8">
+                    <title>Welcome to Ludo</title>
+                    <style>
+                      .container {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                      }
+                      body {
+                        background-color: #1d1e27;
+                        color: #ecfdf5;
+                        padding: 2rem;
+                        font-size: 1.25rem;
+                      }
+                      button {
+                        padding: 0.75rem;
+                        background-color: #10b981;
+                        color: #ecfdf5;
+                        border: none;
+                        border-radius: 5px;
+                        font-size: 1.25rem;
+                        margin: 1rem 0;
+                      }
+                      button:hover {
+                        background-color: #0fb07b;
+                        cursor: pointer;
+                      }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="container">
+                      <img src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo_Text_Tr.png" style="width: 15rem; margin-bottom: 2rem">
+                      <span>Hi ${user.username}, <br /> We're happy you signed up for Ludo.<br /> <br />To start exploring Ludo App please confirm your email address by pressing the button <br /> <a href="http://localhost:3000/auth/registration-complete/${user._id}/${company._id}" target="_blank"><button>Verify Now</button></a> <br /> <br /> Welcome to Ludo! <br> Ludo Team</span>
+                    </div>
+                  </body>
+                  </html>
+              `
     });
 
-    // verify connection configuration
-    /*    emailTransporter.verify(function (error, success) {
-          if (error) {
-            console.log(error);
-          }
-          else {
-            console.log('Server is ready to take our messages');
-          }
-        });*/
+    return { user, company };
+
+  }
+
+
+  /**
+   * Verify the registration completed after clicked the button on the email
+   * @param userId
+   * @param companyId
+   */
+  public async verifyRegistrationCompleted(userId: string, companyId: string) {
+
+    /** Verify the company */
+    const company = await this.Company.findById(companyId);
+    console.log(companyId);
+
+    /** Verify the user */
+    const user = await this.User.findById(userId);
+
+    /**TODO: If both exist set user emailVerified to true */
+    if (company && user) {
+
+    }
+
+    /** return user if both exist */
+    return user;
 
   }
 
@@ -141,13 +199,12 @@ export class AuthService {
     }
 
     /** Hash the provided password using MD5 hash */
-    /*const passwordHash = crypto.createHash('md5').update(loginDto.password).digest('hex');*/
-    const passwordHash: string = loginDto.password;
+    const passwordHash: string = crypto.createHash('md5')
+      .update(loginDto.password)
+      .digest('hex');
+
 
     /** Assert the passwords are the same */
-    /*if (passwordHash.toUpperCase() !== maybeUser.PasswordWeb.toUpperCase()) {
-      throw new InvalidCredentialsException();
-    }*/
     if (passwordHash !== maybeUser.password) {
       throw new InvalidCredentialsException();
     }

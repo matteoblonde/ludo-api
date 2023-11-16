@@ -1,19 +1,19 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
-import { Company } from '../../database/models/Company/Company';
+import { User } from '../../database/models/User/User';
 import { AccessTokenGuard } from '../auth/guards';
-import { CompaniesService } from './companies.service';
+import { UsersService } from './users.service';
 
 
 const parser = new MongooseQueryParser();
 
-@ApiTags('Companies')
-@Controller('companies')
-export class CompaniesController {
+@ApiTags('Users')
+@Controller('users')
+export class UsersController {
 
   constructor(
-    private companiesService: CompaniesService
+    private usersService: UsersService
   ) {
   }
 
@@ -21,29 +21,29 @@ export class CompaniesController {
   //TODO: Definire se utilizzare una sicurezza per le chiamate di creazione company e user, oppure come fare?
   /**
    * Endpoint to insert a record in mongoDB Database
-   * @param company
+   * @param user
    */
   @Post()
-  public async insertNewCompany(
-    @Body() company: Company
+  public async insertNewUser(
+    @Body() user: User
   ) {
-    return this.companiesService.insertNewCompany(company);
+    return this.usersService.insertNewUser(user);
   }
 
 
   /**
    * Endpoint to update one record into mongoDB Database
    * @param id
-   * @param company
+   * @param user
    */
   @UseGuards(AccessTokenGuard)
   @Put(':id')
-  public async updateCompany(
+  public async updateUser(
     @Param('id') id: string,
-    @Body() company: Company
+    @Body() user: User
   ) {
 
-    return this.companiesService.updateOneCompany(id, company);
+    return this.usersService.updateOneUser(id, user);
 
   }
 
@@ -54,11 +54,11 @@ export class CompaniesController {
    */
   @UseGuards(AccessTokenGuard)
   @Delete(':id')
-  public async deleteCompany(
+  public async deleteUser(
     @Param('id') id: string
   ) {
 
-    return this.companiesService.deleteCompany(id);
+    return this.usersService.deleteUser(id);
 
   }
 
@@ -68,10 +68,10 @@ export class CompaniesController {
    * @param query
    */
   @Get()
-  public async getCompanies(
+  public async getUsers(
     @Query() query: string
   ) {
-    return this.companiesService.getCompanies(parser.parse(query));
+    return this.usersService.getUsers(parser.parse(query));
   }
 
 

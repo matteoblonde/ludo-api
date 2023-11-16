@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { Connection } from 'mongoose';
 
 import { DatabaseModule } from '../../database/database.module';
 

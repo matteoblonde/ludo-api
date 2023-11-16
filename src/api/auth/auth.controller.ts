@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Redirect, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiForbiddenResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { response } from 'express';
+import user from '../../database/models/User/User';
 
 import { AuthService } from './auth.service';
 
@@ -42,6 +44,32 @@ export class AuthController {
     @Body() signUpDto: UserSignUpDto
   ) {
     return this.authService.performSignUpAsync(signUpDto);
+  }
+
+
+  @Redirect()
+  @Get('registration-complete/:user/:company')
+  public async registrationComplete(
+    @Param('user') userId: string,
+    @Param('company') companyId: string
+  ) {
+
+    const verified = await this.authService.verifyRegistrationCompleted(userId, companyId);
+
+    if (verified) {
+      const userData = {
+        username: verified.username,
+        company : verified.company.toString(),
+        userId  : verified._id.toString()
+      };
+      const { refreshToken } = this.authService.createAuthData(userData);
+      const url = `http://localhost:4200/dashboard?refresh_token=${refreshToken}`;
+
+      return verified ? { statusCode: 301, url } : false;
+    }
+
+    return false;
+
   }
 
 
