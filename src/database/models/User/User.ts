@@ -21,6 +21,9 @@ export class User {
   @prop({})
   public lastName?: string;
 
+  @prop()
+  public imgUrl?: string;
+
   @prop({
     required: true,
     validate: {

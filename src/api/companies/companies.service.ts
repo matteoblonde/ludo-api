@@ -2,6 +2,7 @@ import { BadRequestException, Inject, InternalServerErrorException } from '@nest
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import CompanyModel, { Company } from '../../database/models/Company/Company';
+import { IUserData } from '../auth/interfaces/UserData';
 
 
 export class CompaniesService {
@@ -134,6 +135,19 @@ export class CompaniesService {
     }
 
     return docs;
+
+  }
+
+
+  /**
+   * Function to retrieve user company from Access Token
+   * @param userData
+   */
+  public async getUserCompany(userData: IUserData) {
+
+    const companyId = userData.company;
+
+    return this.companyModel.findById(companyId);
 
   }
 

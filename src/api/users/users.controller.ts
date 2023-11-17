@@ -24,6 +24,7 @@ export class UsersController {
    * @param user
    */
   @Post()
+  @UseGuards(AccessTokenGuard)
   public async insertNewUser(
     @Body() user: User
   ) {
@@ -67,6 +68,7 @@ export class UsersController {
    * Endpoint to dynamically query mongoDB Database
    * @param query
    */
+  @UseGuards(AccessTokenGuard)
   @Get()
   public async getUsers(
     @Query() query: string

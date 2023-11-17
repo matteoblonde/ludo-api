@@ -12,6 +12,7 @@ import { PlayerStatsModule } from './player-stats/player-stats.module';
 import { PlayersModule } from './players/players.module';
 import { TrainingTypesModule } from './training-types/training-types.module';
 import { TrainingsModule } from './trainings/trainings.module';
+import { UsersModule } from './users/users.module';
 
 
 @Module({
@@ -24,6 +25,7 @@ import { TrainingsModule } from './trainings/trainings.module';
     DatabaseModule,
     AuthModule,
     CompaniesModule,
+    UsersModule,
 
     /**
      * Auth Token Connection

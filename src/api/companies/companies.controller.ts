@@ -2,7 +2,9 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } fro
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { Company } from '../../database/models/Company/Company';
+import { UserData } from '../auth/decorators';
 import { AccessTokenGuard } from '../auth/guards';
+import { IUserData } from '../auth/interfaces/UserData';
 import { CompaniesService } from './companies.service';
 
 
@@ -72,6 +74,18 @@ export class CompaniesController {
     @Query() query: string
   ) {
     return this.companiesService.getCompanies(parser.parse(query));
+  }
+
+
+  /**
+   * Endpoint to retrieve user logged company using access token
+   */
+  @Get('user-company')
+  @UseGuards(AccessTokenGuard)
+  public async getUserCompany(
+    @UserData() userData: IUserData
+  ) {
+    return this.companiesService.getUserCompany(userData);
   }
 
 
