@@ -52,6 +52,22 @@ export class Player {
   @prop({ allowMixed: Severity.ALLOW })
   public stats?: ArraySubDocumentType<PlayerStat>;
 
+  /** Field defined only in the match context */
+  @prop()
+  public goals?: number;
+
+  @prop()
+  public minutes?: number;
+
+  @prop()
+  public assist?: number;
+
+  @prop()
+  public rating?: number;
+
+  @prop()
+  public matchNotes?: string;
+
 }
 
 /**

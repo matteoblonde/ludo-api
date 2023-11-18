@@ -1,4 +1,5 @@
 import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { Label } from '../Label/Label';
 import { Player } from '../Player/Player';
 
 
@@ -58,8 +59,11 @@ export class Match {
   })
   awayGoals!: number;
 
-  @prop({ allowMixed: Severity.ALLOW })
+  @prop({ allowMixed: Severity.ALLOW, default: [] })
   players?: ArraySubDocumentType<Player>;
+
+  @prop({ allowMixed: Severity.ALLOW })
+  labels?: ArraySubDocumentType<Label>;
 
 }
 

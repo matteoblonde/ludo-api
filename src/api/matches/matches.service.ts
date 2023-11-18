@@ -3,6 +3,7 @@ import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import MatchModel, { Match } from '../../database/models/Match/Match';
+import { Player } from '../../database/models/Player/Player';
 
 
 export class MatchesService {
@@ -79,6 +80,20 @@ export class MatchesService {
 
     /* Return the record */
     return match;
+
+  }
+
+
+  /**
+   * Function to update only players array in the match
+   * @param id
+   * @param players
+   */
+  public async updateMatchPlayers(id: string, players: Player[]) {
+
+    return this.matchModel.findByIdAndUpdate(id, {
+      players: players
+    });
 
   }
 

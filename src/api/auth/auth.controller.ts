@@ -1,7 +1,5 @@
 import { Body, Controller, Get, Param, Post, Redirect, UseGuards } from '@nestjs/common';
-import { ApiCreatedResponse, ApiForbiddenResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { response } from 'express';
-import user from '../../database/models/User/User';
+import { ApiCreatedResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 
@@ -64,7 +62,7 @@ export class AuthController {
         roleLevel: verified.role.roleLevel
       };
       const { refreshToken } = this.authService.createAuthData(userData);
-      const url = `https://dev.ludo-sport.com/dashboard?refresh_token=${refreshToken}`;
+      const url = `https://dev.ludo-sport.com/settings/user-profile?refresh_token=${refreshToken}`;
 
       return verified ? { statusCode: 301, url } : false;
     }

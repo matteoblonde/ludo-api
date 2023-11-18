@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { Match } from '../../database/models/Match/Match';
+import { Player } from '../../database/models/Player/Player';
 
 import { UserData } from '../auth/decorators';
 import { AccessTokenGuard } from '../auth/guards';
@@ -50,6 +51,21 @@ export class MatchesController {
 
     return this.matchesService.updateOneMatch(id, match);
 
+  }
+
+
+  /**
+   * Endpoint to update players array in the match
+   * @param id
+   * @param players
+   */
+  @UseGuards(AccessTokenGuard)
+  @Patch('players/:id')
+  public async updateMatchPlayers(
+    @Param('id') id: string,
+    @Body() players: Player[]
+  ) {
+    return this.matchesService.updateMatchPlayers(id, players);
   }
 
 
