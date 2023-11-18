@@ -8,6 +8,7 @@ import type { FactoryProvider } from '@nestjs/common';
 import { AugmentedMap } from '@proedis/utils';
 
 import { Request } from 'express';
+import company from './models/Company/Company';
 
 import { getModelFromPool } from './utils';
 
@@ -26,7 +27,7 @@ export const ROUTE_MODEL = 'RouteModel';
 /* --------
  * Create the default System Database Connection
  * -------- */
-const createConnection = (db: string): mongoose.ConnectOptions & { uri: string } => ({
+export const createConnection = (db: string): mongoose.ConnectOptions & { uri: string } => ({
   uri            : `mongodb://${process.env.DB_URL}:${process.env.DB_PORT}/${db}`,
   authSource     : process.env.DB_AUTH_SOURCE,
   auth           : {
@@ -40,6 +41,18 @@ const createConnection = (db: string): mongoose.ConnectOptions & { uri: string }
 const { uri: systemDatabaseUri, ...systemDatabaseConnectionOptions } = createConnection('__system');
 export const systemDatabaseConnection = mongoose.createConnection(systemDatabaseUri, systemDatabaseConnectionOptions);
 
+
+/**
+ * TODO: Verify if this work
+ * First SignUp connection to initialize the DB for the first time
+ */
+export async function signUpDatabaseConnection(company: string) {
+
+  const { uri: signUpDatabaseUri, ...signUpDatabaseConnectionOptions } = createConnection(company);
+
+  return mongoose.createConnection(signUpDatabaseUri, signUpDatabaseConnectionOptions);
+
+}
 
 /* --------
  * Provider to load the Mongoose Connection based on Client Request

@@ -9,8 +9,8 @@ import { PlayerStat } from '../PlayerStat/PlayerStat';
 @modelOptions({ schemaOptions: { collection: 'players' } })
 export class Player {
 
-  @prop({ required: true })
-  public userId!: string;
+  @prop()
+  public userId?: string;
 
   @prop()
   public firstName?: string;

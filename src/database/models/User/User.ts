@@ -1,4 +1,4 @@
-import { getModelForClass, modelOptions, prop, Ref } from '@typegoose/typegoose';
+import { getModelForClass, modelOptions, prop, Ref, Severity, SubDocumentType } from '@typegoose/typegoose';
 import { Company } from '../Company/Company';
 import { Role } from '../Role/Role';
 
@@ -35,16 +35,11 @@ export class User {
   })
   public password?: string;
 
-  @prop({
-    ref     : () => Company,
-    required: true
-  })
-  public company!: Ref<Company>;
+  @prop({ required: true, allowMixed: Severity.ALLOW })
+  public company!: SubDocumentType<Company>;
 
-  @prop({
-    ref: () => Role
-  })
-  public role?: Ref<Role>;
+  @prop({ required: true, allowMixed: Severity.ALLOW })
+  public role!: SubDocumentType<Role>;
 
   @prop({
     default: false

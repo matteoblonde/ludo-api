@@ -1,8 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
+import { signUpDatabaseConnection } from '../../database/database.providers';
+import { Role } from '../../database/models';
 
 import CompanyModel from '../../database/models/Company/Company';
+import RoleModel from '../../database/models/Role/Role';
+import RoleSchema from '../../database/models/Role/Role.Schema';
 import UserModel from '../../database/models/User/User';
 import { AccessTokenService } from '../../token/services/access-token.service';
 import { RefreshTokenService } from '../../token/services/refresh-token.service';
@@ -69,7 +73,8 @@ export class AuthService {
       return this.createUserData(
         privateUserData.username,
         privateUserData.company.toString(),
-        privateUserData._id.toString()
+        privateUserData._id.toString(),
+        privateUserData.role.roleLevel
       );
     }
 
@@ -88,13 +93,27 @@ export class AuthService {
     });
     await company.save();
 
+    /** Initialize the first role */
+    const role = new Role({
+      roleName : 'Admin',
+      roleLevel: 100
+    });
+
     /** Create the user */
     const user = new this.User({
       username: signUpDto.username,
       password: crypto.createHash('md5').update(signUpDto.password).digest('hex'),
-      company : company._id
+      company : company._id,
+      role    : role
     });
     await user.save();
+
+    // TODO: Test if this works
+    /** Initialize DB and create first role */
+    /*    const signUpConnection = await signUpDatabaseConnection(company._id.toString());
+        const modelConnection = signUpConnection.model(RoleModel.collection.name, RoleSchema);
+
+        await role.save();*/
 
     const emailTransporter = nodemailer.createTransport({
       host  : getRequiredEnv('SMTP_HOST'),
@@ -154,9 +173,10 @@ export class AuthService {
     });
 
     return this.createAuthData({
-      username: signUpDto.username,
-      company : company._id.toString(),
-      userId  : user._id.toString()
+      username : signUpDto.username,
+      company  : company._id.toString(),
+      userId   : user._id.toString(),
+      roleLevel: user.role.roleLevel
     });
 
   }
@@ -170,10 +190,10 @@ export class AuthService {
   public async verifyRegistrationCompleted(userId: string, companyId: string) {
 
     /** Verify the company */
-    const company = await this.Company.findById(companyId);
+    const company = await this.Company.findById(companyId).exec();
 
     /** Verify the user */
-    const user = await this.User.findById(userId);
+    const user = await this.User.findByIdAndUpdate(userId, { emailVerified: true });
 
     /**TODO: If both exist set user emailVerified to true */
     if (company && user) {
@@ -232,7 +252,8 @@ export class AuthService {
       return this.createUserData(
         privateUserData.username,
         privateUserData.company.toString(),
-        privateUserData._id.toString()
+        privateUserData._id.toString(),
+        privateUserData.role.roleLevel
       );
     }
 
@@ -253,16 +274,19 @@ export class AuthService {
    * @param username
    * @param company
    * @param userId
+   * @param roleLevel
    */
   private createUserData(
     username: string,
     company: string,
-    userId: string
+    userId: string,
+    roleLevel: number
   ): IUserData {
     return {
       username,
-      company: company,
-      userId : userId
+      company  : company,
+      userId   : userId,
+      roleLevel: roleLevel
     };
   }
 

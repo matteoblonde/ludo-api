@@ -4,9 +4,6 @@ import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 @modelOptions({ schemaOptions: { collection: 'trainingTypes' } })
 export class TrainingType {
 
-  @prop({ required: true })
-  public userId!: string;
-
   @prop()
   public order?: number;
 

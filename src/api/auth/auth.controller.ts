@@ -58,9 +58,10 @@ export class AuthController {
 
     if (verified) {
       const userData = {
-        username: verified.username,
-        company : verified.company.toString(),
-        userId  : verified._id.toString()
+        username : verified.username,
+        company  : verified.company.toString(),
+        userId   : verified._id.toString(),
+        roleLevel: verified.role.roleLevel
       };
       const { refreshToken } = this.authService.createAuthData(userData);
       const url = `https://dev.ludo-sport.com/dashboard?refresh_token=${refreshToken}`;

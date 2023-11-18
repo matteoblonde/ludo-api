@@ -11,4 +11,6 @@ export interface IUserData {
   company: string;
 
   userId: string;
+
+  roleLevel: number;
 }

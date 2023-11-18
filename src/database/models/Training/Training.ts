@@ -17,8 +17,8 @@ import { TrainingType } from '../TrainingType/TrainingType';
 @modelOptions({ schemaOptions: { collection: 'trainings' } })
 export class Training {
 
-  @prop({ required: true })
-  public userId!: string;
+  @prop()
+  public userId?: string;
 
   @prop()
   public trainingDescription?: string;

@@ -13,46 +13,43 @@ enum LabelValueType {
  * Custom class SubDocument
  */
 
-// TODO: Create collection Sections and ref here
+  // TODO: Create collection Sections and ref here
 
-@modelOptions({schemaOptions: {collection: 'labelTypes'}})
+@modelOptions({ schemaOptions: { collection: 'labelTypes' } })
 export class LabelType {
-
-  @prop({ required: true })
-  public userId!: string;
 
   @prop()
   labelTypeName?: string;
 
-  @prop({enum: LabelValueType, default: LabelValueType.STRING, required: true})
+  @prop({ enum: LabelValueType, default: LabelValueType.STRING, required: true })
   labelValueType!: LabelValueType;
 
-  @prop({allowMixed: Severity.ALLOW})
-  labelTypeValuesList?: string[] | number[]
+  @prop({ allowMixed: Severity.ALLOW })
+  labelTypeValuesList?: string[] | number[];
 
   @prop({
     required: true,
-    default: false
+    default : false
   })
   required!: boolean;
 
   //TODO: Create interface or enum section, to set always the same value
   @prop({
     allowMixed: Severity.ALLOW,
-    required: true,
-    default: ['exercises', 'trainings', 'matches', 'players'],
+    required  : true,
+    default   : [ 'exercises', 'trainings', 'matches', 'players' ]
   })
-  sections!: string[]
+  sections!: string[];
 
   @prop({
     required: true,
-    default: true
+    default : true
   })
   isFreeText!: boolean;
 
   @prop({
     required: true,
-    default: false
+    default : false
   })
   isValueList!: boolean;
 

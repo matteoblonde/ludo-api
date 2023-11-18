@@ -86,3 +86,10 @@ export {
 export {
   default as PlayerStat
 } from './PlayerStat/PlayerStat';
+
+/**
+ * Match Model
+ */
+export {
+  default as Match
+} from './Match/Match';

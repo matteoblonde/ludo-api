@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
-import ExerciseModel from '../../database/models/Exercise/Exercise';
+import ExerciseModel, { Exercise } from '../../database/models/Exercise/Exercise';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 
 
@@ -21,7 +21,7 @@ export class ExercisesService {
    * Insert new exercise into database
    * @param exercise
    */
-  public async insertNewExercise(exercise: any) {
+  public async insertNewExercise(exercise: Exercise) {
 
     /**
      * Find all labels to append to the record

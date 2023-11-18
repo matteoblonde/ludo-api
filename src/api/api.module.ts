@@ -7,6 +7,7 @@ import { CompaniesModule } from './companies/companies.module';
 import { ExerciseTypesModule } from './exercise-types/exercise-types.module';
 import { ExercisesModule } from './exercises/exercises.module';
 import { LabelTypesModule } from './label-types/label-types.module';
+import { MatchesModule } from './matches/matches.module';
 import { PlayerRolesModule } from './player-roles/player-roles.module';
 import { PlayerStatsModule } from './player-stats/player-stats.module';
 import { PlayersModule } from './players/players.module';
@@ -37,7 +38,8 @@ import { UsersModule } from './users/users.module';
     ExerciseTypesModule,
     TrainingTypesModule,
     PlayerRolesModule,
-    PlayerStatsModule
+    PlayerStatsModule,
+    MatchesModule
   ]
 
 })

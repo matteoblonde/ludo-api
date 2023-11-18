@@ -1,7 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
+import { Training } from '../../database/models/Training/Training';
+import { UserData } from '../auth/decorators';
 import { AccessTokenGuard } from '../auth/guards';
+import { IUserData } from '../auth/interfaces/UserData';
 import { TrainingsService } from './trainings.service';
 
 
@@ -20,13 +23,15 @@ export class TrainingsController {
   /**
    * Endpoint to insert a record in mongoDB Database
    * @param training
+   * @param userData
    */
   @UseGuards(AccessTokenGuard)
   @Post()
   public async insertNewTraining(
-    @Body() training: any
+    @Body() training: Training,
+    @UserData() userData: IUserData
   ) {
-    return this.trainingsService.insertNewTraining(training);
+    return this.trainingsService.insertNewTraining({ userId: userData.userId, ...training });
   }
 
 

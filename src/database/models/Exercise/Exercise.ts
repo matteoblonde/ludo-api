@@ -17,6 +17,9 @@ import { Label } from '../Label/Label';
 export class Exercise {
 
   @prop()
+  public userId?: string;
+
+  @prop()
   public exerciseName?: string;
 
   @prop()
@@ -30,9 +33,6 @@ export class Exercise {
 
   @prop({ allowMixed: Severity.ALLOW })
   public exerciseType?: SubDocumentType<ExerciseType>;
-
-  @prop({ required: true })
-  public userId!: string;
 
   @prop({ allowMixed: Severity.ALLOW })
   public labels?: ArraySubDocumentType<Label>;

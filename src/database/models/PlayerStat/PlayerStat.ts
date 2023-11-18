@@ -5,9 +5,6 @@ import { PlayerRole } from '../PlayerRole/PlayerRole';
 @modelOptions({ schemaOptions: { collection: 'playerStats' } })
 export class PlayerStat {
 
-  @prop({ required: true })
-  public userId!: string;
-
   @prop()
   public statName?: string;
 
