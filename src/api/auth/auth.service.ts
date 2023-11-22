@@ -74,7 +74,8 @@ export class AuthService {
         privateUserData.username,
         privateUserData.company.toString(),
         privateUserData._id.toString(),
-        privateUserData.role.roleLevel
+        privateUserData.role.roleLevel,
+        privateUserData.teams
       );
     }
 
@@ -93,11 +94,13 @@ export class AuthService {
     });
     await company.save();
 
-    /** Initialize the first role */
+    /** TODO: Initialize the first role */
     const role = new Role({
       roleName : 'Admin',
       roleLevel: 100
     });
+
+    /** TODO: Initialize the first Team */
 
     /** Create the user */
     const user = new this.User({
@@ -176,7 +179,8 @@ export class AuthService {
       username : signUpDto.username,
       company  : company._id.toString(),
       userId   : user._id.toString(),
-      roleLevel: user.role.roleLevel
+      roleLevel: user.role.roleLevel,
+      teams    : user.teams
     });
 
   }
@@ -253,7 +257,8 @@ export class AuthService {
         privateUserData.username,
         privateUserData.company.toString(),
         privateUserData._id.toString(),
-        privateUserData.role.roleLevel
+        privateUserData.role.roleLevel,
+        privateUserData.teams
       );
     }
 
@@ -275,18 +280,21 @@ export class AuthService {
    * @param company
    * @param userId
    * @param roleLevel
+   * @param teams
    */
   private createUserData(
     username: string,
     company: string,
     userId: string,
-    roleLevel: number
+    roleLevel: number,
+    teams: string[]
   ): IUserData {
     return {
       username,
       company  : company,
       userId   : userId,
-      roleLevel: roleLevel
+      roleLevel: roleLevel,
+      teams    : teams
     };
   }
 

@@ -119,9 +119,10 @@ export class TrainingsService {
 
   /**
    * Get trainings from Database
+   * @param teams
    * @param queryOptions
    */
-  public async getTrainings(queryOptions?: QueryOptions) {
+  public async getTrainings(teams: string[], queryOptions?: QueryOptions) {
 
     /** Extract Query Options */
     const {
@@ -131,8 +132,12 @@ export class TrainingsService {
       skip
     } = queryOptions || {};
 
+    const teamsQueryString = teams.map((team: string) => {
+      return { teams: team };
+    });
+
     /** Build the query */
-    let query = this.trainingModel.find(filter);
+    let query = this.trainingModel.find({ '$or': teamsQueryString, ...filter });
 
     /** Append extra options */
     if (sort) {

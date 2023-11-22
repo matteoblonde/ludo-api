@@ -59,7 +59,8 @@ export class AuthController {
         username : verified.username,
         company  : verified.company.toString(),
         userId   : verified._id.toString(),
-        roleLevel: verified.role.roleLevel
+        roleLevel: verified.role.roleLevel,
+        teams    : verified.teams
       };
       const { refreshToken } = this.authService.createAuthData(userData);
       const url = `https://dev.ludo-sport.com/settings/user-profile?refresh_token=${refreshToken}`;

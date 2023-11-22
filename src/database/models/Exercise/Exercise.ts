@@ -20,6 +20,9 @@ export class Exercise {
   public userId?: string;
 
   @prop()
+  public teams?: string[];
+
+  @prop()
   public exerciseName?: string;
 
   @prop()

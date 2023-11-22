@@ -21,6 +21,9 @@ export class Training {
   public userId?: string;
 
   @prop()
+  public teams?: string[];
+
+  @prop()
   public trainingDescription?: string;
 
   @prop({

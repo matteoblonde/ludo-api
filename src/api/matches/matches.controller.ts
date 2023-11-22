@@ -33,7 +33,7 @@ export class MatchesController {
     @Body() match: Match,
     @UserData() userData: IUserData
   ) {
-    return this.matchesService.insertNewMatch({ userId: userData.userId, ...match });
+    return this.matchesService.insertNewMatch({ teams: userData.teams, userId: userData.userId, ...match });
   }
 
 
@@ -87,13 +87,15 @@ export class MatchesController {
   /**
    * Endpoint to dynamically query mongoDB Database
    * @param query
+   * @param userData
    */
   @UseGuards(AccessTokenGuard)
   @Get()
   public async getMatches(
-    @Query() query: string
+    @Query() query: string,
+    @UserData() userData: IUserData
   ) {
-    return this.matchesService.getMatches(parser.parse(query));
+    return this.matchesService.getMatches(userData.teams, parser.parse(query));
   }
 
 

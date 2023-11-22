@@ -1,6 +1,14 @@
-import { getModelForClass, modelOptions, prop, Ref, Severity, SubDocumentType } from '@typegoose/typegoose';
+import {
+  ArraySubDocumentType,
+  getModelForClass,
+  modelOptions,
+  prop,
+  Severity,
+  SubDocumentType
+} from '@typegoose/typegoose';
 import { Company } from '../Company/Company';
 import { Role } from '../Role/Role';
+import { Team } from '../Team/Team';
 
 
 /* --------
@@ -40,6 +48,9 @@ export class User {
 
   @prop({ required: true, allowMixed: Severity.ALLOW })
   public role!: SubDocumentType<Role>;
+
+  @prop({ required: true })
+  public teams!: string[];
 
   @prop({
     default: false

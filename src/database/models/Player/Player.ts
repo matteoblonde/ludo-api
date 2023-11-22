@@ -13,6 +13,9 @@ export class Player {
   public userId?: string;
 
   @prop()
+  public teams?: string[];
+
+  @prop()
   public firstName?: string;
 
   @prop()

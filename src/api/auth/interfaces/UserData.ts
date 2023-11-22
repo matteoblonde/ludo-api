@@ -1,8 +1,3 @@
-import { Ref } from '@typegoose/typegoose';
-import { Company } from '../../../database/models/Company/Company';
-import { Role } from '../../../database/models/Role/Role';
-
-
 export type TUserType = 'user';
 
 export interface IUserData {
@@ -11,6 +6,8 @@ export interface IUserData {
   company: string;
 
   userId: string;
+
+  teams: string[];
 
   roleLevel: number;
 }

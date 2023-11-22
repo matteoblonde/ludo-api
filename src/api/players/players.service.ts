@@ -5,6 +5,9 @@ import LabelTypeModel from '../../database/models/LabelType/LabelType';
 
 import PlayerModel, { Player } from '../../database/models/Player/Player';
 import PlayerStatModel from '../../database/models/PlayerStat/PlayerStat';
+import team from '../../database/models/Team/Team';
+import user from '../../database/models/User/User';
+import { IUserData } from '../auth/interfaces/UserData';
 
 
 export class PlayersService {
@@ -120,7 +123,7 @@ export class PlayersService {
    * Get exercises from Database
    * @param queryOptions
    */
-  public async getPlayers(queryOptions?: QueryOptions) {
+  public async getPlayers(teams: string[], queryOptions?: QueryOptions) {
 
     /** Extract Query Options */
     const {
@@ -129,9 +132,14 @@ export class PlayersService {
       limit,
       skip
     } = queryOptions || {};
+    console.log(teams);
+
+    const teamsQueryString = teams.map((team: string) => {
+      return { teams: team };
+    });
 
     /** Build the query */
-    let query = this.playerModel.find(filter);
+    let query = this.playerModel.find({ '$or': teamsQueryString, ...filter });
 
     /** Append extra options */
     if (sort) {

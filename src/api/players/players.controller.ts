@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } fro
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { Player } from '../../database/models/Player/Player';
+import user from '../../database/models/User/User';
 import { UserData } from '../auth/decorators';
 import { AccessTokenGuard } from '../auth/guards';
 import { IUserData } from '../auth/interfaces/UserData';
@@ -31,7 +32,7 @@ export class PlayersController {
     @Body() player: Player,
     @UserData() userData: IUserData
   ) {
-    return this.playersService.insertNewPlayer({ userId: userData.userId, ...player });
+    return this.playersService.insertNewPlayer({ teams: userData.teams, userId: userData.userId, ...player });
   }
 
 
@@ -70,13 +71,16 @@ export class PlayersController {
   /**
    * Endpoint to dynamically query mongoDB Database
    * @param query
+   * @param userData
    */
   @UseGuards(AccessTokenGuard)
   @Get()
   public async getPlayers(
-    @Query() query: string
+    @Query() query: string,
+    @UserData() userData: IUserData
   ) {
-    return this.playersService.getPlayers(parser.parse(query));
+
+    return this.playersService.getPlayers(userData.teams, parser.parse(query));
   }
 
 

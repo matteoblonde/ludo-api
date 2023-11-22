@@ -118,9 +118,10 @@ export class ExercisesService {
 
   /**
    * Get exercises from Database
+   * @param teams
    * @param queryOptions
    */
-  public async getExercises(queryOptions?: QueryOptions) {
+  public async getExercises(teams: string[], queryOptions?: QueryOptions) {
 
     /** Extract Query Options */
     const {
@@ -130,8 +131,12 @@ export class ExercisesService {
       skip
     } = queryOptions || {};
 
+    const teamsQueryString = teams.map((team: string) => {
+      return { teams: team };
+    });
+
     /** Build the query */
-    let query = this.exerciseModel.find(filter);
+    let query = this.exerciseModel.find({ '$or': teamsQueryString, ...filter });
 
     /** Append extra options */
     if (sort) {

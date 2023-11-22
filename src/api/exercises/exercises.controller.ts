@@ -32,7 +32,7 @@ export class ExercisesController {
     @Body() exercise: Exercise,
     @UserData() userData: IUserData
   ) {
-    return this.exercisesService.insertNewExercise({ userId: userData.userId, ...exercise });
+    return this.exercisesService.insertNewExercise({ teams: userData.teams, userId: userData.userId, ...exercise });
   }
 
 
@@ -73,13 +73,15 @@ export class ExercisesController {
   /**
    * Endpoint to dynamically query mongoDB Database
    * @param query
+   * @param userData
    */
   @UseGuards(AccessTokenGuard)
   @Get()
   public async getExercises(
-    @Query() query: string
+    @Query() query: string,
+    @UserData() userData: IUserData
   ) {
-    return this.exercisesService.getExercises(parser.parse(query));
+    return this.exercisesService.getExercises(userData.teams, parser.parse(query));
   }
 
 

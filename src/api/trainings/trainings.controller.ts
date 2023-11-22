@@ -31,7 +31,7 @@ export class TrainingsController {
     @Body() training: Training,
     @UserData() userData: IUserData
   ) {
-    return this.trainingsService.insertNewTraining({ userId: userData.userId, ...training });
+    return this.trainingsService.insertNewTraining({ teams: userData.teams, userId: userData.userId, ...training });
   }
 
 
@@ -70,13 +70,15 @@ export class TrainingsController {
   /**
    * Endpoint to dynamically query mongoDB Database
    * @param query
+   * @param userData
    */
   @UseGuards(AccessTokenGuard)
   @Get()
   public async getTrainings(
-    @Query() query: string
+    @Query() query: string,
+    @UserData() userData: IUserData
   ) {
-    return this.trainingsService.getTrainings(parser.parse(query));
+    return this.trainingsService.getTrainings(userData.teams, parser.parse(query));
   }
 
 

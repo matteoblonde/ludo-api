@@ -10,6 +10,9 @@ export class Match {
   userId?: string;
 
   @prop()
+  public teams?: string[];
+
+  @prop()
   matchName?: string;
 
   @prop()

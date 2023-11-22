@@ -126,9 +126,10 @@ export class MatchesService {
 
   /**
    * Get matches from Database
+   * @param teams
    * @param queryOptions
    */
-  public async getMatches(queryOptions?: QueryOptions) {
+  public async getMatches(teams: string[], queryOptions?: QueryOptions) {
 
     /** Extract Query Options */
     const {
@@ -138,8 +139,12 @@ export class MatchesService {
       skip
     } = queryOptions || {};
 
+    const teamsQueryString = teams.map((team: string) => {
+      return { teams: team };
+    });
+
     /** Build the query */
-    let query = this.matchModel.find(filter);
+    let query = this.matchModel.find({ '$or': teamsQueryString, ...filter });
 
     /** Append extra options */
     if (sort) {
