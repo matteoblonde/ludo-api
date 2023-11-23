@@ -11,6 +11,7 @@ import { MatchesModule } from './matches/matches.module';
 import { PlayerRolesModule } from './player-roles/player-roles.module';
 import { PlayerStatsModule } from './player-stats/player-stats.module';
 import { PlayersModule } from './players/players.module';
+import { RolesModule } from './roles/roles.module';
 import { TeamsModule } from './teams/teams.module';
 import { TrainingTypesModule } from './training-types/training-types.module';
 import { TrainingsModule } from './trainings/trainings.module';
@@ -41,7 +42,8 @@ import { UsersModule } from './users/users.module';
     PlayerRolesModule,
     PlayerStatsModule,
     MatchesModule,
-    TeamsModule
+    TeamsModule,
+    RolesModule
   ]
 
 })

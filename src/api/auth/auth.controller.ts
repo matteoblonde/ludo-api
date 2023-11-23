@@ -63,7 +63,7 @@ export class AuthController {
         teams    : verified.teams
       };
       const { refreshToken } = this.authService.createAuthData(userData);
-      const url = `https://dev.ludo-sport.com/settings/user-profile?refresh_token=${refreshToken}`;
+      const url = `https://dev.ludo-sport.com/complete-registration?refresh_token=${refreshToken}`;
 
       return verified ? { statusCode: 301, url } : false;
     }
