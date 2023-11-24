@@ -101,7 +101,7 @@ export class AuthService {
       username: signUpDto.username,
       password: crypto.createHash('md5').update(signUpDto.password).digest('hex'),
       company : company._id,
-      role    : {},
+      role    : { roleLevel: 100 },
       teams   : []
     });
     await user.save();

@@ -54,6 +54,7 @@ export class AuthController {
 
     const verified = await this.authService.verifyRegistrationCompleted(userId, companyId);
 
+
     if (verified) {
       const userData = {
         username : verified.username,
