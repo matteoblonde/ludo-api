@@ -203,6 +203,7 @@ export class AuthService {
 
     });
 
+    // TODO: Create html file with the code and beautify the message
     await emailTransporter.sendMail({
       to     : user.username,
       from   : 'Ludo Sport <info@ludo-sport.com>',
