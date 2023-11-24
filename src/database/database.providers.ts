@@ -43,7 +43,6 @@ export const systemDatabaseConnection = mongoose.createConnection(systemDatabase
 
 
 /**
- * TODO: Verify if this work
  * First SignUp connection to initialize the DB for the first time
  */
 export async function signUpDatabaseConnection(company: string) {

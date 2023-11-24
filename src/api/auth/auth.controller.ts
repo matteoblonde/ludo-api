@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, Redirect, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Guard } from '@proedis/utils';
 
 import { AuthService } from './auth.service';
 
@@ -45,14 +46,25 @@ export class AuthController {
   }
 
 
+  @Post('signup/invitation')
+  @UseGuards(AccessTokenGuard)
+  public async signUpInvitation(
+    @Body() newUser: any,
+    @UserData() userData: IUserData
+  ) {
+    return this.authService.performSignUpInvitationAsync(newUser, userData);
+  }
+
+
   @Redirect()
-  @Get('registration-complete/:user/:company')
+  @Get('registration-complete/:user/:company/:invitation')
   public async registrationComplete(
     @Param('user') userId: string,
-    @Param('company') companyId: string
+    @Param('company') companyId: string,
+    @Param('invitation') invitation: boolean
   ) {
 
-    const verified = await this.authService.verifyRegistrationCompleted(userId, companyId);
+    const verified = await this.authService.verifyRegistrationCompleted(userId, companyId, invitation);
 
 
     if (verified) {

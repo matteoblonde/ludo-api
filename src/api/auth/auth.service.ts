@@ -3,6 +3,7 @@ import * as crypto from 'crypto';
 import { Error } from 'mongoose';
 import * as nodemailer from 'nodemailer';
 import { signUpDatabaseConnection } from '../../database/database.providers';
+import company from '../../database/models/Company/Company';
 
 import CompanyModel from '../../database/models/Company/Company';
 import RoleModel from '../../database/models/Role/Role';
@@ -88,6 +89,91 @@ export class AuthService {
   }
 
 
+  /**
+   * Function to perform signUp on Invitation
+   * @param newUser
+   * @param userData
+   */
+  public async performSignUpInvitationAsync(newUser: any, userData: IUserData) {
+
+    // TODO: Verify the email is unique and return exception
+    const password = Math.random().toString(36).slice(-8);
+
+    /** Create the user if random password */
+    const user = new this.User({
+      username: newUser.username,
+      password: crypto.createHash('md5').update(password).digest('hex'),
+      company : userData.company,
+      role    : newUser.role
+    });
+    await user.save();
+
+    /** Generate email with a link to the endpoint to complete registration */
+    const emailTransporter = nodemailer.createTransport({
+      host  : getRequiredEnv('SMTP_HOST'),
+      port  : 465,
+      secure: true,
+      auth  : {
+        user: getRequiredEnv('SMTP_USER'),
+        pass: getRequiredEnv('SMTP_PASSWORD')
+      }
+    });
+
+    await emailTransporter.sendMail({
+      to     : user.username,
+      from   : 'Ludo Sport <info@ludo-sport.com>',
+      subject: 'Welcome to Ludo',
+      html   : `<!DOCTYPE html>
+                  <html lang="en">
+                  <head>
+                    <meta charset="UTF-8">
+                    <title>Welcome to Ludo</title>
+                    <style>
+                      .container {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                      }
+                      body {
+                        background-color: #1d1e27;
+                        color: #ecfdf5;
+                        padding: 2rem;
+                        font-size: 1.25rem;
+                      }
+                      button {
+                        padding: 0.75rem;
+                        background-color: #10b981;
+                        color: #ecfdf5;
+                        border: none;
+                        border-radius: 5px;
+                        font-size: 1.25rem;
+                        margin: 1rem 0;
+                      }
+                      button:hover {
+                        background-color: #0fb07b;
+                        cursor: pointer;
+                      }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="container">
+                      <img alt="Ludo Sport" src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo_Text_Tr.png" style="width: 15rem; margin-bottom: 2rem">
+                      <span>Hi ${user.username}, <br /> We're happy you signed up for Ludo.<br /> <br />To start exploring Ludo App please confirm your email address by pressing the button <br /> <a href="http://localhost:3000/auth/registration-complete/${user._id}/${userData.company}/true" target="_blank"><button>Verify Now</button></a> <br /> <br /> Welcome to Ludo! <br> Ludo Team</span>
+                    </div>
+                  </body>
+                  </html>
+              `
+    });
+
+    /** Return user */
+    return password;
+  }
+
+
+  /**
+   * Function to perform standard signUp
+   * @param signUpDto
+   */
   public async performSignUpAsync(signUpDto: UserSignUpDto) {
 
     /** Create the company */
@@ -156,7 +242,7 @@ export class AuthService {
                   <body>
                     <div class="container">
                       <img alt="Ludo Sport" src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo_Text_Tr.png" style="width: 15rem; margin-bottom: 2rem">
-                      <span>Hi ${user.username}, <br /> We're happy you signed up for Ludo.<br /> <br />To start exploring Ludo App please confirm your email address by pressing the button <br /> <a href="https://api.ludo-sport.com/auth/registration-complete/${user._id}/${company._id}" target="_blank"><button>Verify Now</button></a> <br /> <br /> Welcome to Ludo! <br> Ludo Team</span>
+                      <span>Hi ${user.username}, <br /> We're happy you signed up for Ludo.<br /> <br />To start exploring Ludo App please confirm your email address by pressing the button <br /> <a href="https://api.ludo-sport.com/auth/registration-complete/${user._id}/${company._id}/false" target="_blank"><button>Verify Now</button></a> <br /> <br /> Welcome to Ludo! <br> Ludo Team</span>
                     </div>
                   </body>
                   </html>
@@ -178,19 +264,20 @@ export class AuthService {
    * Verify the registration completed after clicked the button on the email
    * @param userId
    * @param companyId
+   * @param invitation
    */
-  public async verifyRegistrationCompleted(userId: string, companyId: string) {
+  public async verifyRegistrationCompleted(userId: string, companyId: string, invitation: boolean) {
 
     /** Verify the company */
     const company = await this.Company.findById(companyId).exec();
-
 
     /** Verify the user */
     const userExist = await this.User.findByIdAndUpdate(userId, { emailVerified: true });
 
     /** If both exist create first standard settings (Role, Teams...) */
-    if (company && userExist) {
+    if (company && userExist && !invitation) {
 
+      // TODO: Bug duplicate roles and teams creation
       /** Inject new connection and models */
       const signUpConnection = await signUpDatabaseConnection(company._id.toString());
       const roleModel = signUpConnection.model(RoleModel.collection.name, RoleSchema);
@@ -218,7 +305,7 @@ export class AuthService {
 
     }
 
-    /** return user if both exist */
+    /** Return user if both exist */
     return userExist;
 
   }
