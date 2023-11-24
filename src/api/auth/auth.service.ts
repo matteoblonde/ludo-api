@@ -1,12 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
+import { Error } from 'mongoose';
 import * as nodemailer from 'nodemailer';
 import { signUpDatabaseConnection } from '../../database/database.providers';
-import { Role } from '../../database/models';
 
 import CompanyModel from '../../database/models/Company/Company';
 import RoleModel from '../../database/models/Role/Role';
 import RoleSchema from '../../database/models/Role/Role.Schema';
+import TeamModel from '../../database/models/Team/Team';
+import TeamSchema from '../../database/models/Team/Team.schema';
 import UserModel from '../../database/models/User/User';
 import { AccessTokenService } from '../../token/services/access-token.service';
 import { RefreshTokenService } from '../../token/services/refresh-token.service';
@@ -94,29 +96,15 @@ export class AuthService {
     });
     await company.save();
 
-    /** TODO: Initialize the first role */
-    const role = new Role({
-      roleName : 'Admin',
-      roleLevel: 100
-    });
-
-    /** TODO: Initialize the first Team */
-
     /** Create the user */
     const user = new this.User({
       username: signUpDto.username,
       password: crypto.createHash('md5').update(signUpDto.password).digest('hex'),
       company : company._id,
-      role    : role
+      role    : {},
+      teams   : []
     });
     await user.save();
-
-    // TODO: Test if this works
-    /** Initialize DB and create first role */
-    /*    const signUpConnection = await signUpDatabaseConnection(company._id.toString());
-        const modelConnection = signUpConnection.model(RoleModel.collection.name, RoleSchema);
-
-        await role.save();*/
 
     const emailTransporter = nodemailer.createTransport({
       host  : getRequiredEnv('SMTP_HOST'),
@@ -196,16 +184,42 @@ export class AuthService {
     /** Verify the company */
     const company = await this.Company.findById(companyId).exec();
 
-    /** Verify the user */
-    const user = await this.User.findByIdAndUpdate(userId, { emailVerified: true });
 
-    /**TODO: If both exist set user emailVerified to true */
-    if (company && user) {
+    /** Verify the user */
+    const userExist = await this.User.findByIdAndUpdate(userId, { emailVerified: true });
+
+    /** If both exist create first standard settings (Role, Teams...) */
+    if (company && userExist) {
+
+      /** Inject new connection and models */
+      const signUpConnection = await signUpDatabaseConnection(company._id.toString());
+      const roleModel = signUpConnection.model(RoleModel.collection.name, RoleSchema);
+      const teamModel = signUpConnection.model(TeamModel.collection.name, TeamSchema);
+
+      /** Initialize the first role */
+      const role = new roleModel({
+        roleName : 'Admin',
+        roleLevel: 100
+      });
+      await role.save();
+
+      /** Initialize the first Team, with the same name of the company */
+      const team = new teamModel({
+        teamName: company.companyName,
+        users   : [ userExist ]
+      });
+      await team.save();
+
+      /** Save and return the modified user */
+      return this.User.findByIdAndUpdate(userId, {
+        teams: [ team._id ],
+        role : role
+      });
 
     }
 
     /** return user if both exist */
-    return user;
+    return userExist;
 
   }
 

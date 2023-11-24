@@ -93,3 +93,10 @@ export {
 export {
   default as Match
 } from './Match/Match';
+
+/**
+ * Team Model
+ */
+export {
+  default as Team
+} from './Team/Team';
