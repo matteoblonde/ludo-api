@@ -5,16 +5,13 @@ import { DocumentType, getModelForClass, modelOptions, prop } from '@typegoose/t
 /* --------
 * Schema Definition
 * -------- */
-@modelOptions({ schemaOptions: { collection: 'companies' }, options: { customName: 'companies' } })
+@modelOptions({ schemaOptions: { collection: 'companies' } })
 export class Company {
 
   @prop({
     required: true
   })
   public companyName!: string;
-
-  @prop()
-  public companyCode?: string;
 
   @prop({
     required: true,
