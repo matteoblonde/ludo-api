@@ -1,7 +1,20 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+  UseInterceptors
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { Team } from '../../database/models/Team/Team';
+import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 
 import { AccessTokenGuard } from '../auth/guards';
 import { TeamsService } from './teams.service';
@@ -11,6 +24,7 @@ const parser = new MongooseQueryParser();
 
 @ApiTags('Teams')
 @Controller('teams')
+@UseInterceptors(HttpCacheInterceptor)
 export class TeamsController {
 
   constructor(

@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { Role } from '../../database/models/Role/Role';
+import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 
 import { AccessTokenGuard } from '../auth/guards';
 import { RolesService } from './roles.service';
@@ -11,6 +12,7 @@ const parser = new MongooseQueryParser();
 
 @ApiTags('Roles')
 @Controller('roles')
+@UseInterceptors(HttpCacheInterceptor)
 export class RolesController {
 
   constructor(

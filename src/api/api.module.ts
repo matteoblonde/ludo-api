@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 
 import { DatabaseModule } from '../database/database.module';
@@ -43,7 +44,10 @@ import { UsersModule } from './users/users.module';
     PlayerStatsModule,
     MatchesModule,
     TeamsModule,
-    RolesModule
+    RolesModule,
+    CacheModule.register({
+      isGlobal: true
+    })
   ]
 
 })

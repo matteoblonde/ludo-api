@@ -1,9 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
-import { Error } from 'mongoose';
 import * as nodemailer from 'nodemailer';
 import { signUpDatabaseConnection } from '../../database/database.providers';
-import company from '../../database/models/Company/Company';
 
 import CompanyModel from '../../database/models/Company/Company';
 import RoleModel from '../../database/models/Role/Role';
@@ -158,7 +156,7 @@ export class AuthService {
                   <body>
                     <div class="container">
                       <img alt="Ludo Sport" src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo_Text_Tr.png" style="width: 15rem; margin-bottom: 2rem">
-                      <span>Hi ${user.username}, <br /> We're happy you signed up for Ludo.<br /> <br />To start exploring Ludo App please confirm your email address by pressing the button <br /> <a href="https://api.ludo-sport.com/auth/registration-complete/${user._id}/${userData.company}/true" target="_blank"><button>Verify Now</button></a> <br /> <br /> Welcome to Ludo! <br> Ludo Team</span>
+                      <span>Hi ${user.username}, <br /> You have been invited to Ludo.<br /> Your generated password is: ${password} <br /> <br />To start exploring Ludo App please confirm your email address by pressing the button <br /> <a href="https://api.ludo-sport.com/auth/registration-complete/${user._id}/${userData.company}/true" target="_blank"><button>Verify Now</button></a> <br /> <br /> Welcome to Ludo! <br> Ludo Team</span>
                     </div>
                   </body>
                   </html>

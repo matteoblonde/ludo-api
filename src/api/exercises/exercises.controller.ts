@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { Exercise } from '../../database/models/Exercise/Exercise';
+import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { AccessTokenGuard } from '../auth/guards';
 import { IUserData } from '../auth/interfaces/UserData';
 import { ExercisesService } from './exercises.service';
@@ -11,8 +12,10 @@ import { UserData } from '../auth/decorators';
 
 const parser = new MongooseQueryParser();
 
+// TODO: Test if caching interceptor works
 @ApiTags('Exercises')
 @Controller('exercises')
+@UseInterceptors(HttpCacheInterceptor)
 export class ExercisesController {
 
   constructor(
@@ -68,8 +71,7 @@ export class ExercisesController {
   }
 
 
-  // TODO: Use the two decorators (UserData, existing, Role, to create)
-  // TODO: to get right data dependent from user role
+  // TODO: Use the roleLevel to determine if filtering for teamID or not
   /**
    * Endpoint to dynamically query mongoDB Database
    * @param query

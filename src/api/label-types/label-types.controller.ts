@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import labelType, { LabelType } from '../../database/models/LabelType/LabelType';
 import { Player } from '../../database/models/Player/Player';
+import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { AccessTokenGuard } from '../auth/guards';
 import { LabelTypesService } from './label-types.service';
 
@@ -11,6 +12,7 @@ const parser = new MongooseQueryParser();
 
 @ApiTags('LabelType')
 @Controller('label-types')
+@UseInterceptors(HttpCacheInterceptor)
 export class LabelTypesController {
 
   constructor(

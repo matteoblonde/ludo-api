@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { Player } from '../../database/models/Player/Player';
 import user from '../../database/models/User/User';
+import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { UserData } from '../auth/decorators';
 import { AccessTokenGuard } from '../auth/guards';
 import { IUserData } from '../auth/interfaces/UserData';
@@ -13,6 +14,7 @@ const parser = new MongooseQueryParser();
 
 @ApiTags('Players')
 @Controller('players')
+@UseInterceptors(HttpCacheInterceptor)
 export class PlayersController {
 
   constructor(
