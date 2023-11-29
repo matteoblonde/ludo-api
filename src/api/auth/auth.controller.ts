@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post, Redirect, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Redirect, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiCreatedResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Guard } from '@proedis/utils';
+import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 
 import { AuthService } from './auth.service';
 
@@ -14,6 +15,7 @@ import { IUserData } from './interfaces/UserData';
 
 @ApiTags('Authentication')
 @Controller('auth')
+@UseInterceptors(HttpCacheInterceptor)
 export class AuthController {
 
   constructor(
