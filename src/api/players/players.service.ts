@@ -1,10 +1,11 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
+import { Label } from '../../database/models/Label/Label';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 
 import PlayerModel, { Player } from '../../database/models/Player/Player';
-import PlayerStatModel from '../../database/models/PlayerStat/PlayerStat';
+import PlayerStatModel, { PlayerStat } from '../../database/models/PlayerStat/PlayerStat';
 import team from '../../database/models/Team/Team';
 import user from '../../database/models/User/User';
 import { IUserData } from '../auth/interfaces/UserData';
@@ -90,6 +91,32 @@ export class PlayersService {
     /* Return the record */
     return player;
 
+  }
+
+
+  /**
+   * Function to update player stats
+   * @param id
+   * @param stats
+   */
+  public async updatePlayerStats(id: string, stats: PlayerStat[]) {
+
+    return this.playerModel.findByIdAndUpdate(id, {
+      stats: stats
+    });
+
+  }
+
+
+  /**
+   * Function to update only labels array in the player
+   * @param id
+   * @param labels
+   */
+  public async updatePlayerLabels(id: string, labels: Label[]) {
+    return this.playerModel.findByIdAndUpdate(id, {
+      labels: labels
+    });
   }
 
 

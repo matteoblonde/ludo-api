@@ -1,7 +1,20 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+  UseInterceptors
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { Exercise } from '../../database/models/Exercise/Exercise';
+import { Label } from '../../database/models/Label/Label';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { AccessTokenGuard } from '../auth/guards';
 import { IUserData } from '../auth/interfaces/UserData';
@@ -53,6 +66,21 @@ export class ExercisesController {
 
     return this.exercisesService.updateOneExercise(id, exercise);
 
+  }
+
+
+  /**
+   * Update only labels array in the record
+   * @param id
+   * @param labels
+   */
+  @UseGuards(AccessTokenGuard)
+  @Patch('labels/:id')
+  public async updateMatchLabels(
+    @Param('id') id: string,
+    @Body() labels: Label[]
+  ) {
+    return this.exercisesService.updateExerciseLabels(id, labels);
   }
 
 

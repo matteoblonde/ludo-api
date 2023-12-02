@@ -1,9 +1,11 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
+import { Label } from '../../database/models/Label/Label';
 
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import TrainingModel from '../../database/models/Training/Training';
+import { NotificationsService } from '../notifications/notifications.service';
 
 
 export class TrainingsService {
@@ -12,7 +14,9 @@ export class TrainingsService {
     @Inject(TrainingModel.collection.name)
     private readonly trainingModel: typeof TrainingModel,
     @Inject(LabelTypeModel.collection.name)
-    private readonly labelTypeModel: typeof LabelTypeModel
+    private readonly labelTypeModel: typeof LabelTypeModel,
+    @Inject(NotificationsService)
+    private notificationService: NotificationsService
   ) {
 
   }
@@ -46,6 +50,15 @@ export class TrainingsService {
 
     /* save the record, mongo.insertOne() */
     await record.save();
+
+    /** Create notification for this record */
+    await this.notificationService.insertNewNotification({
+      teams      : record.teams,
+      userId     : record.userId,
+      title      : 'New Training Created',
+      description: record.trainingTitle,
+      routerLink : `trainings/${record._id}/general/${record._id}`
+    });
 
     /* return created record */
     return record;
@@ -92,7 +105,19 @@ export class TrainingsService {
 
 
   /**
-   * Delete one exercise into Database
+   * Function to update only labels array in the training
+   * @param id
+   * @param labels
+   */
+  public async updateTrainingLabels(id: string, labels: Label[]) {
+    return this.trainingModel.findByIdAndUpdate(id, {
+      labels: labels
+    });
+  }
+
+
+  /**
+   * Delete one training into Database
    * @param id
    */
   public async deleteTraining(id: string) {

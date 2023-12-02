@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
+import { Label } from '../../database/models/Label/Label';
 import { Match } from '../../database/models/Match/Match';
 import { Player } from '../../database/models/Player/Player';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
@@ -80,6 +81,21 @@ export class MatchesController {
     @Body() players: Player[]
   ) {
     return this.matchesService.updateMatchPlayers(id, players);
+  }
+
+
+  /**
+   * Update only labels array in the record
+   * @param id
+   * @param labels
+   */
+  @UseGuards(AccessTokenGuard)
+  @Patch('labels/:id')
+  public async updateMatchLabels(
+    @Param('id') id: string,
+    @Body() labels: Label[]
+  ) {
+    return this.matchesService.updateMatchLabels(id, labels);
   }
 
 

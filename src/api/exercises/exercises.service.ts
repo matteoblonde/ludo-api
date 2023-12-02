@@ -2,6 +2,7 @@ import { BadRequestException, Inject, InternalServerErrorException } from '@nest
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import ExerciseModel, { Exercise } from '../../database/models/Exercise/Exercise';
+import { Label } from '../../database/models/Label/Label';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 
 
@@ -113,6 +114,18 @@ export class ExercisesService {
       message : 'Record deleted successfully'
     };
 
+  }
+
+
+  /**
+   * Function to update only labels array in the exercise
+   * @param id
+   * @param labels
+   */
+  public async updateExerciseLabels(id: string, labels: Label[]) {
+    return this.exerciseModel.findByIdAndUpdate(id, {
+      labels: labels
+    });
   }
 
 

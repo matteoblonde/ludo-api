@@ -1,7 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+  UseInterceptors
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
+import { Label } from '../../database/models/Label/Label';
 import { Player } from '../../database/models/Player/Player';
+import { PlayerStat } from '../../database/models/PlayerStat/PlayerStat';
 import user from '../../database/models/User/User';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { UserData } from '../auth/decorators';
@@ -52,6 +66,36 @@ export class PlayersController {
 
     return this.playersService.updateOnePlayer(id, player);
 
+  }
+
+
+  /**
+   * Function to update only stats in the record
+   * @param id
+   * @param stats
+   */
+  @UseGuards(AccessTokenGuard)
+  @Patch('stats/:id')
+  public async updateStatsPlayer(
+    @Param('id') id: string,
+    @Body() stats: PlayerStat[]
+  ) {
+
+  }
+
+
+  /**
+   * Update only labels array in the record
+   * @param id
+   * @param labels
+   */
+  @UseGuards(AccessTokenGuard)
+  @Patch('labels/:id')
+  public async updatePlayerLabels(
+    @Param('id') id: string,
+    @Body() labels: Label[]
+  ) {
+    return this.playersService.updatePlayerLabels(id, labels);
   }
 
 

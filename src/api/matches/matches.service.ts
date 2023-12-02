@@ -1,6 +1,7 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
+import { Label } from '../../database/models/Label/Label';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import MatchModel, { Match } from '../../database/models/Match/Match';
 import { Player } from '../../database/models/Player/Player';
@@ -95,6 +96,18 @@ export class MatchesService {
       players: players
     });
 
+  }
+
+
+  /**
+   * Function to update only labels array in the match
+   * @param id
+   * @param labels
+   */
+  public async updateMatchLabels(id: string, labels: Label[]) {
+    return this.matchModel.findByIdAndUpdate(id, {
+      labels: labels
+    });
   }
 
 
