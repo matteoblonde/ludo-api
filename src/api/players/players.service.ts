@@ -148,6 +148,7 @@ export class PlayersService {
 
   /**
    * Get exercises from Database
+   * @param teams
    * @param queryOptions
    */
   public async getPlayers(teams: string[], queryOptions?: QueryOptions) {
@@ -159,7 +160,6 @@ export class PlayersService {
       limit,
       skip
     } = queryOptions || {};
-    console.log(teams);
 
     const teamsQueryString = teams.map((team: string) => {
       return { teams: team };

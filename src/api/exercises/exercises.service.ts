@@ -130,6 +130,20 @@ export class ExercisesService {
 
 
   /**
+   * Updates the image URL of an exercise.
+   *
+   * @param {string} id - The ID of the exercise to update.
+   * @param {string} imgUrl - The new image URL.
+   * @returns {Promise} - A promise that resolves to the updated exercise document.
+   */
+  public async updateExerciseImgUrl(id: string, imgUrl: string): Promise<any> {
+    return this.exerciseModel.findByIdAndUpdate(id, {
+      imgUrl: imgUrl
+    });
+  }
+
+
+  /**
    * Get exercises from Database
    * @param teams
    * @param queryOptions

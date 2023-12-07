@@ -7,14 +7,17 @@ import {
   Patch,
   Post,
   Put,
-  Query,
+  Query, UploadedFile,
   UseGuards,
   UseInterceptors
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
+import { S3Service } from '../../aws';
 import { Exercise } from '../../database/models/Exercise/Exercise';
 import { Label } from '../../database/models/Label/Label';
+import user from '../../database/models/User/User';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { AccessTokenGuard } from '../auth/guards';
 import { IUserData } from '../auth/interfaces/UserData';
@@ -32,7 +35,8 @@ const parser = new MongooseQueryParser();
 export class ExercisesController {
 
   constructor(
-    private exercisesService: ExercisesService
+    private exercisesService: ExercisesService,
+    private s3Service: S3Service
   ) {
   }
 
@@ -95,6 +99,32 @@ export class ExercisesController {
   ) {
 
     return this.exercisesService.deleteExercise(id);
+
+  }
+
+
+  /**
+   * Uploads a file.
+   *
+   * @param {any} file - The uploaded file.
+   * @param {IUserData} userData - The user data.
+   * @param {string} id - The ID of the exercise.
+   * @returns {Promise<string>} A promise that resolves with the URL of the uploaded file.
+   */
+  @Post('upload/:id')
+  @UseGuards(AccessTokenGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(
+    @UploadedFile() file: any,
+    @UserData() userData: IUserData,
+    @Param('id') id: string
+  ): Promise<string> {
+    const result = await this.s3Service.uploadFile(file, userData.company);
+
+    const imgUrl = result.Location;
+
+    /** Update exercise with the url */
+    return this.exercisesService.updateExerciseImgUrl(id, imgUrl);
 
   }
 

@@ -21,7 +21,10 @@ type EnvToken =
   | 'SMTP_HOST'
   | 'SMTP_PORT'
   | 'SMTP_USER'
-  | 'SMTP_PASSWORD';
+  | 'SMTP_PASSWORD'
+  | 'AWS_ACCESS_KEY'
+  | 'AWS_SECRET_KEY'
+  | 'AWS_BUCKET_NAME';
 
 
 export function getRequiredEnv(token: EnvToken): string {

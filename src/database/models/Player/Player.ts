@@ -55,6 +55,9 @@ export class Player {
   @prop({ allowMixed: Severity.ALLOW })
   public stats?: ArraySubDocumentType<PlayerStat>;
 
+  @prop()
+  public birthDate?: Date;
+
   /** Field defined only in the match context */
   @prop()
   public goals?: number;

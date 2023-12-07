@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { Connection } from 'mongoose';
+import { S3Service } from '../../aws';
 
 import { DatabaseModule } from '../../database/database.module';
 import { DATABASE_CONNECTION } from '../../database/database.providers';
@@ -18,6 +19,7 @@ import { ExercisesService } from './exercises.service';
   controllers: [ ExercisesController ],
   providers  : [
     ExercisesService,
+    S3Service,
     {
       provide   : LabelTypeModel.collection.name,
       inject    : [ DATABASE_CONNECTION ],
