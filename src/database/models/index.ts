@@ -100,3 +100,10 @@ export {
 export {
   default as Team
 } from './Team/Team';
+
+/**
+ * Notification Model
+ */
+export {
+  default as Notification
+} from './Notification/Notification';
