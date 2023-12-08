@@ -42,6 +42,10 @@ export class Training {
     default: function (this: Training) {
       const dateString = new Date(this.trainingDate).toDateString();
       return `Training ${dateString}`;
+    },
+    set    : function (this: Training) {
+      const dateString = new Date(this.trainingDate).toDateString();
+      return `Training ${dateString}`;
     }
   })
   public trainingTitle?: string;
