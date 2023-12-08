@@ -22,6 +22,9 @@ export class Company {
   })
   companyNameSlugify!: string;
 
+  @prop()
+  public imgUrl?: string;
+
 }
 
 const CompanyModel = getModelForClass(Company);
