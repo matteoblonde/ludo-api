@@ -15,8 +15,10 @@ import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { Team } from '../../database/models/Team/Team';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
+import { UserData } from '../auth/decorators';
 
 import { AccessTokenGuard } from '../auth/guards';
+import { IUserData } from '../auth/interfaces/UserData';
 import { TeamsService } from './teams.service';
 
 
@@ -75,6 +77,24 @@ export class TeamsController {
 
     return this.teamsService.deleteTeam(id);
 
+  }
+
+
+  /**
+   * Retrieves the teams associated with the user.
+   *
+   * @param {IUserData} userData - The user data object containing the user ID.
+   * @returns {Promise<any>} The teams associated with the user.
+   *
+   * @useguards AccessTokenGuard
+   * @get user
+   */
+  @UseGuards(AccessTokenGuard)
+  @Get('user')
+  public async getUserTeams(
+    @UserData() userData: IUserData
+  ): Promise<any> {
+    return this.teamsService.getUserTeams(userData.userId);
   }
 
 

@@ -100,6 +100,22 @@ export class TeamsService {
 
 
   /**
+   * Retrieves the teams associated with a user.
+   *
+   * @param {string} userId - The unique identifier of the user.
+   *
+   * @return {Promise<Team[]>} - A promise that resolves to an array of Team objects representing the teams associated with the user.
+   */
+  public async getUserTeams(userId: string) {
+
+    return this.teamModel.find({
+      'users._id': userId
+    });
+
+  }
+
+
+  /**
    * Get teams from Database
    * @param queryOptions
    */
