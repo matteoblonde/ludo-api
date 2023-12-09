@@ -121,6 +121,31 @@ export class PlayersService {
 
 
   /**
+   * Updates the total stats of a player.
+   *
+   * @param {string} id - The unique identifier of the player.
+   * @param {Object} matchPlayerStats - The player's stats for a specific match.
+   * @param {number} matchPlayerStats.goals - The number of goals scored by the player in the match.
+   * @param {number} matchPlayerStats.assists - The number of assists made by the player in the match.
+   * @param {number} matchPlayerStats.minutes - The number of minutes played by the player in the match.
+   * @returns {Promise} - A promise that resolves to the updated player object or null if no player is found with the given id.
+   */
+  public async updatePlayerTotalStats(id: string, matchPlayerStats: any) {
+
+    const { goals, assist, minutes } = matchPlayerStats;
+
+    return this.playerModel.findByIdAndUpdate(id, {
+      $inc: {
+        totalGoals  : goals,
+        totalAssist : assist,
+        totalMinutes: minutes
+      }
+    });
+
+  }
+
+
+  /**
    * Delete one player into Database
    * @param id
    */

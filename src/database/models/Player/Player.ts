@@ -58,17 +58,41 @@ export class Player {
   @prop()
   public birthDate?: Date;
 
+  /** Field for the analysis */
+  @prop({
+    default: 0
+  })
+  public totalGoals?: number;
+
+  @prop({
+    default: 0
+  })
+  public totalAssist?: number;
+
+  @prop({
+    default: 0
+  })
+  public totalMinutes?: number;
+
   /** Field defined only in the match context */
-  @prop()
+  @prop({
+    default: 0
+  })
   public goals?: number;
 
-  @prop()
+  @prop({
+    default: 0
+  })
   public minutes?: number;
 
-  @prop()
+  @prop({
+    default: 0
+  })
   public assist?: number;
 
-  @prop()
+  @prop({
+    default: 0
+  })
   public rating?: number;
 
   @prop()

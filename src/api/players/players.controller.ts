@@ -100,6 +100,32 @@ export class PlayersController {
 
 
   /**
+   * Updates the total stats of a player.
+   *
+   * @param {string} id - The ID of the player.
+   * @param {any} matchPlayerStats - The updated total stats of the player.
+   * @returns {Promise<any>} The updated total stats of the player.
+   *
+   * @example
+   * const id = '123';
+   * const matchPlayerStats = {
+   *   goals: 10,
+   *   assist: 5,
+   *   minutes: 2
+   * };
+   * const updatedStats = await updatePlayerTotalStats(id, matchPlayerStats);
+   */
+  @UseGuards(AccessTokenGuard)
+  @Patch('total-stats/:id')
+  public async updatePlayerTotalStats(
+    @Param('id') id: string,
+    @Body() matchPlayerStats: any
+  ): Promise<any> {
+    return this.playersService.updatePlayerTotalStats(id, matchPlayerStats);
+  }
+
+
+  /**
    * Endpoint to delete one Exercise from mongoDB Database
    * @param id
    */
