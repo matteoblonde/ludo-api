@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { TrainingType } from '../../database/models/TrainingType/TrainingType';
+import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { AccessTokenGuard } from '../auth/guards';
 import { TrainingTypesService } from './training-types.service';
 
@@ -10,6 +11,7 @@ const parser = new MongooseQueryParser();
 
 @ApiTags('TrainingTypes')
 @Controller('training-types')
+@UseInterceptors(HttpCacheInterceptor)
 export class TrainingTypesController {
 
   constructor(

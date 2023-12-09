@@ -178,16 +178,12 @@ export class ExercisesService {
       query = query.skip(skip);
     }
 
-    /*if (select) {
-      query = query.select(select);
-    }*/
-
     /** Execute the Query */
     const [ error, docs ] = await will(query.exec());
 
     /** Assert no error has been found */
     if (error) {
-      throw new InternalServerErrorException(error, 'data-accessor/query-error');
+      throw new InternalServerErrorException(error, 'exercises/query-error');
     }
 
     return docs;
