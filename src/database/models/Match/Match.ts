@@ -1,6 +1,14 @@
-import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import {
+  ArraySubDocumentType,
+  getModelForClass,
+  modelOptions,
+  prop,
+  Severity,
+  SubDocumentType
+} from '@typegoose/typegoose';
 import { Label } from '../Label/Label';
 import { Player } from '../Player/Player';
+import { Team } from '../Team/Team';
 
 
 @modelOptions({ schemaOptions: { collection: 'matches' } })
@@ -14,6 +22,9 @@ export class Match {
 
   @prop()
   matchName?: string;
+
+  @prop({ allowMixed: Severity.ALLOW })
+  team?: SubDocumentType<Team>;
 
   @prop()
   opposingTeamName?: string;
