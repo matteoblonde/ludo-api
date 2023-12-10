@@ -6,6 +6,8 @@ import { DatabaseModule } from '../../database/database.module';
 import { DATABASE_CONNECTION } from '../../database/database.providers';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import LabelTypeSchema from '../../database/models/LabelType/LabelType.Schema';
+import MatchModel from '../../database/models/Match/Match';
+import MatchSchema from '../../database/models/Match/Match.schema';
 import PlayerModel from '../../database/models/Player/Player';
 import PlayerSchema from '../../database/models/Player/Player.Schema';
 import PlayerStatModel from '../../database/models/PlayerStat/PlayerStat';
@@ -36,12 +38,18 @@ import { PlayersService } from './players.service';
       provide   : PlayerModel.collection.name,
       inject    : [ DATABASE_CONNECTION ],
       useFactory: (connection: Connection) => connection.model(PlayerModel.collection.name, PlayerSchema)
+    },
+    {
+      provide   : MatchModel.collection.name,
+      inject    : [ DATABASE_CONNECTION ],
+      useFactory: (connection: Connection) => connection.model(MatchModel.collection.name, MatchSchema)
     }
   ],
   imports    : [
     DatabaseModule,
     AuthModule
-  ]
+  ],
+  exports    : [ PlayersService ]
 })
 export class PlayersModule {
 }

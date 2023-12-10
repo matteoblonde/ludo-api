@@ -1,10 +1,12 @@
-import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Inject, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { will } from '@proedis/utils';
+import * as console from 'console';
 import { QueryOptions } from 'mongoose-query-parser';
 import { Label } from '../../database/models/Label/Label';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import MatchModel, { Match } from '../../database/models/Match/Match';
-import { Player } from '../../database/models/Player/Player';
+import player, { Player } from '../../database/models/Player/Player';
+import { PlayersService } from '../players/players.service';
 
 
 export class MatchesService {
@@ -13,7 +15,9 @@ export class MatchesService {
     @Inject(MatchModel.collection.name)
     private readonly matchModel: typeof MatchModel,
     @Inject(LabelTypeModel.collection.name)
-    private readonly labelTypeModel: typeof LabelTypeModel
+    private readonly labelTypeModel: typeof LabelTypeModel,
+    @Inject(PlayersService)
+    private playersService: PlayersService
   ) {
 
   }
@@ -86,15 +90,54 @@ export class MatchesService {
 
 
   /**
-   * Function to update only players array in the match
-   * @param id
-   * @param players
+   * Updates the players in a match.
+   *
+   * @param {string} id - The ID of the match.
+   * @param {Player[]} players - An array of Player objects representing the new players of the match.
+   * @return {Promise<any>} - A Promise that resolves with the updated match object if successful.
    */
-  public async updateMatchPlayers(id: string, players: Player[]) {
+  public async updateMatchPlayers(id: string, players: Player[]): Promise<any> {
 
     return this.matchModel.findByIdAndUpdate(id, {
       players: players
     });
+  }
+
+
+  /**
+   * Updates the match report for a single player.
+   *
+   * @param {string} matchId - The ID of the match.
+   * @param {string} playerId - The ID of the player.
+   * @param {Object} player - The updated data for the player.
+   * @throws {NotFoundException} If the player with the given ID is not found in the match.
+   * @returns {Object} A message indicating that the match report has been updated successfully.
+   */
+  public async updateMatchSinglePlayer(matchId: string, playerId: string, player: any): Promise<object> {
+
+    /** Find the match */
+    const match: any = await this.matchModel.findById(matchId);
+    const playerIndex = match.players.findIndex((p: any) => p._id === playerId);
+
+    /** If no player has been found return error */
+    if (playerIndex === -1) {
+      throw new NotFoundException(`Player with ID: ${playerId} not found in the match`);
+    }
+
+    /** Update data of the player */
+    Object.assign(match.players[playerIndex], player);
+    match.markModified('players');
+
+    /** Save the match */
+    await match.save();
+
+    /** Update total stats of the player asynchronous */
+    this.playersService.updatePlayerTotalStats(playerId).catch(err => {
+      console.error('Error during total stats update', err);
+    });
+
+    /** Return */
+    return { message: 'Match report updated successfully' };
 
   }
 
@@ -126,7 +169,15 @@ export class MatchesService {
     }
 
     /** Call mongoose method to delete document */
+    const match: any = await this.matchModel.findById(id);
     await this.matchModel.findByIdAndDelete(id);
+
+    /** For each player in the match run the update of statistics */
+    match?.players.forEach((player: any) => {
+      this.playersService.updatePlayerTotalStats(player._id).catch(err => {
+        console.error('Error during total stats update', err);
+      });
+    });
 
     /** Return a JSON with ID and message */
     return {

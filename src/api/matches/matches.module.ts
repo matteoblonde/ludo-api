@@ -10,6 +10,7 @@ import MatchModel from '../../database/models/Match/Match';
 import MatchSchema from '../../database/models/Match/Match.schema';
 
 import { AuthModule } from '../auth/auth.module';
+import { PlayersModule } from '../players/players.module';
 import { MatchesController } from './matches.controller';
 import { MatchesService } from './matches.service';
 
@@ -33,7 +34,8 @@ import { MatchesService } from './matches.service';
   ],
   imports    : [
     DatabaseModule,
-    AuthModule
+    AuthModule,
+    PlayersModule
   ]
 })
 export class MatchesModule {

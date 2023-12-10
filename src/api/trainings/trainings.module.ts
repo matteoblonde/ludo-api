@@ -9,7 +9,6 @@ import TrainingModel from '../../database/models/Training/Training';
 import TrainingSchema from '../../database/models/Training/Training.Schema';
 import { AuthModule } from '../auth/auth.module';
 import { NotificationsModule } from '../notifications/notifications.module';
-import { NotificationsService } from '../notifications/notifications.service';
 import { TrainingsController } from './trainings.controller';
 import { TrainingsService } from './trainings.service';
 

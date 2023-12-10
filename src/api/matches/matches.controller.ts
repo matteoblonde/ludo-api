@@ -71,16 +71,41 @@ export class MatchesController {
 
   /**
    * Endpoint to update players array in the match
-   * @param id
-   * @param players
+   *
+   * @param {string} id - The ID of the match to update
+   * @param {Player[]} players - The updated players array
+   *
+   * @return {Promise<void>} - Returns a Promise that resolves to void
    */
   @UseGuards(AccessTokenGuard)
   @Patch('players/:id')
   public async updateMatchPlayers(
     @Param('id') id: string,
     @Body() players: Player[]
-  ) {
+  ): Promise<void> {
     return this.matchesService.updateMatchPlayers(id, players);
+  }
+
+
+  /**
+   * Updates a single player in a match.
+   *
+   * @param {string} matchId - The ID of the match.
+   * @param {string} playerId - The ID of the player.
+   * @param {Player} player - The updated player object.
+   * @returns {Promise<any>} - A Promise that resolves to the updated match with the updated player.
+   *
+   * @UseGuards(AccessTokenGuard)
+   * @Patch(':matchId/players/:playerId')
+   */
+  @UseGuards(AccessTokenGuard)
+  @Patch(':matchId/player/:playerId')
+  public async updateMatchSinglePlayer(
+    @Param('matchId') matchId: string,
+    @Param('playerId') playerId: string,
+    @Body() player: Player
+  ): Promise<any> {
+    return this.matchesService.updateMatchSinglePlayer(matchId, playerId, player);
   }
 
 

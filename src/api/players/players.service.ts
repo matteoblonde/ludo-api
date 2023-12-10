@@ -1,8 +1,16 @@
-import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException
+} from '@nestjs/common';
 import { will } from '@proedis/utils';
+import { warnNotMatchingExisting } from '@typegoose/typegoose/lib/internal/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import { Label } from '../../database/models/Label/Label';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
+import MatchModel from '../../database/models/Match/Match';
 
 import PlayerModel, { Player } from '../../database/models/Player/Player';
 import PlayerStatModel, { PlayerStat } from '../../database/models/PlayerStat/PlayerStat';
@@ -11,6 +19,7 @@ import user from '../../database/models/User/User';
 import { IUserData } from '../auth/interfaces/UserData';
 
 
+@Injectable()
 export class PlayersService {
 
   constructor(
@@ -19,7 +28,9 @@ export class PlayersService {
     @Inject(LabelTypeModel.collection.name)
     private readonly labelTypeModel: typeof LabelTypeModel,
     @Inject(PlayerStatModel.collection.name)
-    private readonly playerStatModel: typeof PlayerStatModel
+    private readonly playerStatModel: typeof PlayerStatModel,
+    @Inject(MatchModel.collection.name)
+    private readonly matchModel: typeof MatchModel
   ) {
 
   }
@@ -121,26 +132,54 @@ export class PlayersService {
 
 
   /**
-   * Updates the total stats of a player.
+   * Updates the total statistics of a player based on their match performances.
    *
-   * @param {string} id - The unique identifier of the player.
-   * @param {Object} matchPlayerStats - The player's stats for a specific match.
-   * @param {number} matchPlayerStats.goals - The number of goals scored by the player in the match.
-   * @param {number} matchPlayerStats.assists - The number of assists made by the player in the match.
-   * @param {number} matchPlayerStats.minutes - The number of minutes played by the player in the match.
-   * @returns {Promise} - A promise that resolves to the updated player object or null if no player is found with the given id.
+   * @param {string} id - The ID of the player.
+   *
+   * @throws {NotFoundException} If no matches are found for the player ID.
+   *
+   * @return {Promise<any>} A Promise that resolves with an object containing the updated total statistics:
+   *  - totalGoals: The total number of goals scored by the player.
+   *  - totalMinutes: The total number of minutes played by the player.
+   *  - totalAssist: The total number of assists made by the player.
    */
-  public async updatePlayerTotalStats(id: string, matchPlayerStats: any) {
+  public async updatePlayerTotalStats(id: string): Promise<any> {
 
-    const { goals, assist, minutes } = matchPlayerStats;
+    /** Find all the matches with this player */
+    const matches: any = await this.matchModel.find({ 'players._id': id });
 
-    return this.playerModel.findByIdAndUpdate(id, {
-      $inc: {
-        totalGoals  : goals,
-        totalAssist : assist,
-        totalMinutes: minutes
-      }
+    /** If no match has been found return error */
+    if (!matches) {
+      console.error(`No match has been found for this playerId: ${id}`);
+    }
+
+    /** Initialize global stats */
+    let totalGoals = 0;
+    let totalMinutes = 0;
+    let totalAssist = 0;
+
+    /** Iteration for all matches and calculate stats */
+    matches.forEach((match: any) => {
+      match.players.forEach((player: any) => {
+        if (player._id === id) {
+          totalGoals += player.goals;
+          totalMinutes += player.minutes;
+          totalAssist += player.assist;
+        }
+      });
     });
+
+    /** Update player record */
+    this.playerModel.findByIdAndUpdate(id, {
+      totalGoals  : totalGoals,
+      totalMinutes: totalMinutes,
+      totalAssist : totalAssist
+    }).exec().catch(err => {
+      console.error('Player not found', err);
+    });
+
+    /** Return */
+    return { totalGoals, totalMinutes, totalAssist };
 
   }
 

@@ -106,7 +106,7 @@ export class TeamsService {
    *
    * @return {Promise<Team[]>} - A promise that resolves to an array of Team objects representing the teams associated with the user.
    */
-  public async getUserTeams(userId: string) {
+  public async getUserTeams(userId: string): Promise<Team[]> {
 
     return this.teamModel.find({
       'users._id': userId
