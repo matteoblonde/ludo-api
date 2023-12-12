@@ -282,19 +282,27 @@ export class AuthService {
       const roleModel = signUpConnection.model(RoleModel.collection.name, RoleSchema);
       const teamModel = signUpConnection.model(TeamModel.collection.name, TeamSchema);
 
-      /** Initialize the first role */
-      const role = new roleModel({
-        roleName : 'Admin',
-        roleLevel: 100
-      });
-      await role.save();
+      /** Check if 'Admin' role already exists */
+      let role = await roleModel.findOne({ roleName: 'Admin' });
+      if (!role) {
+        /** Initialize the first role */
+        role = new roleModel({
+          roleName : 'Admin',
+          roleLevel: 100
+        });
+        await role.save();
+      }
 
-      /** Initialize the first Team, with the same name of the company */
-      const team = new teamModel({
-        teamName: company.companyName,
-        users   : [ userExist ]
-      });
-      await team.save();
+      /** Check if team with the company name already exists */
+      let team = await teamModel.findOne({ teamName: company.companyName });
+      if (!team) {
+        /** Initialize the first Team, with the same name of the company */
+        team = new teamModel({
+          teamName: company.companyName,
+          users   : [ userExist ]
+        });
+        await team.save();
+      }
 
       /** Save and return the modified user */
       return this.User.findByIdAndUpdate(userId, {
