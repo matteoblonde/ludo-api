@@ -298,8 +298,7 @@ export class AuthService {
       if (!team) {
         /** Initialize the first Team, with the same name of the company */
         team = new teamModel({
-          teamName: company.companyName,
-          users   : [ userExist ]
+          teamName: company.companyName
         });
         await team.save();
       }
