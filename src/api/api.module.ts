@@ -16,6 +16,7 @@ import { PlayerStatsModule } from './player-stats/player-stats.module';
 import { PlayersModule } from './players/players.module';
 import { RolesModule } from './roles/roles.module';
 import { TeamsModule } from './teams/teams.module';
+import { TrainingAbsencesModule } from './training-absences/training-absences.module';
 import { TrainingTypesModule } from './training-types/training-types.module';
 import { TrainingsModule } from './trainings/trainings.module';
 import { UsersModule } from './users/users.module';
@@ -48,6 +49,7 @@ import { UsersModule } from './users/users.module';
     TeamsModule,
     RolesModule,
     NotificationsModule,
+    TrainingAbsencesModule,
 
     /**
      * NestJs Module
