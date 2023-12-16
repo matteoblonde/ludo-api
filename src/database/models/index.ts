@@ -107,3 +107,10 @@ export {
 export {
   default as Notification
 } from './Notification/Notification';
+
+/**
+ * TrainingAbsence Model
+ */
+export {
+  default as TrainingAbsence
+} from './TrainingAbsence/TrainingAbsence';
