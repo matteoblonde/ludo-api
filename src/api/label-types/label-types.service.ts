@@ -2,15 +2,16 @@ import { BadRequestException, Inject, InternalServerErrorException } from '@nest
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import LabelTypeModel, { LabelType } from '../../database/models/LabelType/LabelType';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
-export class LabelTypesService {
+export class LabelTypesService extends AbstractedCrudService<LabelType> {
 
   constructor(
     @Inject(LabelTypeModel.collection.name)
     private readonly labelTypeModel: typeof LabelTypeModel
   ) {
-
+    super(labelTypeModel);
   }
 
 
@@ -46,7 +47,7 @@ export class LabelTypesService {
 
     /* Find the recordId */
     await this.labelTypeModel.findById(id).exec().then(async (exist: any) => {
-      
+
       /* If none records found, exit */
       if (exist !== null) {
         await this.labelTypeModel.replaceOne({ _id: id }, labelType);
@@ -89,49 +90,6 @@ export class LabelTypesService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get label types from Database
-   * @param queryOptions
-   */
-  public async getLabelTypes(queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    /** Build the query */
-    let query = this.labelTypeModel.find(filter);
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'label-types/query-error');
-    }
-
-    return docs;
 
   }
 

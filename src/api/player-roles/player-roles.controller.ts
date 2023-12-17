@@ -74,7 +74,7 @@ export class PlayerRolesController {
   public async getPlayerRole(
     @Query() query: string
   ) {
-    return this.playerRolesService.getPlayerRole(parser.parse(query));
+    return this.playerRolesService.get([], parser.parse(query));
   }
 
 

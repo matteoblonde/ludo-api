@@ -3,16 +3,17 @@ import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 
 import NotificationModel, { Notification } from '../../database/models/Notification/Notification';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
 @Injectable()
-export class NotificationsService {
+export class NotificationsService extends AbstractedCrudService<Notification> {
 
   constructor(
     @Inject(NotificationModel.collection.name)
     private readonly notificationModel: typeof NotificationModel
   ) {
-
+    super(notificationModel);
   }
 
 
@@ -96,54 +97,6 @@ export class NotificationsService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get notifications from Database
-   * @param teams
-   * @param queryOptions
-   */
-  public async getNotifications(teams: string[], queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    const teamsQueryString = teams.map((team: string) => {
-      return { teams: team };
-    });
-
-    /** Build the query */
-    let query = this.notificationModel.find({ '$or': teamsQueryString, ...filter });
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'notifications/query-error');
-    }
-
-    return docs;
 
   }
 

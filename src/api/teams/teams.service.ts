@@ -6,9 +6,10 @@ import team from '../../database/models/Team/Team';
 import TeamModel, { Team } from '../../database/models/Team/Team';
 import user from '../../database/models/User/User';
 import UserModel from '../../database/models/User/User';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
-export class TeamsService {
+export class TeamsService extends AbstractedCrudService<Team> {
 
   constructor(
     @Inject(TeamModel.collection.name)
@@ -16,7 +17,7 @@ export class TeamsService {
     @Inject(UserModel.collection.name)
     private readonly userModel: typeof UserModel
   ) {
-
+    super(teamModel);
   }
 
 
@@ -111,49 +112,6 @@ export class TeamsService {
     return this.teamModel.find({
       'users._id': userId
     });
-
-  }
-
-
-  /**
-   * Get teams from Database
-   * @param queryOptions
-   */
-  public async getTeams(queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    /** Build the query */
-    let query = this.teamModel.find(filter);
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'teams/query-error');
-    }
-
-    return docs;
 
   }
 

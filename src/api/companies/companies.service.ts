@@ -2,16 +2,17 @@ import { BadRequestException, Inject, InternalServerErrorException } from '@nest
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import CompanyModel, { Company } from '../../database/models/Company/Company';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 import { IUserData } from '../auth/interfaces/UserData';
 
 
-export class CompaniesService {
+export class CompaniesService extends AbstractedCrudService<Company> {
 
   constructor(
     @Inject(CompanyModel.collection.name)
     private readonly companyModel: typeof CompanyModel
   ) {
-
+    super(companyModel);
   }
 
 
@@ -92,49 +93,6 @@ export class CompaniesService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get exercises from Database
-   * @param queryOptions
-   */
-  public async getCompanies(queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    /** Build the query */
-    let query = this.companyModel.find(filter);
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'companies/query-error');
-    }
-
-    return docs;
 
   }
 

@@ -150,7 +150,7 @@ export class MatchesController {
     @Query() query: string,
     @UserData() userData: IUserData
   ) {
-    return this.matchesService.getMatches(userData.teams, parser.parse(query));
+    return this.matchesService.get(userData.teams, parser.parse(query));
   }
 
 

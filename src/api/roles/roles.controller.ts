@@ -75,7 +75,7 @@ export class RolesController {
   public async getRoles(
     @Query() query: string
   ) {
-    return this.rolesService.getRoles(parser.parse(query));
+    return this.rolesService.get([], parser.parse(query));
   }
 
 

@@ -6,10 +6,11 @@ import { Label } from '../../database/models/Label/Label';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import MatchModel, { Match } from '../../database/models/Match/Match';
 import player, { Player } from '../../database/models/Player/Player';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 import { PlayersService } from '../players/players.service';
 
 
-export class MatchesService {
+export class MatchesService extends AbstractedCrudService<Match> {
 
   constructor(
     @Inject(MatchModel.collection.name)
@@ -19,7 +20,7 @@ export class MatchesService {
     @Inject(PlayersService)
     private playersService: PlayersService
   ) {
-
+    super(matchModel);
   }
 
 
@@ -184,54 +185,6 @@ export class MatchesService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get matches from Database
-   * @param teams
-   * @param queryOptions
-   */
-  public async getMatches(teams: string[], queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    const teamsQueryString = teams.map((team: string) => {
-      return { teams: team };
-    });
-
-    /** Build the query */
-    let query = this.matchModel.find({ '$or': teamsQueryString, ...filter });
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'matches/query-error');
-    }
-
-    return docs;
 
   }
 

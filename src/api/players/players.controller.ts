@@ -147,8 +147,8 @@ export class PlayersController {
     @Query() query: string,
     @UserData() userData: IUserData
   ) {
-
-    return this.playersService.getPlayers(userData.teams, parser.parse(query));
+    
+    return this.playersService.get(userData.teams, parser.parse(query));
   }
 
 

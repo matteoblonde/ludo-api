@@ -2,15 +2,16 @@ import { BadRequestException, Inject, InternalServerErrorException } from '@nest
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import TrainingAbsenceModel, { TrainingAbsence } from '../../database/models/TrainingAbsence/TrainingAbsence';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
-export class TrainingAbsencesService {
+export class TrainingAbsencesService extends AbstractedCrudService<TrainingAbsence> {
 
   constructor(
     @Inject(TrainingAbsenceModel.collection.name)
     private readonly trainingAbsencesModel: typeof TrainingAbsenceModel
   ) {
-
+    super(trainingAbsencesModel);
   }
 
 
@@ -89,49 +90,6 @@ export class TrainingAbsencesService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get trainingAbsence from Database
-   * @param queryOptions
-   */
-  public async getTrainingAbsences(queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    /** Build the query */
-    let query = this.trainingAbsencesModel.find(filter);
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'training-absences/query-error');
-    }
-
-    return docs;
 
   }
 

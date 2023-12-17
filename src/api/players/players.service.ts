@@ -2,11 +2,9 @@ import {
   BadRequestException,
   Inject,
   Injectable,
-  InternalServerErrorException,
-  NotFoundException
+  InternalServerErrorException
 } from '@nestjs/common';
 import { will } from '@proedis/utils';
-import { warnNotMatchingExisting } from '@typegoose/typegoose/lib/internal/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import { Label } from '../../database/models/Label/Label';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
@@ -14,13 +12,11 @@ import MatchModel from '../../database/models/Match/Match';
 
 import PlayerModel, { Player } from '../../database/models/Player/Player';
 import PlayerStatModel, { PlayerStat } from '../../database/models/PlayerStat/PlayerStat';
-import team from '../../database/models/Team/Team';
-import user from '../../database/models/User/User';
-import { IUserData } from '../auth/interfaces/UserData';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
 @Injectable()
-export class PlayersService {
+export class PlayersService extends AbstractedCrudService<Player> {
 
   constructor(
     @Inject(PlayerModel.collection.name)
@@ -32,7 +28,7 @@ export class PlayersService {
     @Inject(MatchModel.collection.name)
     private readonly matchModel: typeof MatchModel
   ) {
-
+    super(playerModel);
   }
 
 
@@ -206,54 +202,6 @@ export class PlayersService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get exercises from Database
-   * @param teams
-   * @param queryOptions
-   */
-  public async getPlayers(teams: string[], queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    const teamsQueryString = teams.map((team: string) => {
-      return { teams: team };
-    });
-
-    /** Build the query */
-    let query = this.playerModel.find({ '$or': teamsQueryString, ...filter });
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'player/query-error');
-    }
-
-    return docs;
 
   }
 

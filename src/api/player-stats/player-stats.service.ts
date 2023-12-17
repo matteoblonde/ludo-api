@@ -1,17 +1,17 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
-import PlayerRoleModel, { PlayerRole } from '../../database/models/PlayerRole/PlayerRole';
 import PlayerStatModel, { PlayerStat } from '../../database/models/PlayerStat/PlayerStat';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
-export class PlayerStatsService {
+export class PlayerStatsService extends AbstractedCrudService<PlayerStat> {
 
   constructor(
     @Inject(PlayerStatModel.collection.name)
     private readonly playerStatModel: typeof PlayerStatModel
   ) {
-
+    super(playerStatModel);
   }
 
 
@@ -90,51 +90,6 @@ export class PlayerStatsService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get player stat from Database
-   * @param queryOptions
-   */
-  public async getPlayerStat(queryOptions?: QueryOptions) {
-
-    console.log(queryOptions);
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    /** Build the query */
-    let query = this.playerStatModel.find(filter);
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'player-stats/query-error');
-    }
-
-    return docs;
 
   }
 

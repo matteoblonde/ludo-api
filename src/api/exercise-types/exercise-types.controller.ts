@@ -74,7 +74,7 @@ export class ExerciseTypesController {
   public async getExerciseTypes(
     @Query() query: string
   ) {
-    return this.exerciseTypesService.getExerciseTypes(parser.parse(query));
+    return this.exerciseTypesService.get([], parser.parse(query));
   }
 
 

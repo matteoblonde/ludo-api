@@ -4,9 +4,10 @@ import { QueryOptions } from 'mongoose-query-parser';
 import ExerciseModel, { Exercise } from '../../database/models/Exercise/Exercise';
 import { Label } from '../../database/models/Label/Label';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
-export class ExercisesService {
+export class ExercisesService extends AbstractedCrudService<Exercise> {
 
   constructor(
     @Inject(ExerciseModel.collection.name)
@@ -14,7 +15,7 @@ export class ExercisesService {
     @Inject(LabelTypeModel.collection.name)
     private readonly labelTypeModel: typeof LabelTypeModel
   ) {
-
+    super(exerciseModel);
   }
 
 
@@ -140,54 +141,6 @@ export class ExercisesService {
     return this.exerciseModel.findByIdAndUpdate(id, {
       imgUrl: imgUrl
     });
-  }
-
-
-  /**
-   * Get exercises from Database
-   * @param teams
-   * @param queryOptions
-   */
-  public async getExercises(teams: string[], queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    const teamsQueryString = teams.map((team: string) => {
-      return { teams: team };
-    });
-
-    /** Build the query */
-    let query = this.exerciseModel.find({ '$or': teamsQueryString, ...filter });
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'exercises/query-error');
-    }
-
-    return docs;
-
   }
 
 }

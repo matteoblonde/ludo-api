@@ -83,7 +83,7 @@ export class NotificationsController {
     @Query() query: string,
     @UserData() userData: IUserData
   ) {
-    return this.notificationService.getNotifications(userData.teams, parser.parse(query));
+    return this.notificationService.get(userData.teams, parser.parse(query));
   }
 
 

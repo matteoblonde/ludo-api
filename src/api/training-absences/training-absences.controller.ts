@@ -75,7 +75,7 @@ export class TrainingAbsencesController {
   public async getPlayerRole(
     @Query() query: string
   ) {
-    return this.trainingAbsencesService.getTrainingAbsences(parser.parse(query));
+    return this.trainingAbsencesService.get([], parser.parse(query));
   }
 
 

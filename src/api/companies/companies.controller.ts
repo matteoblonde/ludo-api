@@ -73,7 +73,7 @@ export class CompaniesController {
   public async getCompanies(
     @Query() query: string
   ) {
-    return this.companiesService.getCompanies(parser.parse(query));
+    return this.companiesService.get([], parser.parse(query));
   }
 
 

@@ -2,15 +2,16 @@ import { BadRequestException, Inject, InternalServerErrorException } from '@nest
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import ExerciseTypeModel, { ExerciseType } from '../../database/models/ExerciseType/ExerciseType';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
-export class ExerciseTypesService {
+export class ExerciseTypesService extends AbstractedCrudService<ExerciseType> {
 
   constructor(
     @Inject(ExerciseTypeModel.collection.name)
     private readonly exerciseTypeModel: typeof ExerciseTypeModel
   ) {
-
+    super(exerciseTypeModel);
   }
 
 
@@ -46,7 +47,7 @@ export class ExerciseTypesService {
 
     /* Find the recordId */
     await this.exerciseTypeModel.findById(id).exec().then(async (exist: any) => {
-      
+
       /* If none records found, exit */
       if (exist !== null) {
         await this.exerciseTypeModel.replaceOne({ _id: id }, exerciseType);
@@ -89,49 +90,6 @@ export class ExerciseTypesService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get exercise types from Database
-   * @param queryOptions
-   */
-  public async getExerciseTypes(queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    /** Build the query */
-    let query = this.exerciseTypeModel.find(filter);
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'exercise-types/query-error');
-    }
-
-    return docs;
 
   }
 

@@ -107,7 +107,7 @@ export class TeamsController {
   public async getTeams(
     @Query() query: string
   ) {
-    return this.teamsService.getTeams(parser.parse(query));
+    return this.teamsService.get([], parser.parse(query));
   }
 
 

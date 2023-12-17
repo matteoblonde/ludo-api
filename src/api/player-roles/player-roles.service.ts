@@ -2,15 +2,16 @@ import { BadRequestException, Inject, InternalServerErrorException } from '@nest
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import PlayerRoleModel, { PlayerRole } from '../../database/models/PlayerRole/PlayerRole';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
-export class PlayerRolesService {
+export class PlayerRolesService extends AbstractedCrudService<PlayerRole> {
 
   constructor(
     @Inject(PlayerRoleModel.collection.name)
     private readonly playerRoleModel: typeof PlayerRoleModel
   ) {
-
+    super(playerRoleModel);
   }
 
 
@@ -89,49 +90,6 @@ export class PlayerRolesService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get player roles from Database
-   * @param queryOptions
-   */
-  public async getPlayerRole(queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    /** Build the query */
-    let query = this.playerRoleModel.find(filter);
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'player-roles/query-error');
-    }
-
-    return docs;
 
   }
 

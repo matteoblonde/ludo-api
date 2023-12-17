@@ -128,8 +128,7 @@ export class ExercisesController {
 
   }
 
-
-  // TODO: Use the roleLevel to determine if filtering for teamID or not
+  
   /**
    * Endpoint to dynamically query mongoDB Database
    * @param query
@@ -141,7 +140,7 @@ export class ExercisesController {
     @Query() query: string,
     @UserData() userData: IUserData
   ) {
-    return this.exercisesService.getExercises(userData.teams, parser.parse(query));
+    return this.exercisesService.get(userData.teams, parser.parse(query));
   }
 
 

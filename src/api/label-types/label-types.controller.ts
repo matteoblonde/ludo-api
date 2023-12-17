@@ -75,7 +75,7 @@ export class LabelTypesController {
   public async getLabelTypes(
     @Query() query: string
   ) {
-    return this.labelTypesService.getLabelTypes(parser.parse(query));
+    return this.labelTypesService.get([], parser.parse(query));
   }
 
 

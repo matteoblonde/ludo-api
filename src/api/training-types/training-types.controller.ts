@@ -74,7 +74,7 @@ export class TrainingTypesController {
   public async getTrainingTypes(
     @Query() query: string
   ) {
-    return this.trainingTypesService.getTrainingTypes(parser.parse(query));
+    return this.trainingTypesService.get([], parser.parse(query));
   }
 
 

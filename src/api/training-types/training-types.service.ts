@@ -2,15 +2,16 @@ import { BadRequestException, Inject, InternalServerErrorException } from '@nest
 import { will } from '@proedis/utils';
 import { QueryOptions } from 'mongoose-query-parser';
 import TrainingTypeModel, { TrainingType } from '../../database/models/TrainingType/TrainingType';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
-export class TrainingTypesService {
+export class TrainingTypesService extends AbstractedCrudService<TrainingType> {
 
   constructor(
     @Inject(TrainingTypeModel.collection.name)
     private readonly trainingTypeModel: typeof TrainingTypeModel
   ) {
-
+    super(trainingTypeModel);
   }
 
 
@@ -89,49 +90,6 @@ export class TrainingTypesService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get training types from Database
-   * @param queryOptions
-   */
-  public async getTrainingTypes(queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    /** Build the query */
-    let query = this.trainingTypeModel.find(filter);
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'training-types/query-error');
-    }
-
-    return docs;
 
   }
 

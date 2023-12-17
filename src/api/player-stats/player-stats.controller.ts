@@ -74,7 +74,7 @@ export class PlayerStatsController {
   public async getPlayerStat(
     @Query() query: string
   ) {
-    return this.playerStatsService.getPlayerStat(parser.parse(query));
+    return this.playerStatsService.get([], parser.parse(query));
   }
 
 

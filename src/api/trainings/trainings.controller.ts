@@ -108,7 +108,7 @@ export class TrainingsController {
     @Query() query: string,
     @UserData() userData: IUserData
   ) {
-    return this.trainingsService.getTrainings(userData.teams, parser.parse(query));
+    return this.trainingsService.get(userData.teams, parser.parse(query));
   }
 
 

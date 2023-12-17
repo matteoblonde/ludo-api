@@ -4,11 +4,12 @@ import { QueryOptions } from 'mongoose-query-parser';
 import { Label } from '../../database/models/Label/Label';
 
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
-import TrainingModel from '../../database/models/Training/Training';
+import TrainingModel, { Training } from '../../database/models/Training/Training';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
 
-export class TrainingsService {
+export class TrainingsService extends AbstractedCrudService<Training> {
 
   constructor(
     @Inject(TrainingModel.collection.name)
@@ -18,7 +19,7 @@ export class TrainingsService {
     @Inject(NotificationsService)
     private notificationService: NotificationsService
   ) {
-
+    super(trainingModel);
   }
 
 
@@ -138,54 +139,6 @@ export class TrainingsService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get trainings from Database
-   * @param teams
-   * @param queryOptions
-   */
-  public async getTrainings(teams: string[], queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    const teamsQueryString = teams.map((team: string) => {
-      return { teams: team };
-    });
-
-    /** Build the query */
-    let query = this.trainingModel.find({ '$or': teamsQueryString, ...filter });
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'trainings/query-error');
-    }
-
-    return docs;
 
   }
 
