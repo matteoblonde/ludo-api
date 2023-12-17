@@ -1,11 +1,9 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { Model } from 'mongoose';
-import { MongooseQueryParser, QueryOptions } from 'mongoose-query-parser';
+import { QueryOptions } from 'mongoose-query-parser';
 import { ICrudService } from './interfaces/CrudService';
 
-
-const parser = new MongooseQueryParser();
 
 @Injectable()
 export abstract class AbstractedCrudService<T> implements ICrudService<T> {

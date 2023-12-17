@@ -16,7 +16,6 @@ import { MongooseQueryParser } from 'mongoose-query-parser';
 import { Label } from '../../database/models/Label/Label';
 import { Player } from '../../database/models/Player/Player';
 import { PlayerStat } from '../../database/models/PlayerStat/PlayerStat';
-import user from '../../database/models/User/User';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { UserData } from '../auth/decorators';
 import { AccessTokenGuard } from '../auth/guards';
@@ -147,7 +146,7 @@ export class PlayersController {
     @Query() query: string,
     @UserData() userData: IUserData
   ) {
-    
+
     return this.playersService.get(userData.teams, parser.parse(query));
   }
 

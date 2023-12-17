@@ -130,7 +130,6 @@ export class PlayersService extends AbstractedCrudService<Player> {
    *
    * @param {string} id - The ID of the player.
    *
-   * @throws {NotFoundException} If no matches are found for the player ID.
    *
    * @return {Promise<any>} A Promise that resolves with an object containing the updated total statistics:
    *  - totalGoals: The total number of goals scored by the player.

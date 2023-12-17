@@ -17,7 +17,6 @@ import { MongooseQueryParser } from 'mongoose-query-parser';
 import { S3Service } from '../../aws';
 import { Exercise } from '../../database/models/Exercise/Exercise';
 import { Label } from '../../database/models/Label/Label';
-import user from '../../database/models/User/User';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { AccessTokenGuard } from '../auth/guards';
 import { IUserData } from '../auth/interfaces/UserData';
@@ -28,7 +27,7 @@ import { UserData } from '../auth/decorators';
 
 const parser = new MongooseQueryParser();
 
-// TODO: Test if caching interceptor works
+
 @ApiTags('Exercises')
 @Controller('exercises')
 @UseInterceptors(HttpCacheInterceptor)
@@ -128,7 +127,7 @@ export class ExercisesController {
 
   }
 
-  
+
   /**
    * Endpoint to dynamically query mongoDB Database
    * @param query
