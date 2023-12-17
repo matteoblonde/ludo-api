@@ -1,6 +1,4 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
-import { will } from '@proedis/utils';
-import { QueryOptions } from 'mongoose-query-parser';
 import PlayerStatModel, { PlayerStat } from '../../database/models/PlayerStat/PlayerStat';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 

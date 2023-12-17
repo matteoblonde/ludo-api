@@ -4,8 +4,6 @@ import {
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common';
-import { will } from '@proedis/utils';
-import { QueryOptions } from 'mongoose-query-parser';
 import { Label } from '../../database/models/Label/Label';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import MatchModel from '../../database/models/Match/Match';

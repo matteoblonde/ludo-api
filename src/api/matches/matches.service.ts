@@ -1,11 +1,9 @@
 import { BadRequestException, Inject, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { will } from '@proedis/utils';
 import * as console from 'console';
-import { QueryOptions } from 'mongoose-query-parser';
 import { Label } from '../../database/models/Label/Label';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import MatchModel, { Match } from '../../database/models/Match/Match';
-import player, { Player } from '../../database/models/Player/Player';
+import { Player } from '../../database/models/Player/Player';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 import { PlayersService } from '../players/players.service';
 

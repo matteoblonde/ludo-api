@@ -1,6 +1,4 @@
-import { BadRequestException, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { will } from '@proedis/utils';
-import { QueryOptions } from 'mongoose-query-parser';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 
 import NotificationModel, { Notification } from '../../database/models/Notification/Notification';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';

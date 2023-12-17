@@ -1,6 +1,5 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
-import { will } from '@proedis/utils';
-import { QueryOptions } from 'mongoose-query-parser';
+
 import TrainingAbsenceModel, { TrainingAbsence } from '../../database/models/TrainingAbsence/TrainingAbsence';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 

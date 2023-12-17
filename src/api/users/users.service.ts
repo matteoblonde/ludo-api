@@ -1,16 +1,15 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
-import { will } from '@proedis/utils';
-import { QueryOptions } from 'mongoose-query-parser';
 import UserModel, { User } from '../../database/models/User/User';
+import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
-export class UsersService {
+export class UsersService extends AbstractedCrudService<User> {
 
   constructor(
     @Inject(UserModel.collection.name)
     private readonly userModel: typeof UserModel
   ) {
-
+    super(userModel);
   }
 
 
@@ -91,49 +90,6 @@ export class UsersService {
       recordID: id,
       message : 'Record deleted successfully'
     };
-
-  }
-
-
-  /**
-   * Get users from Database
-   * @param queryOptions
-   */
-  public async getUsers(queryOptions?: QueryOptions) {
-
-    /** Extract Query Options */
-    const {
-      filter,
-      sort,
-      limit,
-      skip
-    } = queryOptions || {};
-
-    /** Build the query */
-    let query = this.userModel.find(filter);
-
-    /** Append extra options */
-    if (sort) {
-      query = query.sort(sort);
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    if (skip) {
-      query = query.skip(skip);
-    }
-
-    /** Execute the Query */
-    const [ error, docs ] = await will(query.exec());
-
-    /** Assert no error has been found */
-    if (error) {
-      throw new InternalServerErrorException(error, 'users/query-error');
-    }
-
-    return docs;
 
   }
 

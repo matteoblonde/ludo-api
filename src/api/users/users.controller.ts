@@ -75,7 +75,7 @@ export class UsersController {
   public async getUsers(
     @Query() query: string
   ) {
-    return this.usersService.getUsers(parser.parse(query));
+    return this.usersService.get([], parser.parse(query));
   }
 
 
