@@ -74,6 +74,11 @@ export class Player {
   })
   public totalMinutes?: number;
 
+  @prop({
+    default: 0
+  })
+  public totalMatches?: number;
+
   /** Field defined only in the match context */
   @prop({
     default: 0

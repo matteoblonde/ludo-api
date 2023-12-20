@@ -138,41 +138,39 @@ export class PlayersService extends AbstractedCrudService<Player> {
    */
   public async updatePlayerTotalStats(id: string): Promise<any> {
 
-    /** Find all the matches with this player */
-    const matches: any = await this.matchModel.find({ 'players._id': id });
-
-    /** If no match has been found return error */
-    if (!matches) {
-      console.error(`No match has been found for this playerId: ${id}`);
-    }
-
-    /** Initialize global stats */
-    let totalGoals = 0;
-    let totalMinutes = 0;
-    let totalAssist = 0;
-
-    /** Iteration for all matches and calculate stats */
-    matches.forEach((match: any) => {
-      match.players.forEach((player: any) => {
-        if (player._id === id) {
-          totalGoals += player.goals;
-          totalMinutes += player.minutes;
-          totalAssist += player.assist;
+    /** Build the aggregation pipeline to retrieve total stats */
+    const aggregate = await this.matchModel.aggregate([
+      { $match: { 'players._id': id } },
+      { $unwind: '$players' },
+      { $match: { 'players._id': id } },
+      {
+        $group: {
+          _id         : null,
+          totalMinutes: { $sum: '$players.minutes' },
+          totalGoals  : { $sum: '$players.goals' },
+          totalAssist : { $sum: '$players.assist' },
+          totalMatches: { $sum: 1 }
         }
-      });
+      }
+    ]).exec().catch((error) => {
+      throw new InternalServerErrorException(error.message, 'players/total-stats/query-error');
     });
+
+    /** Save the variables returned by the aggregation */
+    const { totalMinutes, totalGoals, totalAssist, totalMatches } = aggregate[0];
 
     /** Update player record */
     this.playerModel.findByIdAndUpdate(id, {
       totalGoals  : totalGoals,
       totalMinutes: totalMinutes,
-      totalAssist : totalAssist
+      totalAssist : totalAssist,
+      totalMatches: totalMatches
     }).exec().catch(err => {
       console.error('Player not found', err);
     });
 
     /** Return */
-    return { totalGoals, totalMinutes, totalAssist };
+    return { totalGoals, totalMinutes, totalAssist, totalMatches };
 
   }
 
