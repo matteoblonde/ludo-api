@@ -2,22 +2,16 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 
 import { DatabaseModule } from '../database/database.module';
-import { getRequiredEnv } from '../utils';
 
 import { AuthModule } from './auth/auth.module';
 import { CompaniesModule } from './companies/companies.module';
-import { ExerciseTypesModule } from './exercise-types/exercise-types.module';
+import { CrudModule } from './crud/crud.module';
 import { ExercisesModule } from './exercises/exercises.module';
 import { LabelTypesModule } from './label-types/label-types.module';
 import { MatchesModule } from './matches/matches.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { PlayerRolesModule } from './player-roles/player-roles.module';
-import { PlayerStatsModule } from './player-stats/player-stats.module';
 import { PlayersModule } from './players/players.module';
-import { RolesModule } from './roles/roles.module';
 import { TeamsModule } from './teams/teams.module';
-import { TrainingAbsencesModule } from './training-absences/training-absences.module';
-import { TrainingTypesModule } from './training-types/training-types.module';
 import { TrainingsModule } from './trainings/trainings.module';
 import { UsersModule } from './users/users.module';
 
@@ -41,21 +35,17 @@ import { UsersModule } from './users/users.module';
     PlayersModule,
     LabelTypesModule,
     TrainingsModule,
-    ExerciseTypesModule,
-    TrainingTypesModule,
-    PlayerRolesModule,
-    PlayerStatsModule,
     MatchesModule,
     TeamsModule,
-    RolesModule,
     NotificationsModule,
-    TrainingAbsencesModule,
+    CrudModule,
 
     /**
      * NestJs Module
      */
     CacheModule.register({
-      isGlobal: true
+      isGlobal: true,
+      ttl     : 3000
     })
   ]
 

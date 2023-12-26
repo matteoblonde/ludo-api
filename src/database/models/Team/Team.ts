@@ -1,12 +1,11 @@
-import { ArraySubDocumentType, getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
-import PlayerModel from '../Player/Player';
+import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import { User } from '../User/User';
 
 
 @modelOptions({ schemaOptions: { collection: 'teams' } })
 export class Team {
 
-  @prop()
+  @prop({ allowMixed: Severity.ALLOW })
   users?: ArraySubDocumentType<User>;
 
   @prop()

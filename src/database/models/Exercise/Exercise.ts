@@ -19,7 +19,7 @@ export class Exercise {
   @prop()
   public userId?: string;
 
-  @prop()
+  @prop({ allowMixed: Severity.ALLOW })
   public teams?: string[];
 
   @prop()

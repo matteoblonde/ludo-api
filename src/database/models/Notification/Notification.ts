@@ -1,4 +1,4 @@
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 
 
 @modelOptions({ schemaOptions: { collection: 'notifications' } })
@@ -7,7 +7,7 @@ export class Notification {
   @prop()
   public userId?: string;
 
-  @prop()
+  @prop({ allowMixed: Severity.ALLOW })
   public teams?: string[];
 
   @prop()
@@ -20,7 +20,7 @@ export class Notification {
   public routerLink?: string;
 
   @prop({
-    default: new Date().getDate() + 7
+    default: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
   })
   public expireDatetime?: Date;
 

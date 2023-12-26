@@ -1,7 +1,7 @@
 import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import { Label } from '../Label/Label';
 import { PlayerRole } from '../PlayerRole/PlayerRole';
-import { PlayerStat } from '../PlayerStat/PlayerStat';
+import { PlayerAttribute } from '../PlayerAttribute/PlayerAttribute';
 
 /* --------
 * Define the class
@@ -12,7 +12,7 @@ export class Player {
   @prop()
   public userId?: string;
 
-  @prop()
+  @prop({ allowMixed: Severity.ALLOW })
   public teams?: string[];
 
   @prop()
@@ -36,7 +36,8 @@ export class Player {
   public value?: number;
 
   @prop({
-    default: [ 'Right' ]
+    default   : [ 'Right' ],
+    allowMixed: Severity.ALLOW
   })
   public foot?: string[];
 
@@ -53,7 +54,7 @@ export class Player {
   public roles?: ArraySubDocumentType<PlayerRole>;
 
   @prop({ allowMixed: Severity.ALLOW })
-  public stats?: ArraySubDocumentType<PlayerStat>;
+  public attributes?: ArraySubDocumentType<PlayerAttribute>;
 
   @prop()
   public birthDate?: Date;

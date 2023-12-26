@@ -1,22 +1,17 @@
 import {
   Body,
   Controller,
-  Delete,
-  Get,
   Param,
-  Patch,
   Post,
   Put,
-  Query, UploadedFile,
+  UploadedFile,
   UseGuards,
   UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
-import { MongooseQueryParser } from 'mongoose-query-parser';
+
 import { S3Service } from '../../aws';
-import { Exercise } from '../../database/models/Exercise/Exercise';
-import { Label } from '../../database/models/Label/Label';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { AccessTokenGuard } from '../auth/guards';
 import { IUserData } from '../auth/interfaces/UserData';
@@ -25,11 +20,8 @@ import { ExercisesService } from './exercises.service';
 import { UserData } from '../auth/decorators';
 
 
-const parser = new MongooseQueryParser();
-
-
 @ApiTags('Exercises')
-@Controller('exercises')
+@Controller(':collection')
 @UseInterceptors(HttpCacheInterceptor)
 export class ExercisesController {
 
@@ -37,21 +29,6 @@ export class ExercisesController {
     private exercisesService: ExercisesService,
     private s3Service: S3Service
   ) {
-  }
-
-
-  /**
-   * Endpoint to insert a record in mongoDB Database
-   * @param exercise
-   * @param userData
-   */
-  @UseGuards(AccessTokenGuard)
-  @Post()
-  public async insertNewExercise(
-    @Body() exercise: Exercise,
-    @UserData() userData: IUserData
-  ) {
-    return this.exercisesService.insertNewExercise({ teams: userData.teams, userId: userData.userId, ...exercise });
   }
 
 
@@ -68,36 +45,6 @@ export class ExercisesController {
   ) {
 
     return this.exercisesService.updateOneExercise(id, exercise);
-
-  }
-
-
-  /**
-   * Update only labels array in the record
-   * @param id
-   * @param labels
-   */
-  @UseGuards(AccessTokenGuard)
-  @Patch('labels/:id')
-  public async updateMatchLabels(
-    @Param('id') id: string,
-    @Body() labels: Label[]
-  ) {
-    return this.exercisesService.updateExerciseLabels(id, labels);
-  }
-
-
-  /**
-   * Endpoint to delete one Exercise from mongoDB Database
-   * @param id
-   */
-  @UseGuards(AccessTokenGuard)
-  @Delete(':id')
-  public async deleteExercise(
-    @Param('id') id: string
-  ) {
-
-    return this.exercisesService.deleteExercise(id);
 
   }
 
@@ -125,21 +72,6 @@ export class ExercisesController {
     /** Update exercise with the url */
     return this.exercisesService.updateExerciseImgUrl(id, imgUrl);
 
-  }
-
-
-  /**
-   * Endpoint to dynamically query mongoDB Database
-   * @param query
-   * @param userData
-   */
-  @UseGuards(AccessTokenGuard)
-  @Get()
-  public async getExercises(
-    @Query() query: string,
-    @UserData() userData: IUserData
-  ) {
-    return this.exercisesService.get(userData.teams, parser.parse(query));
   }
 
 

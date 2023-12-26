@@ -2,11 +2,11 @@ import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } 
 import { PlayerRole } from '../PlayerRole/PlayerRole';
 
 
-@modelOptions({ schemaOptions: { collection: 'playerStats' } })
-export class PlayerStat {
+@modelOptions({ schemaOptions: { collection: 'playerAttributes' } })
+export class PlayerAttribute {
 
   @prop()
-  public statName?: string;
+  public attributeName?: string;
 
   @prop()
   public description?: string;
@@ -43,9 +43,9 @@ export class PlayerStat {
 
 }
 
-const PlayerStatModel = getModelForClass(PlayerStat);
+const PlayerAttributeModel = getModelForClass(PlayerAttribute);
 
 /* --------
 * Module Exports
 * -------- */
-export default PlayerStatModel;
+export default PlayerAttributeModel;

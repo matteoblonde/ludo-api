@@ -1,8 +1,9 @@
-import { BadRequestException, Inject } from '@nestjs/common';
-import { Label } from '../../database/models/Label/Label';
+import { Inject } from '@nestjs/common';
+import mongoose from 'mongoose';
+import { ROUTE_MODEL } from '../../database/database.providers';
 
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
-import TrainingModel, { Training } from '../../database/models/Training/Training';
+import { Training } from '../../database/models/Training/Training';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
@@ -10,8 +11,8 @@ import { NotificationsService } from '../notifications/notifications.service';
 export class TrainingsService extends AbstractedCrudService<Training> {
 
   constructor(
-    @Inject(TrainingModel.collection.name)
-    private readonly trainingModel: typeof TrainingModel,
+    @Inject(ROUTE_MODEL)
+    private readonly trainingModel: mongoose.Model<any>,
     @Inject(LabelTypeModel.collection.name)
     private readonly labelTypeModel: typeof LabelTypeModel,
     @Inject(NotificationsService)
@@ -61,82 +62,6 @@ export class TrainingsService extends AbstractedCrudService<Training> {
 
     /* return created record */
     return record;
-
-  }
-
-
-  /**
-   * Update a training into Database
-   * @param id
-   * @param training
-   */
-  public async updateOneTraining(id: string, training: any) {
-
-    /* Check if id has been passed */
-    if (!id) {
-      return null;
-    }
-
-    /* Find the recordId */
-    await this.trainingModel.findById(id).exec().then(async (exist: any) => {
-
-      /* If none records found, exit */
-      if (exist !== null) {
-        await this.trainingModel.replaceOne({ _id: id }, training);
-      }
-      else {
-        return;
-      }
-    }).catch(() => {
-      throw new BadRequestException(
-        'Could not update or create record',
-        'invalid fields'
-      );
-    });
-
-    /* Return a JSON with ID and message */
-    return {
-      id     : id,
-      message: 'Record has been successfully updated'
-    };
-
-  }
-
-
-  /**
-   * Function to update only labels array in the training
-   * @param id
-   * @param labels
-   */
-  public async updateTrainingLabels(id: string, labels: Label[]) {
-    return this.trainingModel.findByIdAndUpdate(id, {
-      labels: labels
-    });
-  }
-
-
-  /**
-   * Delete one training into Database
-   * @param id
-   */
-  public async deleteTraining(id: string) {
-
-    /** Check required variables */
-    if (id === undefined) {
-      throw new BadRequestException(
-        'Required variables missing',
-        'Params missing: id'
-      );
-    }
-
-    /** Call mongoose method to delete document */
-    await this.trainingModel.findByIdAndDelete(id);
-
-    /** Return a JSON with ID and message */
-    return {
-      recordID: id,
-      message : 'Record deleted successfully'
-    };
 
   }
 

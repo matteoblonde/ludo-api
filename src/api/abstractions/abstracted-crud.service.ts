@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { will } from '@proedis/utils';
 import { Model } from 'mongoose';
 import { QueryOptions } from 'mongoose-query-parser';
@@ -12,7 +12,13 @@ export abstract class AbstractedCrudService<T> implements ICrudService<T> {
   }
 
 
-  async create(item: T): Promise<T> {
+  /**
+   * Creates a new item in the database.
+   *
+   * @param item - The item to be created.
+   * @returns {Promise} - Returns a promise that resolves to the created item.
+   */
+  async insertNewRecord(item: T): Promise<T> {
     const record = new this.model(item);
 
     await record.save();
@@ -21,8 +27,66 @@ export abstract class AbstractedCrudService<T> implements ICrudService<T> {
   }
 
 
-  async delete(id: string): Promise<void | null> {
-    return this.model.findByIdAndDelete(id);
+  async deleteDocumentById(id: string): Promise<{ recordID: string; message: string }> {
+
+    /** Check required variables */
+    if (id === undefined) {
+      throw new BadRequestException(
+        'Required variables missing',
+        'Params missing: id'
+      );
+    }
+
+    /** Call mongoose method to delete document */
+    await this.model.findByIdAndDelete(id);
+
+    /** Return a JSON with ID and message */
+    return {
+      recordID: id,
+      message : 'Record deleted successfully'
+    };
+  }
+
+
+  /**
+   * Replaces a document in the database with the provided document by its ID.
+   * @param {string} documentId - The ID of the document to replace.
+   * @param {any} document - The new document to replace the existing one with.
+   * @returns {Promise<Object>} - A JSON object containing the ID and a success message.
+   * @throws {BadRequestException} - If the update or create operation fails due to invalid fields.
+   */
+  async replaceDocumentById(documentId: string, document: any): Promise<{
+    id: string;
+    message: 'Record has been successfully updated'
+  } | null> {
+    /* Check if id has been passed */
+    if (!documentId) {
+      return null;
+    }
+
+    /** Find the document by Id */
+    await this.model.findById(documentId).exec().then(async (exist: any) => {
+
+      /** If none records found, exit */
+      if (exist !== null) {
+        await this.model.replaceOne({ _id: documentId }, document);
+      }
+      else {
+        return;
+      }
+
+    }).catch(() => {
+      throw new BadRequestException(
+        'Could not update or create record',
+        'invalid fields'
+      );
+    });
+
+    /* Return a JSON with ID and message */
+    return {
+      id     : documentId,
+      message: 'Record has been successfully updated'
+    };
   }
 
 
@@ -38,7 +102,7 @@ export abstract class AbstractedCrudService<T> implements ICrudService<T> {
    * @param {string[]} teams - An array of team names to filter the documents.
    * @param queryOptions
    *
-   * @returns {Promise<T[]>} The retrieved documents.
+   * @returns {Promise<[]>} The retrieved documents.
    */
   async get(teams?: string[], queryOptions?: QueryOptions): Promise<T[]> {
 

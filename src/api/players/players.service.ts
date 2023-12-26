@@ -1,15 +1,15 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common';
-import { Label } from '../../database/models/Label/Label';
+import mongoose from 'mongoose';
+import { ROUTE_MODEL } from '../../database/database.providers';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import MatchModel from '../../database/models/Match/Match';
 
-import PlayerModel, { Player } from '../../database/models/Player/Player';
-import PlayerStatModel, { PlayerStat } from '../../database/models/PlayerStat/PlayerStat';
+import { Player } from '../../database/models/Player/Player';
+import PlayerAttributeModel from '../../database/models/PlayerAttribute/PlayerAttribute';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
@@ -17,12 +17,12 @@ import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 export class PlayersService extends AbstractedCrudService<Player> {
 
   constructor(
-    @Inject(PlayerModel.collection.name)
-    private readonly playerModel: typeof PlayerModel,
+    @Inject(ROUTE_MODEL)
+    private readonly playerModel: mongoose.Model<any>,
     @Inject(LabelTypeModel.collection.name)
     private readonly labelTypeModel: typeof LabelTypeModel,
-    @Inject(PlayerStatModel.collection.name)
-    private readonly playerStatModel: typeof PlayerStatModel,
+    @Inject(PlayerAttributeModel.collection.name)
+    private readonly playerAttributeModel: typeof PlayerAttributeModel,
     @Inject(MatchModel.collection.name)
     private readonly matchModel: typeof MatchModel
   ) {
@@ -50,10 +50,10 @@ export class PlayersService extends AbstractedCrudService<Player> {
     });
 
     /** Find all player stats to insert by default */
-    const playerStats = await this.playerStatModel.find({ 'isForAllRoles': true });
+    const playerAttributes = await this.playerAttributeModel.find({ 'isForAllRoles': true });
 
     /** Build the final record */
-    const record = new this.playerModel({ labels: labels, stats: playerStats, ...player });
+    const record = new this.playerModel({ labels: labels, attributes: playerAttributes, ...player });
 
     /* save the record, mongo.insertOne() */
     await record.save();
@@ -61,67 +61,6 @@ export class PlayersService extends AbstractedCrudService<Player> {
     /* return created record */
     return record;
 
-  }
-
-
-  /**
-   * Update a player into Database
-   * @param id
-   * @param player
-   */
-  public async updateOnePlayer(id: string, player: Player) {
-
-    /* Check if id has been passed */
-    if (!id) {
-      return null;
-    }
-
-    /* Find the recordId */
-    await this.playerModel.findById(id).exec().then(async (exist: any) => {
-
-      /* If none records found, exit */
-      if (exist !== null) {
-        await this.playerModel.replaceOne({ _id: id }, player);
-      }
-      else {
-        throw new InternalServerErrorException('Query', 'player/query-error');
-      }
-    }).catch(() => {
-      throw new BadRequestException(
-        'Could not update or create record',
-        'invalid fields'
-      );
-    });
-
-    /* Return the record */
-    return player;
-
-  }
-
-
-  /**
-   * Function to update player stats
-   * @param id
-   * @param stats
-   */
-  public async updatePlayerStats(id: string, stats: PlayerStat[]) {
-
-    return this.playerModel.findByIdAndUpdate(id, {
-      stats: stats
-    });
-
-  }
-
-
-  /**
-   * Function to update only labels array in the player
-   * @param id
-   * @param labels
-   */
-  public async updatePlayerLabels(id: string, labels: Label[]) {
-    return this.playerModel.findByIdAndUpdate(id, {
-      labels: labels
-    });
   }
 
 
@@ -171,32 +110,6 @@ export class PlayersService extends AbstractedCrudService<Player> {
 
     /** Return */
     return { totalGoals, totalMinutes, totalAssist, totalMatches };
-
-  }
-
-
-  /**
-   * Delete one player into Database
-   * @param id
-   */
-  public async deletePlayer(id: string) {
-
-    /** Check required variables */
-    if (id === undefined) {
-      throw new BadRequestException(
-        'Required variables missing',
-        'Params missing: id'
-      );
-    }
-
-    /** Call mongoose method to delete document */
-    await this.playerModel.findByIdAndDelete(id);
-
-    /** Return a JSON with ID and message */
-    return {
-      recordID: id,
-      message : 'Record deleted successfully'
-    };
 
   }
 

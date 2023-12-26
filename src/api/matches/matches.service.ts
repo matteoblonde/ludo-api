@@ -1,8 +1,9 @@
-import { BadRequestException, Inject, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
 import * as console from 'console';
+import mongoose from 'mongoose';
+import { ROUTE_MODEL } from '../../database/database.providers';
 import { Label } from '../../database/models/Label/Label';
-import LabelTypeModel from '../../database/models/LabelType/LabelType';
-import MatchModel, { Match } from '../../database/models/Match/Match';
+import { Match } from '../../database/models/Match/Match';
 import { Player } from '../../database/models/Player/Player';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 import { PlayersService } from '../players/players.service';
@@ -11,80 +12,12 @@ import { PlayersService } from '../players/players.service';
 export class MatchesService extends AbstractedCrudService<Match> {
 
   constructor(
-    @Inject(MatchModel.collection.name)
-    private readonly matchModel: typeof MatchModel,
-    @Inject(LabelTypeModel.collection.name)
-    private readonly labelTypeModel: typeof LabelTypeModel,
+    @Inject(ROUTE_MODEL)
+    private readonly matchModel: mongoose.Model<any>,
     @Inject(PlayersService)
     private playersService: PlayersService
   ) {
     super(matchModel);
-  }
-
-
-  /**
-   * Insert new match into database
-   * @param match
-   */
-  public async insertNewMatch(match: Match) {
-
-    /** Find all labels to append to the record */
-    const labelTypes = await this.labelTypeModel.find({ 'sections': 'matches' });
-    const labels = labelTypes.map((labelType) => {
-      return {
-        labelName          : labelType.labelTypeName,
-        labelPossibleValues: labelType.isValueList ? labelType.labelTypeValuesList : null,
-        isFreeText         : labelType.isFreeText,
-        isValueList        : labelType.isValueList,
-        labelValue         : '',
-        labelValueType     : labelType.labelValueType
-      };
-    });
-
-    /** Build the final record */
-    const record = new this.matchModel({ labels: labels, ...match });
-
-    /* save the record, mongo.insertOne() */
-    await record.save();
-
-    /* return created record */
-    return record;
-
-  }
-
-
-  /**
-   * Update a match into Database
-   * @param id
-   * @param match
-   */
-  public async updateOneMatch(id: string, match: Match) {
-
-    /* Check if id has been passed */
-    if (!id) {
-      return null;
-    }
-
-    /* Find the recordId */
-    await this.matchModel.findById(id).exec().then(async (exist: any) => {
-
-      /* If none records found, exit */
-      if (exist !== null) {
-        await this.matchModel.replaceOne({ _id: id }, match);
-      }
-      else {
-        throw new InternalServerErrorException('Query', 'matches/query-error');
-      }
-    }).catch(() => {
-      throw new BadRequestException(
-        'Could not update or create record',
-        'invalid fields'
-      );
-    });
-
-    /* Return the record */
-    return match;
-
   }
 
 

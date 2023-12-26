@@ -1,3 +1,4 @@
+import { Connection } from 'mongoose';
 import * as mongoose from 'mongoose';
 
 import { REQUEST } from '@nestjs/core';
@@ -8,7 +9,6 @@ import type { FactoryProvider } from '@nestjs/common';
 import { AugmentedMap } from '@proedis/utils';
 
 import { Request } from 'express';
-import company from './models/Company/Company';
 
 import { getModelFromPool } from './utils';
 
@@ -69,11 +69,6 @@ export const DatabaseConnectionProvider: FactoryProvider = {
     refreshTokenService: RefreshTokenService
   ): mongoose.Connection => {
 
-    //TODO: Credo che questo non serva più ad un cazzo
-    if (request.url.match(/auth\/(login|refresh)/)) {
-      return systemDatabaseConnection;
-    }
-
     const mongooseModuleOptions: mongoose.ConnectOptions & { uri: string } = (() => {
       /** Else, try to load the database from access token */
       const db = accessTokenService.getMongoDatabaseName(request) ?? refreshTokenService.getMongoDatabaseName(request);
@@ -96,6 +91,22 @@ export const DatabaseConnectionProvider: FactoryProvider = {
   }
 };
 
+/**
+ * Retrieves a model from the connection if it already exists, otherwise creates a new model using the given schema and registers it with the connection.
+ *
+ * @param {Connection} connection - The Mongoose connection.
+ * @param {string} modelName - The name of the model to retrieve or create.
+ * @param {any} schema - The schema to use for creating a new model.
+ * @returns {mongoose.Model} - The retrieved or created model.
+ */
+export const getModel = (connection: Connection, modelName: string, schema: any) => {
+  if (connection.models[modelName]) {
+    return connection.models[modelName];
+  }
+
+  return connection.model(modelName, schema);
+};
+
 
 /* --------
  * Provider to easily inject RouteModel from Database Models Pool
@@ -103,12 +114,12 @@ export const DatabaseConnectionProvider: FactoryProvider = {
 export const RouteModelProvider: FactoryProvider = {
   provide   : ROUTE_MODEL,
   inject    : [ DATABASE_CONNECTION, REQUEST ],
-  useFactory: (connection: mongoose.Connection, collection: string) => {
+  useFactory: (connection: mongoose.Connection, request: Request) => {
     /** Check if a params collection has been defined */
-    if (!collection) {
+    if (!('collection' in request.params) || !request.params.collection) {
       return undefined;
     }
 
-    return getModelFromPool(connection, collection);
+    return getModelFromPool(connection, request.params.collection);
   }
 };

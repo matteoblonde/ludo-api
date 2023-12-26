@@ -17,7 +17,7 @@ export class Match {
   @prop()
   userId?: string;
 
-  @prop()
+  @prop({ allowMixed: Severity.ALLOW })
   public teams?: string[];
 
   @prop()

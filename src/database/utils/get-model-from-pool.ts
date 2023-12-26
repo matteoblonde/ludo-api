@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import { BadRequestException } from '@nestjs/common';
 
 import { AugmentedMap, isValidString } from '@proedis/utils';
+import { collectionToModelMap } from '../constants';
 
 import * as databaseModels from '../models';
 
@@ -38,11 +39,19 @@ export function getModelFromPool<T = any>(
   /** Get the models using collection param */
   return modelsPool.getOrAdd(name as string, () => {
 
-    const Model = (databaseModels as any)[name] as mongoose.Model<any>;
-    //const Schema = (databaseModels as any)[`${name}Schema`] as mongoose.Schema;
-    console.log(Model);
+    /** Convert model name from the map */
+    const modelName = collectionToModelMap[name];
 
+    /** Get the Model */
+    const Model = (databaseModels as any)[modelName] as mongoose.Model<any>;
+
+    /** Get the schema */
     const Schema = Model.schema as mongoose.Schema;
+
+    /** If a connection for this model already exist, return it */
+    if (connection.models[Model.collection.name]) {
+      return connection.models[Model.collection.name];
+    }
 
     if (Schema && Model && Model.prototype instanceof mongoose.Model) {
       Schema.set('collection', Model.collection.name);

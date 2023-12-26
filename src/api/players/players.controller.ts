@@ -1,21 +1,16 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Patch,
   Post,
-  Put,
-  Query,
   UseGuards,
   UseInterceptors
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { MongooseQueryParser } from 'mongoose-query-parser';
-import { Label } from '../../database/models/Label/Label';
 import { Player } from '../../database/models/Player/Player';
-import { PlayerStat } from '../../database/models/PlayerStat/PlayerStat';
+import { PlayerAttribute } from '../../database/models/PlayerAttribute/PlayerAttribute';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { UserData } from '../auth/decorators';
 import { AccessTokenGuard } from '../auth/guards';
@@ -23,10 +18,8 @@ import { IUserData } from '../auth/interfaces/UserData';
 import { PlayersService } from './players.service';
 
 
-const parser = new MongooseQueryParser();
-
 @ApiTags('Players')
-@Controller('players')
+@Controller(':collection')
 @UseInterceptors(HttpCacheInterceptor)
 export class PlayersController {
 
@@ -42,29 +35,12 @@ export class PlayersController {
    * @param userData
    */
   @UseGuards(AccessTokenGuard)
-  @Post()
+  @Post('insert-player')
   public async insertNewPlayer(
     @Body() player: Player,
     @UserData() userData: IUserData
   ) {
     return this.playersService.insertNewPlayer({ teams: userData.teams, userId: userData.userId, ...player });
-  }
-
-
-  /**
-   * Endpoint to update one Exercise into mongoDB Database
-   * @param id
-   * @param player
-   */
-  @UseGuards(AccessTokenGuard)
-  @Put(':id')
-  public async updatePlayer(
-    @Param('id') id: string,
-    @Body() player: Player
-  ) {
-
-    return this.playersService.updateOnePlayer(id, player);
-
   }
 
 
@@ -77,24 +53,9 @@ export class PlayersController {
   @Patch('stats/:id')
   public async updateStatsPlayer(
     @Param('id') id: string,
-    @Body() stats: PlayerStat[]
+    @Body() stats: PlayerAttribute[]
   ) {
 
-  }
-
-
-  /**
-   * Update only labels array in the record
-   * @param id
-   * @param labels
-   */
-  @UseGuards(AccessTokenGuard)
-  @Patch('labels/:id')
-  public async updatePlayerLabels(
-    @Param('id') id: string,
-    @Body() labels: Label[]
-  ) {
-    return this.playersService.updatePlayerLabels(id, labels);
   }
 
 
@@ -117,37 +78,6 @@ export class PlayersController {
     @Param('id') id: string
   ): Promise<any> {
     return this.playersService.updatePlayerTotalStats(id);
-  }
-
-
-  /**
-   * Endpoint to delete one Exercise from mongoDB Database
-   * @param id
-   */
-  @UseGuards(AccessTokenGuard)
-  @Delete(':id')
-  public async deletePlayer(
-    @Param('id') id: string
-  ) {
-
-    return this.playersService.deletePlayer(id);
-
-  }
-
-
-  /**
-   * Endpoint to dynamically query mongoDB Database
-   * @param query
-   * @param userData
-   */
-  @UseGuards(AccessTokenGuard)
-  @Get()
-  public async getPlayers(
-    @Query() query: string,
-    @UserData() userData: IUserData
-  ) {
-
-    return this.playersService.get(userData.teams, parser.parse(query));
   }
 
 

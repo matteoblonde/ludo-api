@@ -81,11 +81,11 @@ export {
 } from './PlayerRole/PlayerRole';
 
 /**
- * PlayerStat Model
+ * PlayerAttribute Model
  */
 export {
-  default as PlayerStat
-} from './PlayerStat/PlayerStat';
+  default as PlayerAttribute
+} from './PlayerAttribute/PlayerAttribute';
 
 /**
  * Match Model

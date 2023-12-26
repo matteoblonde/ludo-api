@@ -3,15 +3,13 @@ import { Connection } from 'mongoose';
 
 import { DatabaseModule } from '../../database/database.module';
 
-import { DATABASE_CONNECTION } from '../../database/database.providers';
+import { DATABASE_CONNECTION, getModel, RouteModelProvider } from '../../database/database.providers';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import LabelTypeSchema from '../../database/models/LabelType/LabelType.Schema';
 import MatchModel from '../../database/models/Match/Match';
 import MatchSchema from '../../database/models/Match/Match.schema';
-import PlayerModel from '../../database/models/Player/Player';
-import PlayerSchema from '../../database/models/Player/Player.Schema';
-import PlayerStatModel from '../../database/models/PlayerStat/PlayerStat';
-import PlayerStatSchema from '../../database/models/PlayerStat/PlayerStat.schema';
+import PlayerAttributeModel from '../../database/models/PlayerAttribute/PlayerAttribute';
+import PlayerAttributeSchema from '../../database/models/PlayerAttribute/PlayerAttribute.schema';
 
 import { AuthModule } from '../auth/auth.module';
 import { PlayersController } from './players.controller';
@@ -27,22 +25,22 @@ import { PlayersService } from './players.service';
     {
       provide   : LabelTypeModel.collection.name,
       inject    : [ DATABASE_CONNECTION ],
-      useFactory: (connection: Connection) => connection.model(LabelTypeModel.collection.name, LabelTypeSchema)
+      useFactory: (connection: Connection) => getModel(connection, LabelTypeModel.collection.name, LabelTypeSchema)
     },
     {
-      provide   : PlayerStatModel.collection.name,
+      provide   : PlayerAttributeModel.collection.name,
       inject    : [ DATABASE_CONNECTION ],
-      useFactory: (connection: Connection) => connection.model(PlayerStatModel.collection.name, PlayerStatSchema)
+      useFactory: (connection: Connection) => getModel(
+        connection,
+        PlayerAttributeModel.collection.name,
+        PlayerAttributeSchema
+      )
     },
-    {
-      provide   : PlayerModel.collection.name,
-      inject    : [ DATABASE_CONNECTION ],
-      useFactory: (connection: Connection) => connection.model(PlayerModel.collection.name, PlayerSchema)
-    },
+    RouteModelProvider,
     {
       provide   : MatchModel.collection.name,
       inject    : [ DATABASE_CONNECTION ],
-      useFactory: (connection: Connection) => connection.model(MatchModel.collection.name, MatchSchema)
+      useFactory: (connection: Connection) => getModel(connection, MatchModel.collection.name, MatchSchema)
     }
   ],
   imports    : [

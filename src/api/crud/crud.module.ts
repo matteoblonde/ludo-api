@@ -1,23 +1,21 @@
+/* --------
+ * Module Definition
+ * -------- */
 import { Module } from '@nestjs/common';
 import { Connection } from 'mongoose';
-import { S3Service } from '../../aws';
-
 import { DatabaseModule } from '../../database/database.module';
 import { DATABASE_CONNECTION, RouteModelProvider } from '../../database/database.providers';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import LabelTypeSchema from '../../database/models/LabelType/LabelType.Schema';
 import { AuthModule } from '../auth/auth.module';
-import { ExercisesController } from './exercises.controller';
-import { ExercisesService } from './exercises.service';
+import { CrudController } from './crud.controller';
+import { CrudService } from './crud.service';
 
-/* --------
- * Module Definition
- * -------- */
+
 @Module({
-  controllers: [ ExercisesController ],
+  controllers: [ CrudController ],
   providers  : [
-    ExercisesService,
-    S3Service,
+    CrudService,
     {
       provide   : LabelTypeModel.collection.name,
       inject    : [ DATABASE_CONNECTION ],
@@ -30,5 +28,5 @@ import { ExercisesService } from './exercises.service';
     AuthModule
   ]
 })
-export class ExercisesModule {
+export class CrudModule {
 }
