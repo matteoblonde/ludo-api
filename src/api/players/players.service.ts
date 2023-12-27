@@ -3,12 +3,13 @@ import {
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common';
-import mongoose from 'mongoose';
-import { ROUTE_MODEL } from '../../database/database.providers';
+import mongoose, { Connection } from 'mongoose';
+import { DATABASE_CONNECTION, getModel, ROUTE_MODEL } from '../../database/database.providers';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import MatchModel from '../../database/models/Match/Match';
 
-import { Player } from '../../database/models/Player/Player';
+import PlayerModel, { Player } from '../../database/models/Player/Player';
+import PlayerSchema from '../../database/models/Player/Player.Schema';
 import PlayerAttributeModel from '../../database/models/PlayerAttribute/PlayerAttribute';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
@@ -24,7 +25,9 @@ export class PlayersService extends AbstractedCrudService<Player> {
     @Inject(PlayerAttributeModel.collection.name)
     private readonly playerAttributeModel: typeof PlayerAttributeModel,
     @Inject(MatchModel.collection.name)
-    private readonly matchModel: typeof MatchModel
+    private readonly matchModel: typeof MatchModel,
+    @Inject(DATABASE_CONNECTION)
+    private connection: Connection
   ) {
     super(playerModel);
   }
@@ -95,11 +98,14 @@ export class PlayersService extends AbstractedCrudService<Player> {
       throw new InternalServerErrorException(error.message, 'players/total-stats/query-error');
     });
 
+    /** Get the player model */
+    const playerUpdateModel = getModel(this.connection, PlayerModel.collection.name, PlayerSchema);
+
     /** Save the variables returned by the aggregation */
     const { totalMinutes, totalGoals, totalAssist, totalMatches } = aggregate[0];
 
     /** Update player record */
-    this.playerModel.findByIdAndUpdate(id, {
+    playerUpdateModel.findByIdAndUpdate(id, {
       totalGoals  : totalGoals,
       totalMinutes: totalMinutes,
       totalAssist : totalAssist,
