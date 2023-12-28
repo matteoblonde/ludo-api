@@ -48,6 +48,8 @@ export default class DateConverter {
     /** Parse from string */
     const [ datePart, hourPart = '00:00:00' ] = value.replace(/s+/g, ' ').split(' ');
 
+    console.log(datePart, hourPart);
+
     let separator = ':';
 
     if (hourPart.includes('.')) {

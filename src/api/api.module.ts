@@ -11,6 +11,7 @@ import { LabelTypesModule } from './label-types/label-types.module';
 import { MatchesModule } from './matches/matches.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PlayersModule } from './players/players.module';
+import { PrinterModule } from './printer/printer.module';
 import { TeamsModule } from './teams/teams.module';
 import { TrainingsModule } from './trainings/trainings.module';
 import { UsersModule } from './users/users.module';
@@ -39,6 +40,7 @@ import { UsersModule } from './users/users.module';
     TeamsModule,
     NotificationsModule,
     CrudModule,
+    PrinterModule,
 
     /**
      * NestJs Module

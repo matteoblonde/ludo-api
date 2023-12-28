@@ -2,7 +2,6 @@ import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
 import * as console from 'console';
 import mongoose from 'mongoose';
 import { ROUTE_MODEL } from '../../database/database.providers';
-import { Label } from '../../database/models/Label/Label';
 import { Match } from '../../database/models/Match/Match';
 import { Player } from '../../database/models/Player/Player';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
@@ -71,18 +70,6 @@ export class MatchesService extends AbstractedCrudService<Match> {
     /** Return */
     return { message: 'Match report updated successfully' };
 
-  }
-
-
-  /**
-   * Function to update only labels array in the match
-   * @param id
-   * @param labels
-   */
-  public async updateMatchLabels(id: string, labels: Label[]) {
-    return this.matchModel.findByIdAndUpdate(id, {
-      labels: labels
-    });
   }
 
 

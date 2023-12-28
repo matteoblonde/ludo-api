@@ -65,4 +65,5 @@ export class TrainingsService extends AbstractedCrudService<Training> {
 
   }
 
+
 }
