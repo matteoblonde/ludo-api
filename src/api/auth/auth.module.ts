@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
-import { Connection } from 'mongoose';
 import CompanyModel from '../../database/models/Company/Company';
 import CompanySchema from '../../database/models/Company/Company.Schema';
-import RoleModel from '../../database/models/Role/Role';
 
 import UserModel from '../../database/models/User/User';
 import UserSchema from '../../database/models/User/User.Schema';

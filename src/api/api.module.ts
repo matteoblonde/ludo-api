@@ -12,6 +12,7 @@ import { MatchesModule } from './matches/matches.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PlayersModule } from './players/players.module';
 import { PrinterModule } from './printer/printer.module';
+import { SettingsConfigModule } from './settings-config/settings-config.module';
 import { TeamsModule } from './teams/teams.module';
 import { TrainingsModule } from './trainings/trainings.module';
 import { UsersModule } from './users/users.module';
@@ -28,6 +29,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     CompaniesModule,
     UsersModule,
+    SettingsConfigModule,
 
     /**
      * Auth Token Connection

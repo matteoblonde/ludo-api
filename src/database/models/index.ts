@@ -114,3 +114,11 @@ export {
 export {
   default as TrainingAbsence
 } from './TrainingAbsence/TrainingAbsence';
+
+/**
+ * SettingConfig Model
+ */
+export {
+  default as SettingConfig
+} from './SettingConfig/SettingConfig';
+
