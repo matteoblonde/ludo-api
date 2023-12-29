@@ -127,6 +127,7 @@ export class PrinterService {
 
     /** Define the document */
     const docDefinition = {
+      pageMargins : [ 40, 60, 40, 5 ],
       content     : [
         {
           image    : await this.getImage(clubImgUrl),
