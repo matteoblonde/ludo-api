@@ -119,47 +119,109 @@ export class AuthService {
 
     await emailTransporter.sendMail({
       to     : user.username,
-      from   : 'Ludo Sport <info@ludo-sport.com>',
+      from   : 'Ludo - Manage your Team <info@ludo-sport.com>',
       subject: 'Welcome to Ludo',
       html   : `<!DOCTYPE html>
-                  <html lang="en">
-                  <head>
-                    <meta charset="UTF-8">
-                    <title>Welcome to Ludo</title>
-                    <style>
-                      .container {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: space-between;
-                      }
-                      body {
-                        background-color: #1d1e27;
-                        color: #ecfdf5;
-                        padding: 2rem;
-                        font-size: 1.25rem;
-                      }
-                      button {
-                        padding: 0.75rem;
-                        background-color: #10b981;
-                        color: #ecfdf5;
-                        border: none;
-                        border-radius: 5px;
-                        font-size: 1.25rem;
-                        margin: 1rem 0;
-                      }
-                      button:hover {
-                        background-color: #0fb07b;
-                        cursor: pointer;
-                      }
-                    </style>
-                  </head>
-                  <body>
-                    <div class="container">
-                      <img alt="Ludo Sport" src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo_Text_Tr.png" style="width: 15rem; margin-bottom: 2rem">
-                      <span>Hi ${user.username}, <br /> You have been invited to Ludo.<br /> Your generated password is: ${password} <br /> <br />To start exploring Ludo App please confirm your email address by pressing the button <br /> <a href="https://api.ludo-sport.com/auth/registration-complete/${user._id}/${userData.company}/true" target="_blank"><button>Verify Now</button></a> <br /> <br /> Welcome to Ludo! <br> Ludo Team</span>
-                    </div>
-                  </body>
-                  </html>
+                <html lang="it">
+                <head>
+                  <style>
+                    /* Stili base */
+                    body {
+                      font-family: 'Arial', sans-serif;
+                      background-color: #f4f4f4;
+                      margin: 0;
+                      padding: 0;
+                    }
+                    table {
+                      border-spacing: 0;
+                      border-collapse: collapse;
+                      mso-table-lspace: 0pt;
+                      mso-table-rspace: 0pt;
+                    }
+                    td {
+                      padding: 0;
+                      mso-line-height-rule: exactly;
+                    }
+                    .container {
+                      width: 100%;
+                      max-width: 600px;
+                      margin: auto;
+                      background: white;
+                      text-align: center;
+                    }
+                    .header {
+                      padding: 20px;
+                      text-align: left;
+                      border-radius: 8px 8px 0 0;
+                    }
+                    .content {
+                      padding: 20px;
+                      text-align: left;
+                    }
+                    .footer {
+                      background-color: #f1f5f9;
+                      color: #334155;
+                      text-align: center;
+                      padding: 10px;
+                      font-size: 12px;
+                    }
+                    .button {
+                      padding: 10px 20px;
+                      color: white;
+                      background-color: #10b981;
+                      text-decoration: none;
+                      border-radius: 5px;
+                      display: inline-block;
+                    }
+                    .password {
+                      padding: 10px 15px;
+                      background-color: #f1f5f9;
+                      border-radius: 5px;
+                      display: inline-block;
+                      margin: 15px 0;
+                    }
+                  </style><title>Ludo - Manage your Team</title>
+                  <!--[if mso]>
+                  <style type="text/css">
+                    .content {text-align: left; text-justify: inter-word;}
+                  </style>
+                  <![endif]-->
+                </head>
+                <body style="font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+                <center>
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td style="padding: 20px;">
+                        <table role="presentation" class="container" style="width: 100%; max-width: 600px; margin: auto; background: white; text-align: center; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                          <tr>
+                            <td class="header" style="padding: 20px; text-align: left; border-radius: 8px 8px 0 0;">
+                              <img src="./Logo.svg" alt="Logo Ludo" style="max-width: 50px; vertical-align: middle;"> <!-- Percorso del tuo logo -->
+                              <span style="display: inline; vertical-align: middle; font-size: 28px; margin-left: 10px; font-weight: bold;">Benvenuto in Ludo!</span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="content" style="padding: 20px; text-align: left;">
+                              <h2>Ciao ${user.username}!</h2>
+                              <p>Sei stato invitato a unirti a Ludo! Qui di seguito i dettagli di accesso ed un link per verificare il tuo indirizzo email.</p>
+                              <p>La tua password:</p>
+                              <div class="password" style="padding: 10px 15px; background-color: #f1f5f9; border-radius: 5px; display: inline-block; margin: 15px 0;">${password}</div>
+                              <p>Per iniziare ad utilizzare Ludo, per favore conferma il tuo indirizzo mail cliccando sul pulsante qui sotto.</p>
+                              <a href="https://api.ludo-sport.com/auth/registration-complete/${user._id}/${userData.company}/true" target="_blank" class="button" style="padding: 10px 20px; color: white; background-color: #10b981; text-decoration: none; border-radius: 5px; display: inline-block;">Verifica Email</a>
+                              <p style="font-size: 14px">Se non ti aspettavi questo invito, ignora questa email.</p>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="footer" style="background-color: #f1f5f9; color: #334155; text-align: center; padding: 10px; font-size: 12px;">
+                              Grazie, <br> Ludo Team
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </center>
+                </body>
+                </html>
               `
     });
 
@@ -204,47 +266,98 @@ export class AuthService {
     // TODO: Create html file with the code and beautify the message
     await emailTransporter.sendMail({
       to     : user.username,
-      from   : 'Ludo Sport <info@ludo-sport.com>',
+      from   : 'Ludo - Manage your Team <info@ludo-sport.com>',
       subject: 'Welcome to Ludo',
       html   : `<!DOCTYPE html>
-                  <html lang="en">
-                  <head>
-                    <meta charset="UTF-8">
-                    <title>Welcome to Ludo</title>
-                    <style>
-                      .container {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: space-between;
-                      }
-                      body {
-                        background-color: #1d1e27;
-                        color: #ecfdf5;
-                        padding: 2rem;
-                        font-size: 1.25rem;
-                      }
-                      button {
-                        padding: 0.75rem;
-                        background-color: #10b981;
-                        color: #ecfdf5;
-                        border: none;
-                        border-radius: 5px;
-                        font-size: 1.25rem;
-                        margin: 1rem 0;
-                      }
-                      button:hover {
-                        background-color: #0fb07b;
-                        cursor: pointer;
-                      }
-                    </style>
-                  </head>
-                  <body>
-                    <div class="container">
-                      <img alt="Ludo Sport" src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo_Text_Tr.png" style="width: 15rem; margin-bottom: 2rem">
-                      <span>Hi ${user.username}, <br /> We're happy you signed up for Ludo.<br /> <br />To start exploring Ludo App please confirm your email address by pressing the button <br /> <a href="https://api.ludo-sport.com/auth/registration-complete/${user._id}/${company._id}/false" target="_blank"><button>Verify Now</button></a> <br /> <br /> Welcome to Ludo! <br> Ludo Team</span>
-                    </div>
-                  </body>
-                  </html>
+              <html lang="it">
+              <head>
+                <style>
+                  body {
+                    font-family: 'Arial', sans-serif;
+                    background-color: #f4f4f4;
+                    margin: 0;
+                    padding: 0;
+                  }
+                  table {
+                    border-spacing: 0;
+                    border-collapse: collapse;
+                    mso-table-lspace: 0pt;
+                    mso-table-rspace: 0pt;
+                  }
+                  td {
+                    padding: 0;
+                    mso-line-height-rule: exactly;
+                  }
+                  .container {
+                    max-width: 600px;
+                    background: white;
+                    text-align: center;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                  }
+                  .header {
+                    padding: 20px;
+                    text-align: left;
+                    border-radius: 8px 8px 0 0;
+                  }
+                  .content {
+                    padding: 20px;
+                    text-align: left;
+                  }
+                  .footer {
+                    background-color: #f1f5f9;
+                    color: #334155;
+                    text-align: center;
+                    padding: 10px;
+                    font-size: 12px;
+                  }
+                  .button {
+                    padding: 10px 20px;
+                    color: white;
+                    background-color: #10b981;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    display: inline-block;
+                  }
+                </style><title>Ludo - Manage your Team</title>
+                <!--[if mso]>
+                <style type="text/css">
+                  .content {text-align: left; text-justify: inter-word;}
+                </style>
+                <![endif]-->
+              </head>
+              <body style="font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+              <center>
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="padding: 20px;">
+                  <tr>
+                    <td align="center" style="padding: 20px;">
+                      <table role="presentation" class="container" style="max-width: 600px; margin: auto; background: white; text-align: center; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                        <tr>
+                          <td class="header" style="padding: 20px; text-align: left; border-radius: 8px 8px 0 0;">
+                            <img src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo.svg" alt="Ludo Sport" style="max-width: 50px; vertical-align: middle;">
+                            <span style="display: inline; vertical-align: middle; font-size: 28px; margin-left: 10px; font-weight: bold;">Benvenuto in Ludo!</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="content" style="padding: 20px; text-align: left;">
+                            <h3>Ciao ${signUpDto.username}</h3>
+                            <p>Grazie per esserti registrato a Ludo. <br /> Per iniziare ad utilizzare Ludo, per favore conferma il tuo indirizzo mail cliccando sul pulsante qui sotto.</p>
+                            <a href="https://api.ludo-sport.com/auth/registration-complete/${user._id}/${company._id}/false" target="_blank" class="button" style="padding: 10px 20px; color: white; background-color: #10b981; text-decoration: none; border-radius: 5px; display: inline-block;">Verifica Email</a>
+                            <p style="font-size: 14px">Se non ti sei registrato a Ludo, ignora questa email.</p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="footer" style="background-color: #f1f5f9; color: #334155; text-align: center; padding: 10px; font-size: 12px;">
+                            Grazie, <br> Ludo Team
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </center>
+              </body>
+              </html>
               `
     });
 
