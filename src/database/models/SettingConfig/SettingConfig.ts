@@ -3,6 +3,7 @@ import { ExerciseType } from '../ExerciseType/ExerciseType';
 import { LabelType } from '../LabelType/LabelType';
 import { PlayerAttribute } from '../PlayerAttribute/PlayerAttribute';
 import { PlayerRole } from '../PlayerRole/PlayerRole';
+import { Role } from '../Role/Role';
 import { TrainingType } from '../TrainingType/TrainingType';
 
 
@@ -42,6 +43,9 @@ export class SettingConfig {
 
   @prop({ allowMixed: Severity.ALLOW })
   public playerRoles?: ArraySubDocumentType<PlayerRole>;
+
+  @prop({ allowMixed: Severity.ALLOW })
+  public roles?: ArraySubDocumentType<Role>;
 
   @prop({ allowMixed: Severity.ALLOW })
   public labelTypes?: ArraySubDocumentType<LabelType>;

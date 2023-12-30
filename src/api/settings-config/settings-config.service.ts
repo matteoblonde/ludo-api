@@ -4,6 +4,7 @@ import ExerciseTypeModel from '../../database/models/ExerciseType/ExerciseType';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import PlayerAttributeModel from '../../database/models/PlayerAttribute/PlayerAttribute';
 import PlayerRoleModel from '../../database/models/PlayerRole/PlayerRole';
+import RoleModel from '../../database/models/Role/Role';
 import SettingConfigModel from '../../database/models/SettingConfig/SettingConfig';
 import TrainingTypeModel from '../../database/models/TrainingType/TrainingType';
 
@@ -22,6 +23,8 @@ export class SettingsConfigService {
     private readonly playerAttribute: typeof PlayerAttributeModel,
     @Inject(PlayerRoleModel.collection.name)
     private readonly playerRole: typeof PlayerRoleModel,
+    @Inject(RoleModel.collection.name)
+    private readonly roleModel: typeof RoleModel,
     @Inject(LabelTypeModel.collection.name)
     private readonly labelType: typeof LabelTypeModel
   ) {
@@ -71,6 +74,7 @@ export class SettingsConfigService {
     await this.playerAttribute.insertMany(config.playerAttributes);
     await this.playerRole.insertMany(config.playerRoles);
     await this.labelType.insertMany(config.labelTypes);
+    await this.roleModel.insertMany(config.roles);
 
     return 'Settings created correctly';
   }

@@ -10,6 +10,8 @@ import PlayerAttributeModel from '../../database/models/PlayerAttribute/PlayerAt
 import PlayerAttributeSchema from '../../database/models/PlayerAttribute/PlayerAttribute.schema';
 import PlayerRoleModel from '../../database/models/PlayerRole/PlayerRole';
 import PlayerRoleSchema from '../../database/models/PlayerRole/PlayerRole.schema';
+import RoleModel from '../../database/models/Role/Role';
+import RoleSchema from '../../database/models/Role/Role.Schema';
 import SettingConfigModel from '../../database/models/SettingConfig/SettingConfig';
 import SettingConfigSchema from '../../database/models/SettingConfig/SettingConfig.schema';
 import TrainingTypeModel from '../../database/models/TrainingType/TrainingType';
@@ -54,6 +56,11 @@ import { SettingsConfigService } from './settings-config.service';
       provide   : PlayerRoleModel.collection.name,
       inject    : [ DATABASE_CONNECTION ],
       useFactory: (connection: Connection) => getModel(connection, PlayerRoleModel.collection.name, PlayerRoleSchema)
+    },
+    {
+      provide   : RoleModel.collection.name,
+      inject    : [ DATABASE_CONNECTION ],
+      useFactory: (connection: Connection) => getModel(connection, RoleModel.collection.name, RoleSchema)
     },
     {
       provide   : PlayerAttributeModel.collection.name,

@@ -195,7 +195,7 @@ export class AuthService {
                         <table role="presentation" class="container" style="width: 100%; max-width: 600px; margin: auto; background: white; text-align: center; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
                           <tr>
                             <td class="header" style="padding: 20px; text-align: left; border-radius: 8px 8px 0 0;">
-                              <img src="./Logo.svg" alt="Logo Ludo" style="max-width: 50px; vertical-align: middle;"> <!-- Percorso del tuo logo -->
+                              <img src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo.png" alt="Logo Ludo" style="max-width: 50px; vertical-align: middle;" role="presentation" aria-hidden="true">
                               <span style="display: inline; vertical-align: middle; font-size: 28px; margin-left: 10px; font-weight: bold;">Benvenuto in Ludo!</span>
                             </td>
                           </tr>
@@ -334,7 +334,7 @@ export class AuthService {
                       <table role="presentation" class="container" style="max-width: 600px; margin: auto; background: white; text-align: center; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
                         <tr>
                           <td class="header" style="padding: 20px; text-align: left; border-radius: 8px 8px 0 0;">
-                            <img src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo.svg" alt="Ludo Sport" style="max-width: 50px; vertical-align: middle;">
+                            <img src="https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo.png" alt="Ludo Sport" style="max-width: 50px; vertical-align: middle;" role="presentation" aria-hidden="true">
                             <span style="display: inline; vertical-align: middle; font-size: 28px; margin-left: 10px; font-weight: bold;">Benvenuto in Ludo!</span>
                           </td>
                         </tr>
