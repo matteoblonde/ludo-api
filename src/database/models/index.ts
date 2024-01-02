@@ -60,7 +60,7 @@ export {
 } from './Label/Label';
 
 /**
- * ExerciseType Model
+ * Document Model
  */
 export {
   default as ExerciseType
@@ -121,4 +121,25 @@ export {
 export {
   default as SettingConfig
 } from './SettingConfig/SettingConfig';
+
+/**
+ * DocumentType Model
+ */
+export {
+  default as DocumentType
+} from './DocumentType/DocumentType';
+
+/**
+ * Document Model
+ */
+export {
+  default as Document
+} from './Document/Document';
+
+/**
+ * Season Model
+ */
+export {
+  default as Season
+} from './Season/Season';
 

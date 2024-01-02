@@ -1,7 +1,7 @@
 import {
   Body,
-  Controller, Get, HttpException, HttpStatus, Param,
-  Post, Res,
+  Controller,
+  Post,
   UseGuards,
   UseInterceptors
 } from '@nestjs/common';
@@ -36,7 +36,11 @@ export class TrainingsController {
     @Body() training: Training,
     @UserData() userData: IUserData
   ) {
-    return this.trainingsService.insertNewTraining({ teams: userData.teams, userId: userData.userId, ...training });
+    return this.trainingsService.insertNewTraining({
+      season: userData.currentSeason,
+      teams : userData.teams,
+      userId: userData.userId, ...training
+    });
   }
 
 

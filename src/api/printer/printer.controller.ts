@@ -78,4 +78,37 @@ export class PrinterController {
     res.send(pdfBuffer);
   }
 
+
+  /**
+   * Generates a PDF team list for a specific match.
+   *
+   * @param {string} matchId - The match ID.
+   * @param userData
+   * @param {object} res - The HTTP response object.
+   *
+   * @returns {Promise<void>} - A Promise that resolves when the PDF is generated and sent in the response.
+   *
+   * @example
+   * generateTeamListPdf('123456', res)
+   *   .then(() => {
+   *     // PDF generated and sent in the response
+   *   })
+   *   .catch((error) => {
+   *     // Error handling
+   *   })
+   */
+  @UseGuards(AccessTokenGuard)
+  @Get('matches/:matchId/team-list')
+  public async generateTeamListPdf(
+    @Param('matchId') matchId: string,
+    @UserData() userData: IUserData,
+    @Res() res: Response
+  ): Promise<void> {
+    const pdfBuffer = await this.printerService.generateTeamListPdf(matchId, userData.company);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=team-list.pdf');
+    res.send(pdfBuffer);
+  }
+
 }

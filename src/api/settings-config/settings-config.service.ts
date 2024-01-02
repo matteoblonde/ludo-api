@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException, PreconditionFailedException } from '@nestjs/common';
-import { Error } from 'mongoose';
+import DocumentTypeModel from '../../database/models/DocumentType/DocumentType';
 import ExerciseTypeModel from '../../database/models/ExerciseType/ExerciseType';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import PlayerAttributeModel from '../../database/models/PlayerAttribute/PlayerAttribute';
@@ -26,7 +26,9 @@ export class SettingsConfigService {
     @Inject(RoleModel.collection.name)
     private readonly roleModel: typeof RoleModel,
     @Inject(LabelTypeModel.collection.name)
-    private readonly labelType: typeof LabelTypeModel
+    private readonly labelType: typeof LabelTypeModel,
+    @Inject(DocumentTypeModel.collection.name)
+    private readonly documentTypeModel: typeof DocumentTypeModel
   ) {
   }
 
@@ -75,6 +77,7 @@ export class SettingsConfigService {
     await this.playerRole.insertMany(config.playerRoles);
     await this.labelType.insertMany(config.labelTypes);
     await this.roleModel.insertMany(config.roles);
+    await this.documentTypeModel.insertMany(config.documentTypes);
 
     return 'Settings created correctly';
   }

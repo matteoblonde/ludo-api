@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { DatabaseModule } from '../../database/database.module';
 import { DATABASE_CONNECTION, getModel, systemDatabaseConnection } from '../../database/database.providers';
+import DocumentTypeModel from '../../database/models/DocumentType/DocumentType';
+import DocumentTypeSchema from '../../database/models/DocumentType/DocumentType.schema';
 import ExerciseTypeModel from '../../database/models/ExerciseType/ExerciseType';
 import ExerciseTypeSchema from '../../database/models/ExerciseType/ExerciseType.schema';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
@@ -61,6 +63,15 @@ import { SettingsConfigService } from './settings-config.service';
       provide   : RoleModel.collection.name,
       inject    : [ DATABASE_CONNECTION ],
       useFactory: (connection: Connection) => getModel(connection, RoleModel.collection.name, RoleSchema)
+    },
+    {
+      provide   : DocumentTypeModel.collection.name,
+      inject    : [ DATABASE_CONNECTION ],
+      useFactory: (connection: Connection) => getModel(
+        connection,
+        DocumentTypeModel.collection.name,
+        DocumentTypeSchema
+      )
     },
     {
       provide   : PlayerAttributeModel.collection.name,

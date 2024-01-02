@@ -21,6 +21,9 @@ export class Match {
   public teams?: string[];
 
   @prop()
+  public season?: string;
+
+  @prop()
   matchName?: string;
 
   @prop({ allowMixed: Severity.ALLOW })

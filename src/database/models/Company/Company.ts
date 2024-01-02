@@ -25,6 +25,9 @@ export class Company {
   @prop()
   public imgUrl?: string;
 
+  @prop()
+  public currentSeason!: string;
+
 }
 
 const CompanyModel = getModelForClass(Company);

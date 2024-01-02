@@ -31,6 +31,9 @@ export const collectionToModelMap: any = {
   'trainings'        : 'Training',
   'training-absences': 'TrainingAbsence',
   'training-types'   : 'TrainingType',
-  'users'            : 'User'
+  'users'            : 'User',
+  'document-types'   : 'DocumentType',
+  'document'         : 'Document',
+  'seasons'          : 'Season'
 
 };

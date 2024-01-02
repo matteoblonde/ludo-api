@@ -5,7 +5,7 @@ import CompanyModel from '../../database/models/Company/Company';
 import MatchModel from '../../database/models/Match/Match';
 import TeamModel from '../../database/models/Team/Team';
 import TrainingModel from '../../database/models/Training/Training';
-import { dateConverter, dateTimeConverter } from '../../utils/date/date-converter';
+import { dateTimeConverter } from '../../utils/date/date-converter';
 
 
 export class PrinterService {
@@ -113,55 +113,71 @@ export class PrinterService {
     const club = await this.companyModel.findById(companyId);
     const clubImgUrl = club && club.imgUrl
       ? club.imgUrl
-      : 'https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo_Text_Tr.png';
+      : 'https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo.png';
 
     /** Get the match */
     const match: any = await this.matchModel.findById(matchId);
 
     /** Build the table data */
     const tableData = match.players.map((player: any) => [
-      { text: player.lastName, alignment: 'center' },
-      { text: player.firstName, alignment: 'center' },
-      { text: '', alignment: 'center' }
+      { text: player.lastName, alignment: 'center', bold: true },
+      { text: player.firstName, alignment: 'center', bold: true },
+      { text: '', alignment: 'center', bold: true }
     ]);
 
     /** Define the document */
     const docDefinition = {
-      pageMargins : [ 40, 60, 40, 5 ],
+      pageMargins : [ 40, 10, 40, 5 ],
       content     : [
         {
           image    : await this.getImage(clubImgUrl),
-          width    : 125,
+          width    : 75,
           alignment: 'right'
         },
         { text: match.matchName, style: 'header', alignment: 'center' },
         {
-          text: [
-            { text: 'Categoria: ' },
-            { text: match.team.teamName, bold: true, fontSize: 13 }
-          ]
-        },
-        {
-          text: [
-            { text: 'Partita: ' },
+          columns: [
             {
-              text                                                                        : match.isHome
-                ? `${club?.companyName} - ${match.opposingTeamName}`
-                : `${match.opposingTeamName} - ${club?.companyName}`, bold: true, fontSize: 13
+              stack: [
+                {
+                  text: [
+                    { text: 'Categoria: ' },
+                    { text: match.team.teamName, bold: true, fontSize: 13 }
+                  ]
+                },
+                {
+                  text: [
+                    { text: 'Data: ' },
+                    { text: `${dateTimeConverter(match.matchDateTime)}    `, bold: true, fontSize: 13 }
+                  ]
+                }
+              ]
+            },
+            {
+              stack: [
+                {
+                  text: [
+                    { text: 'Partita: ' },
+                    {
+                      text                                                                        : match.isHome
+                        ? `${club?.companyName} - ${match.opposingTeamName}`
+                        : `${match.opposingTeamName} - ${club?.companyName}`, bold: true, fontSize: 13
+                    }
+                  ]
+                },
+                {
+                  text: [
+                    { text: 'Località: ' },
+                    { text: match.city, bold: true, fontSize: 13 }
+                  ]
+                }
+              ]
             }
           ]
         },
         {
-          text: [
-            { text: 'Data: ' },
-            { text: `${dateTimeConverter(match.matchDateTime)}    `, bold: true, fontSize: 13 },
-            { text: 'Città: ' },
-            { text: match.city, bold: true, fontSize: 13 }
-          ]
-        },
-        {
-          text: [
-            { text: 'Ritrovo: ' },
+          text  : [
+            { text: 'Ritrovo ' },
             {
               text    : `${match.address}`,
               bold    : true,
@@ -173,7 +189,8 @@ export class PrinterService {
               bold    : true,
               fontSize: 13
             }
-          ]
+          ],
+          margin: [ 0, 15, 0, 0 ]
         },
         {
           style: 'playersTable',
@@ -182,7 +199,7 @@ export class PrinterService {
             widths    : [ '*', '*', '*' ],
             headerRows: 2,
             body      : [
-              [ { text: 'Convocazione Atleti', style: 'tableHeader', colSpan: 3, alignment: 'center' }, {}, {} ],
+              [ { text: 'CONVOCAZIONE ATLETI', bold: true, colSpan: 3, alignment: 'center' }, {}, {} ],
               [
                 { text: 'Cognome', style: 'tableHeader', alignment: 'center' },
                 { text: 'Nome', style: 'tableHeader', alignment: 'center' },
@@ -195,7 +212,7 @@ export class PrinterService {
       ],
       styles      : {
         header      : {
-          fontSize: 24,
+          fontSize: 20,
           bold    : true,
           margin  : [ 0, 35, 0, 35 ]
         },
@@ -205,11 +222,10 @@ export class PrinterService {
           margin  : [ 0, 10, 0, 5 ]
         },
         playersTable: {
-          margin: [ 0, 35, 0, 15 ]
+          margin: [ 0, 20, 0, 0 ]
         },
         tableHeader : {
-          bold    : true,
-          fontSize: 13,
+          fontSize: 11,
           color   : 'black'
         }
       },
@@ -238,7 +254,7 @@ export class PrinterService {
     const club = await this.companyModel.findById(companyId);
     const clubImgUrl = club && club.imgUrl
       ? club.imgUrl
-      : 'https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo_Text_Tr.png';
+      : 'https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo.png';
 
     /** Get the training and build the exercises table */
     const training: any = await this.trainingModel.findById(trainingId);
@@ -342,6 +358,287 @@ export class PrinterService {
 
     /** Return the doc */
     return this.createPdfDoc(docDefinition);
+  }
+
+
+  public async generateTeamListPdf(matchId: string, companyId: string) {
+
+    /** Get club info and image */
+    const club: any = await this.companyModel.findById(companyId);
+    const clubImgUrl = club && club.imgUrl
+      ? club.imgUrl
+      : 'https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo.png';
+
+    /** Get the match */
+    const match: any = await this.matchModel.findById(matchId);
+
+    /** Sort the players array */
+    const playersSorted = match.players.sort((a: any, b: any) => {
+      return a.shirtNumber - b.shirtNumber;
+    });
+
+    /** Build players table data */
+    const playersTableData = playersSorted.map((player: any) => {
+
+      /** Initialize date object */
+      const birthDate = new Date(player.birthDate);
+
+      /** Find the document to insert */
+      if (player.documents) {
+        const docsForTeamList = player.documents.filter((doc: any) => doc.type.isForTeamList);
+        const docsForTeamListSorted = docsForTeamList.sort((a: any, b: any) => {
+          return a.type.teamListOrder - b.type.teamListOrder;
+        });
+        const docToInsert = docsForTeamListSorted[0];
+
+        return [
+          { text: player.shirtNumber, fontSize: 9, color: '#0A0A0A', alignment: 'center' },
+          { text: `${player.lastName} ${player.firstName}`, fontSize: 9, color: '#0A0A0A' },
+          { text: '', style: 'cellContent' },
+          { text: docToInsert.type.teamListOrder === 1 ? docToInsert.number : '', style: 'cellContent' },
+          { text: docToInsert.type.teamListOrder === 2 ? 'C.I.' : '', style: 'cellContent' },
+          { text: docToInsert.type.teamListOrder === 2 ? docToInsert.number : '', style: 'cellContent' },
+          { text: docToInsert.type.teamListOrder === 2 ? docToInsert.releasePlace : '', style: 'cellContent' },
+          { text: ('0' + birthDate.getDate()).slice(-2), style: 'cellContent' },
+          { text: ('0' + (birthDate.getMonth() + 1)).slice(-2), style: 'cellContent' },
+          { text: birthDate.getFullYear().toString().slice(-2), style: 'cellContent' }
+        ];
+      }
+
+      return [
+        { text: player.shirtNumber, fontSize: 9, color: '#0A0A0A', alignment: 'center' },
+        { text: `${player.lastName} ${player.firstName}`, fontSize: 9, color: '#0A0A0A' },
+        { text: '', style: 'cellContent' },
+        { text: '', style: 'cellContent' },
+        { text: '', style: 'cellContent' },
+        { text: '', style: 'cellContent' },
+        { text: '', style: 'cellContent' },
+        { text: ('0' + birthDate.getDate()).slice(-2), style: 'cellContent' },
+        { text: ('0' + (birthDate.getMonth() + 1)).slice(-2), style: 'cellContent' },
+        { text: birthDate.getFullYear().toString().slice(-2), style: 'cellContent' }
+      ];
+    });
+
+    /** Build the final doc */
+    const docDefinition = {
+      pageMargins : 25,
+      content     : [
+        {
+          columnGap: 25,
+          columns  : [
+            {
+              image    : await this.getImage(clubImgUrl),
+              width    : 75,
+              alignment: 'left',
+              margin   : [ 0, 15, 0, 0 ]
+            },
+            {
+              stack   : [
+                { text: club.companyName, fontSize: 24, margin: [ 0, 0, 0, 5 ] },
+                {
+                  text      : [
+                    { text: 'Elenco dei calciatori che partecipano alla gara ' },
+                    {
+                      text                                                        : match.isHome
+                        ? `${club?.companyName} - ${match.opposingTeamName}`
+                        : `${match.opposingTeamName} - ${club?.companyName}`, bold: true
+                    }
+                  ],
+                  lineHeight: 2
+                },
+                { text: [ { text: 'valevole per ' }, { text: match.matchName, bold: true } ], lineHeight: 2 },
+                {
+                  text      : [
+                    { text: 'in calendario il ' },
+                    { text: dateTimeConverter(match.matchDateTime), bold: true }
+                  ],
+                  lineHeight: 2
+                },
+                {
+                  text      : [
+                    { text: ' a ' },
+                    { text: match.city, bold: true },
+                    { text: ' campo ' },
+                    { text: match.address, bold: true }
+                  ],
+                  lineHeight: 2
+                }
+              ],
+              fontSize: 10,
+              margin  : [ 0, 0, 0, 10 ]
+            }
+          ]
+        },
+        {
+          table: {
+            widths    : [ 30, 175, 20, 50, 20, 60, 55, 15, 15, 15 ],
+            heights   : 12,
+            headerRows: 2,
+            // keepWithHeaderRows: 1,
+            body: [
+              [
+                { text: 'N. Maglia', style: 'tableHeader', rowSpan: 2 },
+                { text: 'Nominativo', style: 'tableHeader', rowSpan: 2 },
+                { text: 'Cap', style: 'tableHeader', rowSpan: 2 },
+                { text: 'N. Tessera', style: 'tableHeader', rowSpan: 2 },
+                { text: 'Documento di Identificazione', colSpan: 3, style: 'tableHeader' },
+                {},
+                {},
+                { text: 'Data di Nascita', colSpan: 3, style: 'tableHeader' },
+                {},
+                {}
+              ],
+              [
+                {},
+                {},
+                {},
+                {},
+                { text: 'Tipo', style: 'tableHeader' },
+                { text: 'Numero', style: 'tableHeader' },
+                { text: 'Rilasciato da', style: 'tableHeader' },
+                { text: 'G', style: 'tableHeader' },
+                { text: 'M', style: 'tableHeader' },
+                { text: 'A', style: 'tableHeader' }
+              ],
+              ...playersTableData
+            ]
+          }
+        },
+        {
+          margin: [ 0, 10, 0, 0 ],
+          table : {
+            widths    : [ 100, 135, 50, 20, 60, '*' ],
+            headerRows: 2,
+            heights   : 12,
+            body      : [
+              [
+                { text: 'Persone ammesse sul terreno di gioco', style: 'tableHeader', rowSpan: 2, colSpan: 2 },
+                {},
+                { text: 'N. Tessera', style: 'tableHeader', rowSpan: 2 },
+                { text: 'Documento di Identificazione', style: 'tableHeader', colSpan: 3 },
+                {},
+                {}
+              ],
+              [
+                {},
+                {},
+                {},
+                { text: 'Tipo', style: 'tableHeader' },
+                { text: 'Numero', style: 'tableHeader' },
+                { text: 'Rilasciato da', style: 'tableHeader' }
+              ],
+              [
+                { text: 'Dirig. Accomp. Uff.', style: 'cellContentLight' },
+                { text: '', fontSize: 9, color: '#0A0A0A' },
+                {},
+                {},
+                {},
+                {}
+              ],
+              [
+                { text: 'Dirig. Addetto all\'arbitro', style: 'cellContentLight' },
+                { text: '', fontSize: 9, color: '#0A0A0A' },
+                {},
+                {},
+                {},
+                {}
+              ],
+              [
+                { text: 'Allenatore', style: 'cellContentLight' },
+                { text: '', fontSize: 9, color: '#0A0A0A' },
+                {},
+                {},
+                {},
+                {}
+              ],
+              [
+                { text: 'Allenatore in 2a', style: 'cellContentLight' },
+                { text: '', fontSize: 9, color: '#0A0A0A' },
+                {},
+                {},
+                {},
+                {}
+              ],
+              [
+                { text: 'Medico Sociale', style: 'cellContentLight' },
+                { text: '', fontSize: 9, color: '#0A0A0A' },
+                {},
+                {},
+                {},
+                {}
+              ],
+              [
+                { text: 'Massaggiatore', style: 'cellContentLight' },
+                { text: '', fontSize: 9, color: '#0A0A0A' },
+                {},
+                {},
+                {},
+                {}
+              ],
+              [
+                { text: 'Assistente dell\'arbitro', style: 'cellContentLight' },
+                { text: '', fontSize: 9, color: '#0A0A0A' },
+                {},
+                {},
+                {},
+                {}
+              ]
+            ]
+          }
+        },
+        {
+          text     : 'Si dichiara, ai sensi e per gli effetti del\'art. 61 n.5 delle N.O.I.F., che i calciatori citati in precendeza, sprovvisti di tessera federale valida per l\'anno sportivo in corso, partecipano alla gara sotto la responsabilità della società di appartenenza.',
+          fontSize : 8,
+          margin   : [ 0, 10, 0, 0 ],
+          alignment: 'center'
+        },
+        {
+          columns  : [
+            {
+              stack: [
+                { text: 'L\'Arbitro', margin: [ 0, 0, 0, 20 ] },
+                '________________________________________________________'
+              ]
+            },
+            {
+              stack: [
+                { text: 'Il Dirigente Accompagnatore Ufficiale', margin: [ 0, 0, 0, 20 ] },
+                '________________________________________________________'
+              ]
+            }
+          ],
+          alignment: 'center',
+          margin   : [ 0, 15, 0, 0 ],
+          fontSize : 10
+        }
+      ],
+      styles      : {
+        cellContentLight: {
+          fontSize: 7
+        },
+        cellContent     : {
+          fontSize : 8,
+          alignment: 'center',
+          color    : '#0A0A0A'
+        },
+        tableHeader     : {
+          bold     : false,
+          fontSize : 9,
+          color    : 'black',
+          alignment: 'center',
+          fillColor: '#E7E5E4'
+        }
+      },
+      defaultStyle: {
+        lineHeight: 1
+        // alignment: 'justify'
+      }
+
+    };
+
+    /** Return the doc */
+    return this.createPdfDoc(docDefinition);
+
   }
 
 }

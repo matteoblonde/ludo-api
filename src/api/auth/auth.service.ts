@@ -6,6 +6,8 @@ import { signUpDatabaseConnection } from '../../database/database.providers';
 import CompanyModel from '../../database/models/Company/Company';
 import RoleModel from '../../database/models/Role/Role';
 import RoleSchema from '../../database/models/Role/Role.Schema';
+import SeasonModel from '../../database/models/Season/Season';
+import SeasonSchema from '../../database/models/Season/Season.Schema';
 import TeamModel from '../../database/models/Team/Team';
 import TeamSchema from '../../database/models/Team/Team.schema';
 import UserModel from '../../database/models/User/User';
@@ -76,7 +78,8 @@ export class AuthService {
         privateUserData.company.toString(),
         privateUserData._id.toString(),
         privateUserData.role.roleLevel,
-        privateUserData.teams
+        privateUserData.teams,
+        privateUserData.currentSeason
       );
     }
 
@@ -102,7 +105,8 @@ export class AuthService {
       username: newUser.username,
       password: crypto.createHash('md5').update(password).digest('hex'),
       company : userData.company,
-      role    : newUser.role
+      role    : newUser.role,
+      season  : userData.currentSeason
     });
     await user.save();
 
@@ -362,11 +366,12 @@ export class AuthService {
     });
 
     return this.createAuthData({
-      username : signUpDto.username,
-      company  : company._id.toString(),
-      userId   : user._id.toString(),
-      roleLevel: user.role.roleLevel,
-      teams    : user.teams
+      username     : signUpDto.username,
+      company      : company._id.toString(),
+      userId       : user._id.toString(),
+      roleLevel    : user.role.roleLevel,
+      teams        : user.teams,
+      currentSeason: user.currentSeason
     });
 
   }
@@ -389,11 +394,11 @@ export class AuthService {
     /** If both exist create first standard settings (Role, Teams...) */
     if (company && userExist && !invitation) {
 
-      // TODO: Bug duplicate roles and teams creation
       /** Inject new connection and models */
       const signUpConnection = await signUpDatabaseConnection(company._id.toString());
       const roleModel = signUpConnection.model(RoleModel.collection.name, RoleSchema);
       const teamModel = signUpConnection.model(TeamModel.collection.name, TeamSchema);
+      const seasonModel = signUpConnection.model(SeasonModel.collection.name, SeasonSchema);
 
       /** Check if 'Admin' role already exists */
       let role = await roleModel.findOne({ roleName: 'Admin' });
@@ -416,10 +421,33 @@ export class AuthService {
         await team.save();
       }
 
+      /** Check if season already exists for this company */
+      let season = await seasonModel.findOne({}).exec();
+      if (!season) {
+        /** Initialize the first season */
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
+
+        let seasonName;
+        if (currentMonth >= 7) {
+          seasonName = `${currentYear} - ${currentYear + 1}`;
+        }
+        else {
+          seasonName = `${currentYear - 1} - ${currentYear}`;
+        }
+
+        season = new seasonModel({
+          name: seasonName
+        });
+        await season.save();
+      }
+
       /** Save and return the modified user */
       return this.User.findByIdAndUpdate(userId, {
-        teams: [ team._id ],
-        role : role
+        teams : [ team._id ],
+        role  : role,
+        season: season._id
       });
 
     }
@@ -478,7 +506,8 @@ export class AuthService {
         privateUserData.company.toString(),
         privateUserData._id.toString(),
         privateUserData.role.roleLevel,
-        privateUserData.teams
+        privateUserData.teams,
+        privateUserData.currentSeason
       );
     }
 
@@ -501,20 +530,23 @@ export class AuthService {
    * @param userId
    * @param roleLevel
    * @param teams
+   * @param currentSeason
    */
   private createUserData(
     username: string,
     company: string,
     userId: string,
     roleLevel: number,
-    teams: string[]
+    teams: string[],
+    currentSeason: string
   ): IUserData {
     return {
       username,
-      company  : company,
-      userId   : userId,
-      roleLevel: roleLevel,
-      teams    : teams
+      company      : company,
+      userId       : userId,
+      roleLevel    : roleLevel,
+      teams        : teams,
+      currentSeason: currentSeason
     };
   }
 

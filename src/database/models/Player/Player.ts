@@ -1,7 +1,17 @@
-import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import {
+  ArraySubDocumentType,
+  DocumentType,
+  getModelForClass,
+  modelOptions,
+  prop,
+  Severity
+} from '@typegoose/typegoose';
+import { Residence } from '../../interfaces';
+import { Document } from '../Document/Document';
 import { Label } from '../Label/Label';
-import { PlayerRole } from '../PlayerRole/PlayerRole';
 import { PlayerAttribute } from '../PlayerAttribute/PlayerAttribute';
+import { PlayerRole } from '../PlayerRole/PlayerRole';
+
 
 /* --------
 * Define the class
@@ -14,6 +24,9 @@ export class Player {
 
   @prop({ allowMixed: Severity.ALLOW })
   public teams?: string[];
+
+  @prop()
+  public currentTeam?: string;
 
   @prop()
   public firstName?: string;
@@ -56,8 +69,23 @@ export class Player {
   @prop({ allowMixed: Severity.ALLOW })
   public attributes?: ArraySubDocumentType<PlayerAttribute>;
 
+  /** Fields for personal details */
   @prop()
   public birthDate?: Date;
+
+  @prop({ allowMixed: Severity.ALLOW })
+  public documents?: ArraySubDocumentType<Document>;
+
+  @prop({
+    default   : {
+      address   : '',
+      city      : '',
+      postalCode: '',
+      country   : ''
+    },
+    allowMixed: Severity.ALLOW
+  })
+  public residence?: DocumentType<Residence>;
 
   /** Field for the analysis */
   @prop({

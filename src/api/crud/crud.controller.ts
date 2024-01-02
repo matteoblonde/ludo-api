@@ -52,7 +52,7 @@ export class CrudController {
   @Post(':collection')
   public async insertNewRecord(
     @Body() record: any,
-    @Param() collection: string
+    @Param('collection') collection: string
   ): Promise<any> {
     return this.crudService.insertNewRecord(record);
   }
@@ -63,17 +63,25 @@ export class CrudController {
    *
    * @param {Object} record - The record to be inserted.
    * @param collection
+   * @param season
    * @param {Object} userData - The user data.
    * @return {Promise} A promise that resolves when the new record is inserted.
    * @throws {Error} If an error occurs during the insertion process.
    */
   @UseGuards(AccessTokenGuard)
-  @Post(':collection/labels')
+  @Post(':collection/labels/:season')
   public async insertNewRecordWithLabels(
     @Body() record: any,
-    @Param() collection: string,
+    @Param('collection') collection: string,
+    @Param('season') season: boolean,
     @UserData() userData: IUserData
   ): Promise<any> {
+
+    /** If season inject in the record */
+    if (season) {
+      record = { season: userData.currentSeason, ...record };
+    }
+
     return this.crudService.insertNewRecordWithLabels({ teams: userData.teams, userId: userData.userId, ...record });
   }
 
@@ -143,7 +151,7 @@ export class CrudController {
   @Delete(':collection/:id')
   public async deleteDocumentById(
     @Param('id') documentId: string,
-    @Param() collection: string
+    @Param('collection') collection: string
   ): Promise<any> {
     return this.crudService.deleteDocumentById(documentId);
   }
@@ -156,16 +164,24 @@ export class CrudController {
    * @Get()
    * @param {string} query - The query to filter the documents.
    * @param collection
+   * @param season
    * @param {IUserData} userData - The user data obtained from the access token.
    * @return {Promise<any>} - A promise that resolves to the retrieved documents.
    */
   @UseGuards(AccessTokenGuard)
-  @Get(':collection')
+  @Get(':collection/:season')
   public async getDocuments(
-    @Query() query: string,
-    @Param() collection: string,
+    @Query() query: any,
+    @Param('collection') collection: string,
+    @Param('season') season: boolean,
     @UserData() userData: IUserData
   ): Promise<any> {
+
+    /** If season apply season filter */
+    if (season) {
+      query.filter = { 'season': userData.currentSeason, ...query.filter };
+    }
+
     return this.crudService.get(userData.teams, parser.parse(query));
   }
 
@@ -176,17 +192,27 @@ export class CrudController {
    * @param {string} query - The query parameter containing filter parameters.
    * @param {string} collection - The parameter representing the name of the collection.
    *
+   * @param season
+   * @param userData
    * @returns {Promise<any>} - A promise that resolves to the retrieved documents.
    *
    * @UseGuards(AccessTokenGuard)
    * @Get(':collection/settings')
    */
   @UseGuards(AccessTokenGuard)
-  @Get(':collection/settings')
+  @Get(':collection/no-team-filter/:season')
   public async getDocumentsWithoutTeamsFilter(
-    @Query() query: string,
-    @Param() collection: string
+    @Query() query: any,
+    @Param('collection') collection: string,
+    @Param('season') season: boolean,
+    @UserData() userData: IUserData
   ): Promise<any> {
+
+    /** If season apply season filter */
+    if (season) {
+      query.filter = { 'season': userData.currentSeason, ...query.filter };
+    }
+
     return this.crudService.get([], parser.parse(query));
   }
 

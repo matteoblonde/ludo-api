@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { Company } from '../../database/models/Company/Company';
@@ -30,6 +30,26 @@ export class CompaniesController {
     @Body() company: Company
   ) {
     return this.companiesService.insertNewCompany(company);
+  }
+
+
+  /**
+   * Update the current season for a company.
+   *
+   * @param {string} companyId - The ID of the company.
+   * @param {string} seasonId - The ID of the season.
+   * @returns {Promise<void>} - A promise that resolves when the current season is updated.
+   *
+   * @UseGuards(AccessTokenGuard)
+   * @Patch(':companyId/set-current-season/:seasonId')
+   */
+  @UseGuards(AccessTokenGuard)
+  @Patch(':companyId/set-current-season/:seasonId')
+  public async updateCurrentSeason(
+    @Param('companyId') companyId: string,
+    @Param('seasonId') seasonId: string
+  ): Promise<Object> {
+    return this.companiesService.updateCurrentSeason(companyId, seasonId);
   }
 
 

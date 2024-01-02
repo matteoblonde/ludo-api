@@ -9,5 +9,7 @@ export interface IUserData {
 
   teams: string[];
 
+  currentSeason?: string;
+
   roleLevel: number;
 }

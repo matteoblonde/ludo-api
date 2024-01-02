@@ -11,6 +11,10 @@ import { Label } from '../Label/Label';
 import { TrainingType } from '../TrainingType/TrainingType';
 
 
+/**
+ * Index Definition
+ */
+
 /* --------
 * Schema Definition
 * -------- */
@@ -22,6 +26,9 @@ export class Training {
 
   @prop({ allowMixed: Severity.ALLOW })
   public teams?: string[];
+
+  @prop()
+  public season?: string;
 
   @prop()
   public trainingDescription?: string;

@@ -1,4 +1,5 @@
 import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { DocumentType } from '../DocumentType/DocumentType';
 import { ExerciseType } from '../ExerciseType/ExerciseType';
 import { LabelType } from '../LabelType/LabelType';
 import { PlayerAttribute } from '../PlayerAttribute/PlayerAttribute';
@@ -49,6 +50,9 @@ export class SettingConfig {
 
   @prop({ allowMixed: Severity.ALLOW })
   public labelTypes?: ArraySubDocumentType<LabelType>;
+
+  @prop({ allowMixed: Severity.ALLOW })
+  public documentTypes?: ArraySubDocumentType<DocumentType>;
 
 }
 

@@ -50,6 +50,9 @@ export class User {
   @prop({ required: true, allowMixed: Severity.ALLOW })
   public teams!: string[];
 
+  @prop()
+  public currentSeason!: string;
+
   @prop({
     default: false
   })
