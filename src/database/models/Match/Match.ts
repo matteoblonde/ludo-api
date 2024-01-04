@@ -82,6 +82,9 @@ export class Match {
   @prop({ allowMixed: Severity.ALLOW })
   labels?: ArraySubDocumentType<Label>;
 
+  @prop()
+  teamListStaff?: object;
+
 }
 
 /**

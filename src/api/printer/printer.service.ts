@@ -3,9 +3,10 @@ import axios from 'axios';
 import PdfPrinter from 'pdfmake';
 import CompanyModel from '../../database/models/Company/Company';
 import MatchModel from '../../database/models/Match/Match';
+import player from '../../database/models/Player/Player';
 import TeamModel from '../../database/models/Team/Team';
 import TrainingModel from '../../database/models/Training/Training';
-import { dateTimeConverter } from '../../utils/date/date-converter';
+import { dateConverter, dateTimeConverter } from '../../utils/date/date-converter';
 
 
 export class PrinterService {
@@ -265,92 +266,116 @@ export class PrinterService {
     const teamWork: string = usersInTeam.join(', ');
 
     const exercisesTableDataPromises = training.exercises.map(async (exercise: any) => [
-      [
-        { text: exercise.exerciseName, alignment: 'center', bold: true, style: 'tableRow' },
-        { text: exercise.exerciseDescription, fontSize: 10, alignment: 'center', style: 'tableRow' }
-      ],
-      { image: await this.getImage(exercise.imgUrl), alignment: 'center', width: 150, style: 'tableRow' }
+      { text: exercise.exerciseName, alignment: 'center', fontSize: 10 },
+      { text: exercise.exerciseDescription, fontSize: 9, alignment: 'center' },
+      exercise.imgUrl ? { image: await this.getImage(exercise.imgUrl), alignment: 'center', width: 150 } : ''
     ]);
 
     const exercisesTableData = await Promise.all(exercisesTableDataPromises);
 
     /** Build the document content */
     const docDefinition = {
-      pageMargins: [ 40, 40 ],
+      pageMargins: 25,
       footer     : {
-        image: await this.getImage(clubImgUrl), width: 35, alignment: 'center', margin: [ 0, 0, 0, 5 ]
+        text     : 'Provided by Ludo (www.ludo-sport.com)',
+        fontSize : 7,
+        alignment: 'center'
       },
       content    : [
         {
-          style: 'tableExample',
-          table: {
-            widths    : [ '*', '*' ],
+          columns  : [
+            {
+              image    : await this.getImage(clubImgUrl),
+              width    : 75,
+              alignment: 'left',
+              margin   : [ 0, 15, 0, 0 ]
+            },
+            {
+              table: {
+                widths    : [ 80, '*' ],
+                headerRows: 1,
+                body      : [
+                  [
+                    { text: 'SCHEDA ALLENAMENTO', style: 'tableHeader', colSpan: 2 },
+                    {}
+                  ],
+                  [
+                    { text: 'DATA', fontSize: 9 },
+                    { text: dateConverter(training.trainingDate), bold: true, fontSize: 10 }
+                  ],
+                  [
+                    { text: 'CATEGORIA', fontSize: 9 },
+                    { text: team.teamName, bold: true, fontSize: 10 }
+                  ],
+                  [
+                    { text: 'STAFF', fontSize: 9 },
+                    { text: teamWork, bold: true, fontSize: 10 }
+                  ],
+                  [
+                    { text: 'ASSENZE', fontSize: 9 },
+                    { text: '', bold: true, fontSize: 10 }
+                  ]
+                ]
+              }
+            }
+          ],
+          columnGap: 50,
+          margin   : [ 0, 0, 0, 10 ]
+        },
+        {
+          margin: [ 0, 10, 0, 0 ],
+          table : {
+            widths    : [ 75, 175, '*' ],
             headerRows: 1,
             body      : [
               [
-                { text: training.trainingTitle, style: 'header', colSpan: 2, alignment: 'center' },
+                { text: 'ESERCIZIO', style: 'tableHeader' },
+                { text: 'DESCRIZIONE', style: 'tableHeader' },
+                { text: 'IMMAGINE', style: 'tableHeader' }
+              ],
+              ...exercisesTableData
+            ]
+          }
+        },
+        {
+          pageBreak: 'before',
+          margin   : [ 0, 10, 0, 0 ],
+          table    : {
+            widths    : [ 100, '*' ],
+            headerRows: 1,
+            body      : [
+              [
+                { text: 'ALLENAMENTO', style: 'tableHeader', colSpan: 2 },
                 {}
               ],
               [
-                {
-                  text : [
-                    { text: 'Staff: ', bold: true },
-                    { text: teamWork, fontSize: 10 }
-                  ],
-                  style: 'tableRow'
-                },
-                { text: [ { text: 'Categoria: ', bold: true }, { text: team.teamName } ], style: 'tableRow' }
+                { text: 'DESCRIZIONE', fontSize: 9, bold: true },
+                { text: training.trainingDescription, fontSize: 9 }
               ],
               [
-                {
-                  text    : [
-                    { text: 'Descrizione: ', bold: true },
-                    { text: training.trainingDescription, fontSize: 10 }
-                  ], style: 'tableRow', colSpan: 2
-                }, {}
-              ],
-              [
-                {
-                  text      : [
-                    { text: 'Note: ', bold: true },
-                    {
-                      text    : training.trainingNotes,
-                      fontSize: 10
-                    }
-                  ], colSpan: 2, style: 'tableRow'
-                }, {}
-              ],
-              [
-                {
-                  text      : [
-                    //TODO: Call api and retrieve all absent players
-                    { text: 'Assenze (4): ', bold: true },
-                    { text: '', fontSize: 10 }
-                  ], colSpan: 2, style: 'tableRow'
-                }, {}
-              ],
-              ...exercisesTableData
+                { text: 'NOTE', fontSize: 9, bold: true },
+                { text: training.trainingNotes, fontSize: 9 }
+              ]
             ]
           }
         }
       ],
       styles     : {
-        header      : {
-          fontSize: 18,
-          bold    : true,
-          margin  : [ 0, 10, 0, 10 ]
+        cellContent      : {
+          fontSize: 9,
+          color   : '#0A0A0A'
         },
-        tableExample: {
-          margin    : [ 0, 5, 0, 15 ],
-          lineHeight: 1
+        cellContentCenter: {
+          fontSize : 9,
+          alignment: 'center',
+          color    : '#0A0A0A'
         },
-        tableRow    : {
-          margin: [ 0, 10, 0, 10 ]
-        },
-        tableHeader : {
-          bold    : true,
-          fontSize: 13,
-          color   : 'black'
+        tableHeader      : {
+          bold     : true,
+          fontSize : 9,
+          color    : 'black',
+          alignment: 'center',
+          fillColor: '#E7E5E4'
         }
       }
 
@@ -418,6 +443,16 @@ export class PrinterService {
         { text: birthDate.getFullYear().toString().slice(-2), style: 'cellContent' }
       ];
     });
+
+    /** Build staff table */
+    const staffTable = match.teamListStaff.map((staff: any) => [
+      { text: staff.role, style: 'cellContentLight' },
+      { text: staff.user ? `${staff.user.lastName} ${staff.user.firstName}` : '', fontSize: 9, color: '#0A0A0A' },
+      {},
+      {},
+      {},
+      {}
+    ]);
 
     /** Build the final doc */
     const docDefinition = {
@@ -527,62 +562,7 @@ export class PrinterService {
                 { text: 'Numero', style: 'tableHeader' },
                 { text: 'Rilasciato da', style: 'tableHeader' }
               ],
-              [
-                { text: 'Dirig. Accomp. Uff.', style: 'cellContentLight' },
-                { text: '', fontSize: 9, color: '#0A0A0A' },
-                {},
-                {},
-                {},
-                {}
-              ],
-              [
-                { text: 'Dirig. Addetto all\'arbitro', style: 'cellContentLight' },
-                { text: '', fontSize: 9, color: '#0A0A0A' },
-                {},
-                {},
-                {},
-                {}
-              ],
-              [
-                { text: 'Allenatore', style: 'cellContentLight' },
-                { text: '', fontSize: 9, color: '#0A0A0A' },
-                {},
-                {},
-                {},
-                {}
-              ],
-              [
-                { text: 'Allenatore in 2a', style: 'cellContentLight' },
-                { text: '', fontSize: 9, color: '#0A0A0A' },
-                {},
-                {},
-                {},
-                {}
-              ],
-              [
-                { text: 'Medico Sociale', style: 'cellContentLight' },
-                { text: '', fontSize: 9, color: '#0A0A0A' },
-                {},
-                {},
-                {},
-                {}
-              ],
-              [
-                { text: 'Massaggiatore', style: 'cellContentLight' },
-                { text: '', fontSize: 9, color: '#0A0A0A' },
-                {},
-                {},
-                {},
-                {}
-              ],
-              [
-                { text: 'Assistente dell\'arbitro', style: 'cellContentLight' },
-                { text: '', fontSize: 9, color: '#0A0A0A' },
-                {},
-                {},
-                {},
-                {}
-              ]
+              ...staffTable
             ]
           }
         },
@@ -639,6 +619,169 @@ export class PrinterService {
     /** Return the doc */
     return this.createPdfDoc(docDefinition);
 
+  }
+
+
+  /**
+   * Generates a match report PDF.
+   * @param {string} matchId - The ID of the match.
+   * @param {string} companyId - The ID of the company.
+   * @returns {Promise<void>} A Promise that resolves once the PDF is generated.
+   */
+  async generateMatchReportPdf(matchId: string, companyId: string): Promise<Buffer> {
+    /** Get club info and image */
+    const club: any = await this.companyModel.findById(companyId);
+    const clubImgUrl = club && club.imgUrl
+      ? club.imgUrl
+      : 'https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo.png';
+
+    /** Get the match */
+    const match: any = await this.matchModel.findById(matchId);
+
+    /** Sort the players array */
+    const playersSorted = match.players.sort((a: any, b: any) => {
+      return a.shirtNumber - b.shirtNumber;
+    });
+
+    /** Generate players report table */
+    const playersTableReport = playersSorted.map((player: any) => [
+      { text: player.shirtNumber, style: 'cellContentCenter' },
+      { text: `${player.lastName} ${player.firstName}`, style: 'cellContent' },
+      { text: player.minutes, style: 'cellContentCenter' },
+      { text: player.goals, style: 'cellContentCenter' },
+      { text: player.rating, style: 'cellContentCenter' },
+      { text: player.matchNotes, fontSize: 8 }
+    ]);
+
+    /** Build the doc */
+    const docDefinition = {
+      footer     : {
+        text     : 'Provided by Ludo (www.ludo-sport.com)',
+        fontSize : 8,
+        alignment: 'center'
+      },
+      pageMargins: 25,
+      content    : [
+        {
+          columns  : [
+            {
+              image    : await this.getImage(clubImgUrl),
+              width    : 75,
+              alignment: 'left',
+              margin   : [ 0, 15, 0, 0 ]
+            },
+            {
+              table: {
+                widths    : [ 80, '*' ],
+                headerRows: 1,
+                body      : [
+                  [
+                    { text: 'REPORT PARTITA', style: 'tableHeader', colSpan: 2 },
+                    {}
+                  ],
+                  [
+                    { text: 'MANIFESTAZIONE', fontSize: 9 },
+                    { text: match.matchName, bold: true, fontSize: 10 }
+                  ],
+                  [
+                    { text: 'CATEGORIA', fontSize: 9 },
+                    { text: match.team.teamName, bold: true, fontSize: 10 }
+                  ],
+                  [
+                    { text: 'GARA', fontSize: 9 },
+                    {
+                      text                                                                        : match.isHome
+                        ? `${club?.companyName} - ${match.opposingTeamName}`
+                        : `${match.opposingTeamName} - ${club?.companyName}`, bold: true, fontSize: 10
+                    }
+                  ],
+                  [
+                    { text: 'RISULTATO', fontSize: 9 },
+                    { text: `${match.homeGoals} - ${match.awayGoals}`, bold: true, fontSize: 10 }
+                  ],
+                  [
+                    { text: 'DATA', fontSize: 9 },
+                    { text: dateConverter(match.matchDateTime), bold: true, fontSize: 10 }
+                  ]
+                ]
+              }
+            }
+          ],
+          columnGap: 50,
+          margin   : [ 0, 0, 0, 10 ]
+        },
+        {
+          margin: [ 0, 10, 0, 0 ],
+          table : {
+            widths    : [ 20, 100, 45, 45, 45, '*' ],
+            headerRows: 1,
+            body      : [
+              [
+                { text: 'N°', style: 'tableHeader' },
+                { text: 'NOME', style: 'tableHeader' },
+                { text: 'MINUTI', style: 'tableHeader' },
+                { text: 'GOAL', style: 'tableHeader' },
+                { text: 'VOTO', style: 'tableHeader' },
+                { text: 'NOTE', style: 'tableHeader' }
+              ],
+              ...playersTableReport
+            ]
+          }
+        },
+        {
+          pageBreak: 'before',
+          margin   : [ 0, 10, 0, 0 ],
+          table    : {
+            widths    : [ 100, '*' ],
+            headerRows: 1,
+            body      : [
+              [
+                { text: 'RELAZIONE', style: 'tableHeader', colSpan: 2 },
+                {}
+              ],
+              [
+                { text: 'FASE DI POSSESSO', fontSize: 9, bold: true },
+                { text: '', fontSize: 9 }
+              ],
+              [
+                { text: 'FASE DI NON POSSESSO', fontSize: 9, bold: true },
+                { text: '', fontSize: 9 }
+              ],
+              [
+                { text: 'COSTRUZIONE', fontSize: 9, bold: true },
+                { text: '', fontSize: 9 }
+              ],
+              [
+                { text: 'GENERALE', fontSize: 9, bold: true },
+                { text: '', fontSize: 9 }
+              ]
+            ]
+          }
+        }
+      ],
+      styles     : {
+        cellContent      : {
+          fontSize: 9,
+          color   : '#0A0A0A'
+        },
+        cellContentCenter: {
+          fontSize : 9,
+          alignment: 'center',
+          color    : '#0A0A0A'
+        },
+        tableHeader      : {
+          bold     : true,
+          fontSize : 9,
+          color    : 'black',
+          alignment: 'center',
+          fillColor: '#E7E5E4'
+        }
+      }
+
+    };
+
+    /** Return the doc */
+    return this.createPdfDoc(docDefinition);
   }
 
 }

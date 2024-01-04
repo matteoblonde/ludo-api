@@ -111,4 +111,34 @@ export class PrinterController {
     res.send(pdfBuffer);
   }
 
+
+  /**
+   * Generates a PDF match report for a given match ID and user data.
+   *
+   * @param {string} matchId - The ID of the match.
+   * @param {IUserData} userData - The user data.
+   * @param {Response} res - The HTTP response object.
+   * @returns {Promise<void>} - A promise that resolves when the PDF is generated and sent as a response.
+   *
+   * @UseGuards(AccessTokenGuard)
+   * @Get('matches/:matchId/report')
+   * public async generateMatchReportPdf(
+   *   @UserData() userData: IUserData,
+   *   @Res() res: Response
+   * )
+   */
+  @UseGuards(AccessTokenGuard)
+  @Get('matches/:matchId/report')
+  public async generateMatchReportPdf(
+    @Param('matchId') matchId: string,
+    @UserData() userData: IUserData,
+    @Res() res: Response
+  ): Promise<void> {
+    const pdfBuffer = await this.printerService.generateMatchReportPdf(matchId, userData.company);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=match-report.pdf');
+    res.send(pdfBuffer);
+  }
+
 }
