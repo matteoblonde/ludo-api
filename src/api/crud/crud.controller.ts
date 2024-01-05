@@ -182,7 +182,10 @@ export class CrudController {
       query.filter = { 'season': userData.currentSeason, ...query.filter };
     }
 
-    return this.crudService.get(userData.teams, parser.parse(query));
+    /** Apply teams filter if roleLevel is less than 50 */
+    const teamFilter = userData.roleLevel < 50 ? userData.teams : [];
+
+    return this.crudService.get(teamFilter, parser.parse(query));
   }
 
 
