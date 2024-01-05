@@ -102,11 +102,11 @@ export class AuthService {
 
     /** Create the user if random password */
     const user = new this.User({
-      username: newUser.username,
-      password: crypto.createHash('md5').update(password).digest('hex'),
-      company : userData.company,
-      role    : newUser.role,
-      season  : userData.currentSeason
+      username     : newUser.username,
+      password     : crypto.createHash('md5').update(password).digest('hex'),
+      company      : userData.company,
+      role         : newUser.role,
+      currentSeason: userData.currentSeason
     });
     await user.save();
 
@@ -445,9 +445,9 @@ export class AuthService {
 
       /** Save and return the modified user */
       return this.User.findByIdAndUpdate(userId, {
-        teams : [ team._id ],
-        role  : role,
-        season: season._id
+        teams        : [ team._id ],
+        role         : role,
+        currentSeason: season._id
       });
 
     }
