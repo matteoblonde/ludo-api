@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
+import { Connection } from 'mongoose';
 
 import { DatabaseModule } from '../../database/database.module';
 
-import { systemDatabaseConnection } from '../../database/database.providers';
+import { DATABASE_CONNECTION, getModel, systemDatabaseConnection } from '../../database/database.providers';
+import TeamModel from '../../database/models/Team/Team';
+import TeamSchema from '../../database/models/Team/Team.schema';
 import UserModel from '../../database/models/User/User';
 import UserSchema from '../../database/models/User/User.Schema';
 
@@ -20,6 +23,11 @@ import { UsersService } from './users.service';
     {
       provide   : UserModel.collection.name,
       useFactory: () => systemDatabaseConnection.model(UserModel.collection.name, UserSchema)
+    },
+    {
+      provide   : TeamModel.collection.name,
+      inject    : [ DATABASE_CONNECTION ],
+      useFactory: (connection: Connection) => getModel(connection, TeamModel.collection.name, TeamSchema)
     }
   ],
   imports    : [

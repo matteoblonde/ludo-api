@@ -1,4 +1,5 @@
 import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
+import TeamModel from '../../database/models/Team/Team';
 import UserModel, { User } from '../../database/models/User/User';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
@@ -7,7 +8,9 @@ export class UsersService extends AbstractedCrudService<User> {
 
   constructor(
     @Inject(UserModel.collection.name)
-    private readonly userModel: typeof UserModel
+    private readonly userModel: typeof UserModel,
+    @Inject(TeamModel.collection.name)
+    private readonly teamModel: typeof TeamModel
   ) {
     super(userModel);
   }
@@ -81,6 +84,12 @@ export class UsersService extends AbstractedCrudService<User> {
         'Params missing: id'
       );
     }
+
+    /** Remove user from all the teams */
+    await this.teamModel.updateMany(
+      { 'users._id': id },
+      { $pull: { users: { _id: id } } }
+    );
 
     /** Call mongoose method to delete document */
     await this.userModel.findByIdAndDelete(id);
