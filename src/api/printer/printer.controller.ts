@@ -141,4 +141,30 @@ export class PrinterController {
     res.send(pdfBuffer);
   }
 
+
+  /**
+   * Generates a player report in PDF format and sends it as an attachment in the HTTP response.
+   *
+   * @param {string} playerId - The ID of the player for which the report is generated.
+   * @param {IUserData} userData - The user data containing the company information.
+   * @param {Response} res - The HTTP response object.
+   * @returns {Promise<void>} - A promise that resolves when the report is generated and sent.
+   *
+   * @UseGuards(AccessTokenGuard)
+   * @Get('players/:playerId/report')
+   */
+  @UseGuards(AccessTokenGuard)
+  @Get('players/:playerId/report')
+  public async generatePlayerReport(
+    @Param('playerId') playerId: string,
+    @UserData() userData: IUserData,
+    @Res() res: Response
+  ): Promise<void> {
+    const pdfBuffer = await this.printerService.generatePlayerReport(playerId, userData.company);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=player-report.pdf');
+    res.send(pdfBuffer);
+  }
+
 }

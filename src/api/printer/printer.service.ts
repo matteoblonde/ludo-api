@@ -3,10 +3,12 @@ import axios from 'axios';
 import PdfPrinter from 'pdfmake';
 import CompanyModel from '../../database/models/Company/Company';
 import MatchModel from '../../database/models/Match/Match';
+import PlayerModel from '../../database/models/Player/Player';
 import player from '../../database/models/Player/Player';
 import TeamModel from '../../database/models/Team/Team';
 import TrainingModel from '../../database/models/Training/Training';
 import { dateConverter, dateTimeConverter } from '../../utils/date/date-converter';
+import { IUserData } from '../auth/interfaces/UserData';
 
 
 export class PrinterService {
@@ -19,7 +21,9 @@ export class PrinterService {
     @Inject(TrainingModel.collection.name)
     private readonly trainingModel: typeof TrainingModel,
     @Inject(TeamModel.collection.name)
-    private readonly teamModel: typeof TeamModel
+    private readonly teamModel: typeof TeamModel,
+    @Inject(PlayerModel.collection.name)
+    private readonly playerModel: typeof PlayerModel
   ) {
   }
 
@@ -782,6 +786,224 @@ export class PrinterService {
 
     /** Return the doc */
     return this.createPdfDoc(docDefinition);
+  }
+
+
+  /**
+   * Generates a player report for the given player and company.
+   * @param {string} playerId - The ID of the player.
+   * @param {string} companyId - The ID of the company.
+   * @return {Promise<object>} - The generated PDF document.
+   */
+  async generatePlayerReport(playerId: string, companyId: string): Promise<object> {
+
+    /** Get club info and image */
+    const club: any = await this.companyModel.findById(companyId);
+    const clubImgUrl = club && club.imgUrl
+      ? club.imgUrl
+      : 'https://ludo-sport.s3.eu-central-1.amazonaws.com/app-settings/Logo.png';
+
+    /** Get the player */
+    const player: any = await this.playerModel.findById(playerId);
+
+    /** Get the player team */
+    const team: any = await this.teamModel.findById(player.teams[0]);
+
+    /** Build the pipeline to get all the matches and aggregate the stats */
+    const pipeline = [
+      {
+        $match: {
+          'players._id': playerId
+        }
+      },
+      {
+        $project: {
+          matchDetails: {
+            homeGoals       : '$homeGoals',
+            awayGoals       : '$awayGoals',
+            opposingTeamName: '$opposingTeamName',
+            isHome          : '$isHome'
+          },
+          playerStats : {
+            $filter: {
+              input: '$players',
+              as   : 'player',
+              cond : { $eq: [ '$$player._id', playerId ] }
+            }
+          }
+        }
+      }
+    ];
+    /** Execute the aggregation */
+    const aggregate = await this.matchModel.aggregate(pipeline).exec();
+
+    /** Build the player matches table data */
+    const matchesTableData = aggregate.map((match: any) => {
+      return [
+        {
+          text : match.matchDetails.isHome
+            ? `${club?.companyName} - ${match.matchDetails.opposingTeamName}`
+            : `${match.matchDetails.opposingTeamName} - ${club?.companyName}`,
+          style: 'cellContentCenter'
+        },
+        { text: `${match.matchDetails.homeGoals} - ${match.matchDetails.awayGoals}`, style: 'cellContentCenter' },
+        { text: match.playerStats[0].minutes, style: 'cellContentCenter' },
+        { text: match.playerStats[0].goals, style: 'cellContentCenter' },
+        { text: match.playerStats[0].rating, style: 'cellContentCenter' },
+        { text: match.playerStats[0].matchNotes, fontSize: 7 }
+      ];
+    });
+
+    /** Build the final doc */
+    const docDefinition = {
+      footer     : {
+        text     : 'Provided by Ludo (www.ludo-sport.com)',
+        fontSize : 8,
+        alignment: 'center'
+      },
+      pageMargins: 25,
+      content    : [
+        {
+          columns  : [
+            {
+              image    : await this.getImage(clubImgUrl),
+              width    : 75,
+              alignment: 'left',
+              margin   : [ 0, 15, 0, 0 ]
+            },
+            {
+              table: {
+                widths    : [ 80, '*' ],
+                headerRows: 1,
+                body      : [
+                  [
+                    { text: 'SCHEDA GIOCATORE', style: 'tableHeader', colSpan: 2 },
+                    {}
+                  ],
+                  [
+                    { text: 'NOME', fontSize: 9 },
+                    { text: `${player.lastName} ${player.firstName}`, bold: true, fontSize: 10 }
+                  ],
+                  [
+                    { text: 'CATEGORIA', fontSize: 9 },
+                    { text: team.teamName, bold: true, fontSize: 10 }
+                  ],
+                  [
+                    { text: 'RUOLO', fontSize: 9 },
+                    { text: player.roles.map((role: any) => role.roleName).toString(), bold: true, fontSize: 10 }
+                  ],
+                  [
+                    { text: 'ASSENZE', fontSize: 9 },
+                    //TODO: find all the training absences
+                    { text: '', bold: true, fontSize: 10 }
+                  ],
+                  [
+                    { text: 'VALORE', fontSize: 9 },
+                    { text: player.value, bold: true, fontSize: 10 }
+                  ]
+                ]
+              }
+            }
+          ],
+          columnGap: 50,
+          margin   : [ 0, 0, 0, 10 ]
+        },
+        {
+          margin: [ 0, 10, 0, 0 ],
+          table : {
+            widths    : [ 150, 50, 45, 45, 45, '*' ],
+            headerRows: 2,
+            body      : [
+              [
+                { text: `PARTITE GIOCATE | ${aggregate.length}`, style: 'tableHeaderBig', colSpan: 6 },
+                {},
+                {},
+                {},
+                {},
+                {}
+              ],
+              [
+                { text: 'PARTITA', style: 'tableHeader' },
+                { text: 'RISULTATO', style: 'tableHeader' },
+                { text: 'MINUTI', style: 'tableHeader' },
+                { text: 'GOAL', style: 'tableHeader' },
+                { text: 'VOTO', style: 'tableHeader' },
+                { text: 'NOTE', style: 'tableHeader' }
+              ],
+              ...matchesTableData
+            ]
+          }
+        },
+        {
+          margin   : [ 0, 15, 0, 0 ],
+          pageBreak: 'before',
+          table    : {
+            widths    : [ 130, '*' ],
+            headerRows: 1,
+            body      : [
+              [
+                { text: 'STATISTICHE TOTALI', style: 'tableHeaderBig', colSpan: 2 },
+                {}
+              ],
+              [
+                { text: 'PRESENZE TOTALI', fontSize: 9 },
+                { text: player.totalMatches, bold: true, fontSize: 10 }
+              ],
+              [
+                { text: 'MINUTI TOTALI', fontSize: 9 },
+                { text: player.totalMinutes, bold: true, fontSize: 10 }
+              ],
+              [
+                { text: 'MEDIA MINUTI A PARTITA', fontSize: 9 },
+                { text: (player.totalMinutes / player.totalMatches), bold: true, fontSize: 10 }
+              ],
+              [
+                { text: 'GOAL TOTALI', fontSize: 9 },
+                { text: player.totalGoals, bold: true, fontSize: 10 }
+              ],
+              [
+                { text: 'VOTO MEDIO', fontSize: 9 },
+                {
+                  text    : (aggregate.reduce((sum, match) => sum + match.playerStats[0].rating, 0) / aggregate.length),
+                  bold    : true,
+                  fontSize: 10
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      styles     : {
+        cellContent      : {
+          fontSize: 9,
+          color   : '#0A0A0A'
+        },
+        cellContentCenter: {
+          fontSize : 9,
+          alignment: 'center',
+          color    : '#0A0A0A'
+        },
+        tableHeader      : {
+          bold     : true,
+          fontSize : 9,
+          color    : 'black',
+          alignment: 'center',
+          fillColor: '#E7E5E4'
+        },
+        tableHeaderBig   : {
+          bold     : true,
+          fontSize : 11,
+          color    : 'black',
+          alignment: 'center',
+          fillColor: '#E7E5E4'
+        }
+      }
+
+    };
+
+    /** Return the doc */
+    return this.createPdfDoc(docDefinition);
+
   }
 
 }

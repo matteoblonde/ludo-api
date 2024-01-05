@@ -9,6 +9,8 @@ import CompanyModel from '../../database/models/Company/Company';
 import CompanySchema from '../../database/models/Company/Company.Schema';
 import MatchModel from '../../database/models/Match/Match';
 import MatchSchema from '../../database/models/Match/Match.schema';
+import PlayerModel from '../../database/models/Player/Player';
+import PlayerSchema from '../../database/models/Player/Player.Schema';
 import TeamModel from '../../database/models/Team/Team';
 import TeamSchema from '../../database/models/Team/Team.schema';
 import TrainingModel from '../../database/models/Training/Training';
@@ -36,6 +38,11 @@ import { PrinterService } from './printer.service';
       provide   : TeamModel.collection.name,
       inject    : [ DATABASE_CONNECTION ],
       useFactory: (connection: Connection) => getModel(connection, TeamModel.collection.name, TeamSchema)
+    },
+    {
+      provide   : PlayerModel.collection.name,
+      inject    : [ DATABASE_CONNECTION ],
+      useFactory: (connection: Connection) => getModel(connection, PlayerModel.collection.name, PlayerSchema)
     },
     {
       provide   : CompanyModel.collection.name,
