@@ -65,6 +65,13 @@ export class UsersService extends AbstractedCrudService<User> {
       );
     });
 
+    /** Update the user in all the team in which is present */
+    await this.teamModel.updateMany(
+      { 'users._id': id },
+      { $set: { 'users.$[elem]': user } },
+      { arrayFilters: [ { 'elem._id': id } ] }
+    );
+
     /* Return the record */
     return user;
 

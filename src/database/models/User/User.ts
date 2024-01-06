@@ -27,6 +27,11 @@ export class User {
   @prop({})
   public lastName?: string;
 
+  @prop({
+    default: 'it'
+  })
+  public language!: string;
+
   @prop()
   public imgUrl?: string;
 
