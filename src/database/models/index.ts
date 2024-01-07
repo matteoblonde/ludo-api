@@ -143,3 +143,10 @@ export {
   default as Season
 } from './Season/Season';
 
+/**
+ * AttributeStory Model
+ */
+export {
+  default as AttributeStory
+} from './AttributeStory/AttributeStory';
+

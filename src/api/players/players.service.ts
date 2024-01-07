@@ -5,12 +5,13 @@ import {
 } from '@nestjs/common';
 import mongoose, { Connection } from 'mongoose';
 import { DATABASE_CONNECTION, getModel, ROUTE_MODEL } from '../../database/database.providers';
+import AttributeStoryModel from '../../database/models/AttributeStory/AttributeStory';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import MatchModel from '../../database/models/Match/Match';
 
 import PlayerModel, { Player } from '../../database/models/Player/Player';
 import PlayerSchema from '../../database/models/Player/Player.Schema';
-import PlayerAttributeModel from '../../database/models/PlayerAttribute/PlayerAttribute';
+import PlayerAttributeModel, { PlayerAttribute } from '../../database/models/PlayerAttribute/PlayerAttribute';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
@@ -24,6 +25,8 @@ export class PlayersService extends AbstractedCrudService<Player> {
     private readonly labelTypeModel: typeof LabelTypeModel,
     @Inject(PlayerAttributeModel.collection.name)
     private readonly playerAttributeModel: typeof PlayerAttributeModel,
+    @Inject(AttributeStoryModel.collection.name)
+    private readonly attributeStoryModel: typeof AttributeStoryModel,
     @Inject(MatchModel.collection.name)
     private readonly matchModel: typeof MatchModel,
     @Inject(DATABASE_CONNECTION)
@@ -63,6 +66,38 @@ export class PlayersService extends AbstractedCrudService<Player> {
 
     /* return created record */
     return record;
+
+  }
+
+
+  /**
+   * Update the attribute value for a player.
+   *
+   * @param {string} playerId - The ID of the player.
+   * @param {string} attributeId - The ID of the attribute to update.
+   * @param {PlayerAttribute} attribute - The updated attribute value.
+   *
+   **/
+  public async updatePlayerAttributeValue(playerId: string, attributeId: string, attribute: PlayerAttribute) {
+
+    const fieldToUpdate = 'attributes.$[attr]';
+
+    /** Update the attribute */
+    await this.playerModel.findByIdAndUpdate(
+      playerId,
+      { $set: { [fieldToUpdate]: attribute } },
+      {
+        arrayFilters: [ { 'attr._id': attributeId } ],
+        new         : true
+      }
+    ).exec();
+
+    /** Write the value in the attribute story */
+    const attributeStory = new this.attributeStoryModel({
+      playerId : playerId,
+      attribute: attribute
+    });
+    await attributeStory.save().catch((error: any) => console.log(error));
 
   }
 

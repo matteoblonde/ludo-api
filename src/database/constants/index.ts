@@ -34,6 +34,7 @@ export const collectionToModelMap: any = {
   'users'            : 'User',
   'document-types'   : 'DocumentType',
   'document'         : 'Document',
-  'seasons'          : 'Season'
+  'seasons'          : 'Season',
+  'attributes-story' : 'AttributeStory'
 
 };

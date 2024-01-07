@@ -6,6 +6,7 @@ import {
   Severity,
   SubDocumentType
 } from '@typegoose/typegoose';
+import { roundDateToNearestQuarter } from '../../../utils/date/date-converter';
 import { Label } from '../Label/Label';
 import { Player } from '../Player/Player';
 import { Team } from '../Team/Team';
@@ -33,12 +34,12 @@ export class Match {
   opposingTeamName?: string;
 
   @prop({
-    default: new Date()
+    default: roundDateToNearestQuarter(new Date())
   })
   matchDateTime?: Date;
 
   @prop({
-    default: new Date()
+    default: roundDateToNearestQuarter(new Date())
   })
   meetingDateTime?: Date;
 

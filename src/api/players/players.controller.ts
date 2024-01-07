@@ -45,17 +45,22 @@ export class PlayersController {
 
 
   /**
-   * Function to update only stats in the record
-   * @param id
-   * @param stats
+   * Update attribute value for a player
+   *
+   * @param {string} playerId - The ID of the player
+   * @param {string} attributeId - The ID of the attribute to be updated
+   * @param {PlayerAttribute} attribute - The new attribute value
+   * @returns {Promise<void>} - The updated player attribute
+   *
    */
   @UseGuards(AccessTokenGuard)
-  @Patch('stats/:id')
-  public async updateStatsPlayer(
-    @Param('id') id: string,
-    @Body() stats: PlayerAttribute[]
-  ) {
-
+  @Patch(':playerId/:attributeId')
+  public async updatePlayerAttribute(
+    @Param('playerId') playerId: string,
+    @Param('attributeId') attributeId: string,
+    @Body() attribute: PlayerAttribute
+  ): Promise<void> {
+    return this.playersService.updatePlayerAttributeValue(playerId, attributeId, attribute);
   }
 
 

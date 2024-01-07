@@ -35,3 +35,25 @@ export const dateConverter = (date: any): string => {
   return day + '/' + month + '/' + year;
 
 };
+
+/**
+ * Rounds the given date to the nearest quarter.
+ *
+ * @param {any} date - The input date to be rounded.
+ * @returns {Date} - The rounded date object.
+ */
+export const roundDateToNearestQuarter = (date: any): Date => {
+
+  const minutes = date.getMinutes();
+  const roundedMinutes = Math.round(minutes / 15) * 15;
+
+  if (roundedMinutes === 60) {
+    date.setHours(date.getHours() + 1);
+    date.setMinutes(0);
+  }
+  else {
+    date.setMinutes(roundedMinutes);
+  }
+
+  return date;
+};
