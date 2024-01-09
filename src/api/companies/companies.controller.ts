@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MongooseQueryParser } from 'mongoose-query-parser';
+import slugify from 'slugify';
 import { Company } from '../../database/models/Company/Company';
 import { UserData } from '../auth/decorators';
 import { AccessTokenGuard } from '../auth/guards';
@@ -64,7 +65,6 @@ export class CompaniesController {
     @Param('id') id: string,
     @Body() company: Company
   ) {
-
     return this.companiesService.updateOneCompany(id, company);
 
   }
@@ -79,7 +79,6 @@ export class CompaniesController {
   public async deleteCompany(
     @Param('id') id: string
   ) {
-
     return this.companiesService.deleteCompany(id);
 
   }
@@ -89,7 +88,7 @@ export class CompaniesController {
    * Endpoint to dynamically query mongoDB Database
    * @param query
    */
-  @Get()
+  @Get('slugify')
   public async getCompanies(
     @Query() query: string
   ) {

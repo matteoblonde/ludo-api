@@ -13,6 +13,9 @@ export class TrainingAbsence {
   @prop()
   public reason?: string;
 
+  @prop()
+  public date?: Date;
+
 }
 
 /**
