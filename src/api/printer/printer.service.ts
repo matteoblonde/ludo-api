@@ -518,9 +518,9 @@ export class PrinterService {
             body: [
               [
                 { text: 'N. Maglia', style: 'tableHeader', rowSpan: 2 },
-                { text: 'Nominativo', style: 'tableHeader', rowSpan: 2 },
-                { text: 'Cap', style: 'tableHeader', rowSpan: 2 },
-                { text: 'N. Tessera', style: 'tableHeader', rowSpan: 2 },
+                { text: 'Nominativo', style: 'tableHeader', rowSpan: 2, margin: [ 0, 6, 0, 0 ] },
+                { text: 'Cap', style: 'tableHeader', rowSpan: 2, margin: [ 0, 6, 0, 0 ] },
+                { text: 'N. Tessera', style: 'tableHeader', rowSpan: 2, margin: [ 0, 6, 0, 0 ] },
                 { text: 'Documento di Identificazione', colSpan: 3, style: 'tableHeader' },
                 {},
                 {},
@@ -552,9 +552,15 @@ export class PrinterService {
             heights   : 12,
             body      : [
               [
-                { text: 'Persone ammesse sul terreno di gioco', style: 'tableHeader', rowSpan: 2, colSpan: 2 },
+                {
+                  text   : 'Persone ammesse sul terreno di gioco',
+                  style  : 'tableHeader',
+                  rowSpan: 2,
+                  colSpan: 2,
+                  margin : [ 0, 6, 0, 0 ]
+                },
                 {},
-                { text: 'N. Tessera', style: 'tableHeader', rowSpan: 2 },
+                { text: 'N. Tessera', style: 'tableHeader', rowSpan: 2, margin: [ 0, 6, 0, 0 ] },
                 { text: 'Documento di Identificazione', style: 'tableHeader', colSpan: 3 },
                 {},
                 {}
