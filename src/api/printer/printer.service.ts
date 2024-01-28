@@ -1,10 +1,12 @@
 import { Inject } from '@nestjs/common';
 import axios from 'axios';
 import PdfPrinter from 'pdfmake';
+import company from '../../database/models/Company/Company';
 import CompanyModel from '../../database/models/Company/Company';
 import MatchModel from '../../database/models/Match/Match';
 import PlayerModel from '../../database/models/Player/Player';
 import player from '../../database/models/Player/Player';
+import SeasonModel from '../../database/models/Season/Season';
 import TeamModel from '../../database/models/Team/Team';
 import TrainingModel from '../../database/models/Training/Training';
 import { dateConverter, dateTimeConverter } from '../../utils/date/date-converter';
@@ -23,7 +25,9 @@ export class PrinterService {
     @Inject(TeamModel.collection.name)
     private readonly teamModel: typeof TeamModel,
     @Inject(PlayerModel.collection.name)
-    private readonly playerModel: typeof PlayerModel
+    private readonly playerModel: typeof PlayerModel,
+    @Inject(SeasonModel.collection.name)
+    private readonly seasonModel: typeof SeasonModel
   ) {
   }
 
@@ -623,6 +627,1379 @@ export class PrinterService {
     /** Return the doc */
     return this.createPdfDoc(docDefinition);
 
+  }
+
+
+  async generateMatchAdbReport(matchId: string, companyId: string) {
+
+    /** Get club info */
+    const club: any = await this.companyModel.findById(companyId);
+
+    /** Get the match */
+    const match: any = await this.matchModel.findById(matchId);
+
+    /** Get the current season */
+    const season: any = await this.seasonModel.findById(club.currentSeason);
+
+    /** Sort the players array */
+    const playersSorted = match.players.sort((a: any, b: any) => {
+      return a.shirtNumber - b.shirtNumber;
+    });
+
+    const rowsToAdd = match.adbReport.numberOfPlayers - playersSorted.length;
+
+    if (rowsToAdd > 0) {
+      for (let i = 0; i < rowsToAdd; i++) {
+        playersSorted.push('empty');
+      }
+    }
+
+    /** Build players table data */
+    const playersTableData = playersSorted.map((player: any, index: number) => {
+
+      /** Find the document to insert */
+      if (player.documents) {
+
+        /** Initialize date object */
+        const birthDate = new Date(player.birthDate);
+
+        const docsForTeamList = player.documents.filter((doc: any) => doc.type.isForTeamList);
+        const docsForTeamListSorted = docsForTeamList.sort((a: any, b: any) => {
+          return a.type.teamListOrder - b.type.teamListOrder;
+        });
+        const docToInsert = docsForTeamListSorted[0];
+
+        return [
+          { text: player.shirtNumber, style: 'cellContentCenter' },
+          { text: ('0' + birthDate.getDate()).slice(-2), style: 'cellContentCenter' },
+          { text: ('0' + (birthDate.getMonth() + 1)).slice(-2), style: 'cellContentCenter' },
+          { text: birthDate.getFullYear().toString().slice(-2), style: 'cellContentCenter' },
+          { text: docToInsert.type.teamListOrder === 1 ? docToInsert.number : '', style: 'cellContentCenter' },
+          { text: `${player.lastName}`, style: 'cellContentCenter' },
+          { text: `${player.firstName}`, style: 'cellContentCenter' },
+          { text: '', style: 'cellContentCenter' },
+          { text: '', style: 'cellContentCenter' },
+          { text: '', style: 'cellContentCenter' }
+        ];
+      }
+      else if (player === 'empty') {
+        return [
+          { text: index + 1, style: 'cellContentCenter' },
+          { text: '' },
+          { text: '' },
+          { text: '' },
+          { text: '' },
+          { text: '' },
+          { text: '' },
+          { text: '' },
+          { text: '' },
+          { text: '' }
+        ];
+      }
+
+      /** Initialize date object */
+      const birthDate = new Date(player.birthDate);
+      return [
+        { text: player.shirtNumber, style: 'cellContentCenter' },
+        { text: ('0' + birthDate.getDate()).slice(-2), style: 'cellContentCenter' },
+        { text: ('0' + (birthDate.getMonth() + 1)).slice(-2), style: 'cellContentCenter' },
+        { text: birthDate.getFullYear().toString().slice(-2), style: 'cellContentCenter' },
+        { text: '', style: 'cellContentCenter' },
+        { text: `${player.lastName}`, style: 'cellContentCenter' },
+        { text: `${player.firstName}`, style: 'cellContentCenter' },
+        { text: '', style: 'cellContentCenter' },
+        { text: '', style: 'cellContentCenter' },
+        { text: '', style: 'cellContentCenter' }
+      ];
+    });
+
+    /** Build players table heights */
+    const tableHeights = playersSorted.map((player: any) => 10);
+
+    /** Build players empty table */
+    const playersEmptyTableData = playersSorted.map((player: any, index: number) => [
+      { text: index + 1, style: 'cellContentCenter' },
+      { text: '' },
+      { text: '' },
+      { text: '' },
+      { text: '' },
+      { text: '' },
+      { text: '' },
+      { text: '' },
+      { text: '' },
+      { text: '' }
+    ]);
+
+    const playersHomeData = match.isHome ? playersTableData : playersEmptyTableData;
+    const playersAwayData = !match.isHome ? playersTableData : playersEmptyTableData;
+
+    /** Build the staff table */
+
+    /** Build the doc */
+    const docDefinition = {
+      pageOrientation: 'landscape',
+      pageMargins    : [ 25, 10, 25, 0 ],
+      content        : [
+        {
+          lineHeight: 0,
+          table     : {
+            widths    : [ 15, 15, 15, 15, 50, 40, 110, 15, 15, 15, 15, 15, 15, 15, 85, 40, 75, 15, 15, 15 ],
+            headerRows: 3,
+            body      : [
+              [
+                {
+                  text      : 'F.I.G.C. - Delegazione Provinciale/Distrettuale di ' + match.adbReport.district.toUpperCase(),
+                  bold      : true,
+                  fontSize  : 12,
+                  colSpan   : 16,
+                  lineHeight: 1
+                },
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                { text: 'Stagione ' + season.name, bold: true, fontSize: 12, colSpan: 4 },
+                {},
+                {},
+                {}
+              ],
+              [
+                { text: 'Categoria', style: 'headerBoldCenterMedium', colSpan: 5, border: [ true, true, true, false ] },
+                {},
+                {},
+                {},
+                {},
+                { text: 'Girone', style: 'headerBoldCenterMedium', border: [ true, true, true, false ] },
+                {
+                  text   : 'INCONTRO/CONFRONTO',
+                  style  : 'headerBoldCenterMedium',
+                  colSpan: 5,
+                  border : [ true, true, true, false ]
+                },
+                {},
+                {},
+                {},
+                {},
+                { text: 'DATA', style: 'headerBoldCenterMedium', colSpan: 3, border: [ true, true, true, false ] },
+                {},
+                {},
+                {
+                  text   : 'MODALITÀ DI GIOCO',
+                  style  : 'headerBoldCenterMedium',
+                  colSpan: 2,
+                  border : [ true, true, true, false ]
+                },
+                {},
+                {
+                  columns  : [
+                    { text: 'MULTIPARTITE', style: 'tableHeaderBold' },
+                    {
+                      canvas: [
+                        { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                      ]
+                    }
+                  ],
+                  columnGap: 10,
+                  border   : [ true, true, true, false ]
+                },
+                { text: 'RISULTATO', style: 'headerBoldCenterMedium', colSpan: 3, border: [ true, true, true, false ] },
+                {},
+                {}
+              ],
+              [
+                {
+                  text      : match.team.teamName,
+                  style     : 'headerBoldCenter',
+                  colSpan   : 5,
+                  border    : [ true, false, true, true ],
+                  lineHeight: 1
+                },
+                {},
+                {},
+                {},
+                {},
+                { text: match.adbReport.group, style: 'headerBoldCenter', border: [ true, false, true, true ] },
+                {
+                  text   : match.isHome
+                    ? `${club?.companyName} - ${match.opposingTeamName}`
+                    : `${match.opposingTeamName} - ${club?.companyName}`,
+                  style  : 'headerBoldCenter',
+                  colSpan: 5,
+                  border : [ true, false, true, true ]
+                },
+                {},
+                {},
+                {},
+                {},
+                {
+                  text   : dateConverter(match.matchDateTime),
+                  style  : 'headerBoldCenter',
+                  colSpan: 3,
+                  border : [ true, false, true, true ]
+                },
+                {},
+                {},
+                {
+                  text   : match.adbReport.gameMode,
+                  style  : 'headerBoldCenter',
+                  colSpan: 2,
+                  border : [ true, false, true, true ]
+                },
+                {},
+                { text: 'n° gare 2', style: 'tableHeaderBold', border: [ true, false, true, true ] },
+                { text: '-', style: 'headerBoldCenter', colSpan: 3, border: [ true, false, true, true ] },
+                {},
+                {}
+              ]
+            ]
+          }
+        },
+        {
+          columns: [
+            {
+              lineHeight: 0.7,
+              table     : {
+                widths    : [ 13, 15, 15, 15, 50, 75, 75, 15, 15, 15 ],
+                headerRows: 3,
+                heights   : [ 10, 6, 6, ...tableHeights, 10, 10, 10 ],
+                body      : [
+                  [
+                    {
+                      text   : 'SQUADRA "A" ' + (match.isHome
+                        ? club.companyName
+                        : match.opposingTeamName).toUpperCase(),
+                      colSpan: 10,
+                      style  : 'headerBoldCenter',
+                      border : [ true, false, true, true ]
+                    },
+                    {},
+                    {},
+                    {},
+                    {},
+                    {},
+                    {},
+                    {},
+                    {},
+                    {}
+                  ],
+                  [
+                    { text: 'N°', rowSpan: 2, style: 'tableHeaderBoldCenter', margin: [ 0, 5, 0, 0 ] },
+                    { text: 'DATA NASCITA', colSpan: 3, style: 'tableHeaderBoldCenter' },
+                    {},
+                    {},
+                    { text: 'N° CARTELLINO', rowSpan: 2, style: 'tableHeaderBoldCenter' },
+                    { text: 'COGNOME', rowSpan: 2, style: 'headerBoldCenterCenter' },
+                    { text: 'NOME', rowSpan: 2, style: 'headerBoldCenterCenter' },
+                    { text: 'PRESENZA', colSpan: 3, style: 'tableHeaderBoldCenter' },
+                    {},
+                    {}
+                  ],
+                  [
+                    {},
+                    { text: 'GG', style: 'tableHeaderBoldCenter' },
+                    { text: 'MM', style: 'tableHeaderBoldCenter' },
+                    { text: 'AA', style: 'tableHeaderBoldCenter' },
+                    {},
+                    {},
+                    {},
+                    { text: '1°T', style: 'tableHeaderBoldCenter' },
+                    { text: '2°T', style: 'tableHeaderBoldCenter' },
+                    { text: '3°T', style: 'tableHeaderBoldCenter' }
+                  ],
+                  ...playersHomeData,
+                  [
+                    { text: 'TECNICO A.d.B.', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {},
+                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
+                    {},
+                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {}
+                  ],
+                  [
+                    { text: 'DIRIGENTE ACC.', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {},
+                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
+                    {},
+                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {}
+                  ],
+                  [
+                    { text: 'MASSAGGIATORE', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {},
+                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
+                    {},
+                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {}
+                  ]
+                ]
+              }
+            },
+            {
+              lineHeight: 0.7,
+              table     : {
+                widths    : [ 14, 15, 15, 15, 50, 75, 75, 15, 15, 15 ],
+                heights   : [ 10, 6, 6, ...tableHeights, 10, 10, 10 ],
+                headerRows: 3,
+                body      : [
+                  [
+                    {
+                      text   : 'SQUADRA "B" ' + (match.isHome
+                        ? match.opposingTeamName
+                        : club.companyName).toUpperCase(),
+                      colSpan: 10,
+                      style  : 'headerBoldCenter',
+                      border : [ true, false, true, true ]
+                    },
+                    {},
+                    {},
+                    {},
+                    {},
+                    {},
+                    {},
+                    {},
+                    {},
+                    {}
+                  ],
+                  [
+                    { text: 'N°', rowSpan: 2, style: 'tableHeaderBoldCenter', margin: [ 0, 5, 0, 0 ] },
+                    { text: 'DATA NASCITA', colSpan: 3, style: 'tableHeaderBoldCenter' },
+                    {},
+                    {},
+                    { text: 'N° CARTELLINO', rowSpan: 2, style: 'tableHeaderBoldCenter' },
+                    { text: 'COGNOME', rowSpan: 2, style: 'headerBoldCenterCenter' },
+                    { text: 'NOME', rowSpan: 2, style: 'headerBoldCenterCenter' },
+                    { text: 'PRESENZA', colSpan: 3, style: 'tableHeaderBoldCenter' },
+                    {},
+                    {}
+                  ],
+                  [
+                    {},
+                    { text: 'GG', style: 'tableHeaderBoldCenter' },
+                    { text: 'MM', style: 'tableHeaderBoldCenter' },
+                    { text: 'AA', style: 'tableHeaderBoldCenter' },
+                    {},
+                    {},
+                    {},
+                    { text: '1°T', style: 'tableHeaderBoldCenter' },
+                    { text: '2°T', style: 'tableHeaderBoldCenter' },
+                    { text: '3°T', style: 'tableHeaderBoldCenter' }
+                  ],
+                  /*!match.isHome ? finalPlayersTable : playersEmptyTable(14),*/
+                  ...playersAwayData,
+                  [
+                    { text: 'TECNICO A.d.B.', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {},
+                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
+                    {},
+                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {}
+                  ],
+                  [
+                    { text: 'DIRIGENTE ACC.', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {},
+                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
+                    {},
+                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {}
+                  ],
+                  [
+                    { text: 'MASSAGGIATORE', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {},
+                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
+                    {},
+                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+                    {},
+                    {},
+                    {}
+                  ]
+                ]
+              }
+            }
+          ]
+        },
+        {
+          columns: [
+            {
+              stack : [
+                {
+                  table: {
+                    widths: [ 384 ],
+                    body  : [
+                      [
+                        {
+                          text      : 'SQUADRA "A" - DA COMPILARE A CURA DEL DIRIGENTE DELLA SQUADRA "B"',
+                          fontSize  : 9,
+                          bold      : true,
+                          alignment : 'center',
+                          lineHeight: 0.8
+                        }
+                      ]
+                    ]
+                  }
+                },
+                {
+                  columns: [
+                    {
+                      lineHeight: 0,
+                      width     : 166,
+                      table     : {
+                        widths: [ 95, 50 ],
+                        body  : [
+                          [
+                            {
+                              columns  : [
+                                {
+                                  text      : 'SALUTO INIZIO E FINE GARA',
+                                  style     : 'tableHeaderBoldCenter',
+                                  width     : 'auto',
+                                  lineHeight: 0.8
+                                },
+                                {
+                                  canvas: [
+                                    { type: 'rect', x: 0, y: 5, w: 8, h: 8, r: 0 }
+                                  ]
+                                }
+                              ],
+                              columnGap: 10,
+                              border   : [ true ]
+                            },
+                            {
+                              columns  : [
+                                { text: 'TIME OUT', style: 'tableHeaderBoldCenter', lineHeight: 0.8 },
+                                {
+                                  canvas   : [
+                                    { type: 'rect', x: 0, y: 5, w: 8, h: 8, r: 0 }
+                                  ],
+                                  alignment: 'right'
+                                }
+                              ],
+                              columnGap: 10,
+                              border   : [ true, false, true, true ]
+                            }
+                          ],
+                          [
+                            {
+                              columns  : [
+                                { text: 'GREEN CARD', style: 'tableHeaderBoldCenter', width: 90 },
+                                {
+                                  canvas   : [
+                                    { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                  ],
+                                  alignment: 'right'
+                                }
+                              ],
+                              columnGap: 10,
+                              border   : [ true, true, false, true ]
+                            },
+                            {
+                              text  : 'N° _____',
+                              style : 'tableHeaderBoldCenter',
+                              border: [ false, true, true, true ]
+                            }
+                          ],
+                          [
+                            {
+                              columns  : [
+                                { text: 'BAMBINE', style: 'tableHeaderBoldCenter', width: 90 },
+                                {
+                                  canvas   : [
+                                    { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                  ],
+                                  alignment: 'right'
+                                }
+                              ],
+                              columnGap: 10,
+                              border   : [ true, true, false, true ]
+                            },
+                            {
+                              text  : 'N° _____',
+                              style : 'tableHeaderBoldCenter',
+                              border: [ false, true, true, true ]
+                            }
+                          ],
+                          [
+                            {
+                              text      : 'SOSTITUZIONI REGOLARI SQ. "A"',
+                              style     : 'tableHeaderBoldCenter',
+                              border    : [ true, true, false, true ],
+                              width     : 100,
+                              lineHeight: 0.8
+                            },
+                            {
+                              stack : [
+                                {
+                                  columns: [
+                                    { text: 'SI', style: 'tableHeaderBoldCenter' },
+                                    {
+                                      canvas   : [
+                                        { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                      ],
+                                      alignment: 'right'
+                                    }
+                                  ]
+                                },
+                                {
+                                  columns: [
+                                    { text: 'NO', style: 'tableHeaderBoldCenter' },
+                                    {
+                                      canvas   : [
+                                        { type: 'rect', x: 0, y: 1, w: 8, h: 8, r: 0 }
+                                      ],
+                                      alignment: 'right'
+                                    }
+                                  ]
+                                }
+                              ],
+                              border: [ false, true, true, true ]
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      lineHeight: 0.8,
+                      stack     : [
+                        {
+                          table: {
+                            alignment: 'left',
+                            widths   : [ 70, 65, 65 ],
+                            body     : [
+                              [
+                                {
+                                  text  : 'COMPORTAMENTO CALCIATORI SQ."A"',
+                                  style : 'tableHeaderBoldCenter',
+                                  border: [ true, false, false, true ],
+                                  width : 70
+                                },
+                                {
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'INSUFFICIENTE', style: 'cellContent_7', alignment: 'left' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          width    : 10,
+                                          alignment: 'left'
+                                        },
+                                        { text: 'BUONO', style: 'cellContent_7' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, false, true ],
+                                  width : 62
+                                },
+                                {
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'SUFFICIENTE', style: 'cellContent_7' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'OTTIMO', style: 'cellContent_7', alignment: 'left', width: 'auto' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, true, true ],
+                                  width : 62
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          table: {
+                            alignment: 'left',
+                            widths   : [ 70, 65, 65 ],
+                            body     : [
+                              [
+                                {
+                                  text  : 'COMPORTAMENTO DIRIGENTI SQ."A"',
+                                  style : 'tableHeaderBoldCenter',
+                                  border: [ true, false, false, true ],
+                                  width : 70
+                                },
+                                {
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'INSUFFICIENTE', style: 'cellContent_7', alignment: 'left' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          width    : 10,
+                                          alignment: 'left'
+                                        },
+                                        { text: 'BUONO', style: 'cellContent_7' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, false, true ],
+                                  width : 62
+                                },
+                                {
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'SUFFICIENTE', style: 'cellContent_7' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'OTTIMO', style: 'cellContent_7', alignment: 'left', width: 'auto' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, true, true ],
+                                  width : 62
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          table: {
+                            alignment: 'left',
+                            widths   : [ 70, 65, 65 ],
+                            body     : [
+                              [
+                                {
+                                  text  : 'COMPORTAMENTO PUBBLICO SQ."A"',
+                                  style : 'tableHeaderBoldCenter',
+                                  border: [ true, false, false, true ],
+                                  width : 70
+                                },
+                                {
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'INSUFFICIENTE', style: 'cellContent_7', alignment: 'left' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          width    : 10,
+                                          alignment: 'left'
+                                        },
+                                        { text: 'BUONO', style: 'cellContent_7' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, false, true ],
+                                  width : 62
+                                },
+                                {
+                                  margin: 1.4,
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'SUFFICIENTE', style: 'cellContent_7' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'OTTIMO', style: 'cellContent_7', alignment: 'left', width: 'auto' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, true, true ],
+                                  width : 62
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              margin: [ 0, 2, 0, 0 ]
+            },
+            {
+              stack : [
+                {
+                  table: {
+                    widths: [ 385 ],
+                    body  : [
+                      [
+                        {
+                          text      : 'SQUADRA "B" - DA COMPILARE A CURA DEL DIRIGENTE DELLA SQUADRA "A"',
+                          fontSize  : 9,
+                          bold      : true,
+                          alignment : 'center',
+                          lineHeight: 0.8
+                        }
+                      ]
+                    ]
+                  }
+                },
+                {
+                  columns: [
+                    {
+                      lineHeight: 0,
+                      width     : 164,
+                      table     : {
+                        widths: [ 93, 50 ],
+                        body  : [
+                          [
+                            {
+                              columns  : [
+                                {
+                                  text      : 'SALUTO INIZIO E FINE GARA',
+                                  style     : 'tableHeaderBoldCenter',
+                                  width     : 'auto',
+                                  lineHeight: 0.8
+                                },
+                                {
+                                  canvas: [
+                                    { type: 'rect', x: 0, y: 5, w: 8, h: 8, r: 0 }
+                                  ]
+                                }
+                              ],
+                              columnGap: 10,
+                              border   : [ true ]
+                            },
+                            {
+                              columns  : [
+                                { text: 'TIME OUT', style: 'tableHeaderBoldCenter', lineHeight: 0.8 },
+                                {
+                                  canvas   : [
+                                    { type: 'rect', x: 0, y: 5, w: 8, h: 8, r: 0 }
+                                  ],
+                                  alignment: 'right'
+                                }
+                              ],
+                              columnGap: 10,
+                              border   : [ true, false, true, true ]
+                            }
+                          ],
+                          [
+                            {
+                              columns  : [
+                                { text: 'GREEN CARD', style: 'tableHeaderBoldCenter', width: 90 },
+                                {
+                                  canvas   : [
+                                    { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                  ],
+                                  alignment: 'right'
+                                }
+                              ],
+                              columnGap: 10,
+                              border   : [ true, true, false, true ]
+                            },
+                            {
+                              text  : 'N° _____',
+                              style : 'tableHeaderBoldCenter',
+                              border: [ false, true, true, true ]
+                            }
+                          ],
+                          [
+                            {
+                              columns  : [
+                                { text: 'BAMBINE', style: 'tableHeaderBoldCenter', width: 90 },
+                                {
+                                  canvas   : [
+                                    { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                  ],
+                                  alignment: 'right'
+                                }
+                              ],
+                              columnGap: 10,
+                              border   : [ true, true, false, true ]
+                            },
+                            {
+                              text  : 'N° _____',
+                              style : 'tableHeaderBoldCenter',
+                              border: [ false, true, true, true ]
+                            }
+                          ],
+                          [
+                            {
+                              text      : 'SOSTITUZIONI REGOLARI SQ. "B"',
+                              style     : 'tableHeaderBoldCenter',
+                              border    : [ true, true, false, true ],
+                              width     : 100,
+                              lineHeight: 0.8
+                            },
+                            {
+                              stack : [
+                                {
+                                  columns: [
+                                    { text: 'SI', style: 'tableHeaderBoldCenter' },
+                                    {
+                                      canvas   : [
+                                        { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                      ],
+                                      alignment: 'right'
+                                    }
+                                  ]
+                                },
+                                {
+                                  columns: [
+                                    { text: 'NO', style: 'tableHeaderBoldCenter' },
+                                    {
+                                      canvas   : [
+                                        { type: 'rect', x: 0, y: 1, w: 8, h: 8, r: 0 }
+                                      ],
+                                      alignment: 'right'
+                                    }
+                                  ]
+                                }
+                              ],
+                              border: [ false, true, true, true ]
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      lineHeight: 0.8,
+                      stack     : [
+                        {
+                          table: {
+                            alignment: 'left',
+                            widths   : [ 73, 65, 65 ],
+                            body     : [
+                              [
+                                {
+                                  text  : 'COMPORTAMENTO CALCIATORI SQ."B"',
+                                  style : 'tableHeaderBoldCenter',
+                                  border: [ true, false, false, true ],
+                                  width : 73
+                                },
+                                {
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'INSUFFICIENTE', style: 'cellContent_7', alignment: 'left' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          width    : 10,
+                                          alignment: 'left'
+                                        },
+                                        { text: 'BUONO', style: 'cellContent_7' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, false, true ],
+                                  width : 62
+                                },
+                                {
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'SUFFICIENTE', style: 'cellContent_7' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'OTTIMO', style: 'cellContent_7', alignment: 'left', width: 'auto' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, true, true ],
+                                  width : 62
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          table: {
+                            alignment: 'left',
+                            widths   : [ 73, 65, 65 ],
+                            body     : [
+                              [
+                                {
+                                  text  : 'COMPORTAMENTO DIRIGENTI SQ."B"',
+                                  style : 'tableHeaderBoldCenter',
+                                  border: [ true, false, false, true ],
+                                  width : 70
+                                },
+                                {
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'INSUFFICIENTE', style: 'cellContent_7', alignment: 'left' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          width    : 10,
+                                          alignment: 'left'
+                                        },
+                                        { text: 'BUONO', style: 'cellContent_7' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, false, true ],
+                                  width : 62
+                                },
+                                {
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'SUFFICIENTE', style: 'cellContent_7' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'OTTIMO', style: 'cellContent_7', alignment: 'left', width: 'auto' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, true, true ],
+                                  width : 62
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        {
+                          table: {
+                            alignment: 'left',
+                            widths   : [ 73, 65, 65 ],
+                            body     : [
+                              [
+                                {
+                                  text  : 'COMPORTAMENTO PUBBLICO SQ."B"',
+                                  style : 'tableHeaderBoldCenter',
+                                  border: [ true, false, false, true ],
+                                  width : 70
+                                },
+                                {
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'INSUFFICIENTE', style: 'cellContent_7', alignment: 'left' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          width    : 10,
+                                          alignment: 'left'
+                                        },
+                                        { text: 'BUONO', style: 'cellContent_7' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, false, true ],
+                                  width : 62
+                                },
+                                {
+                                  margin: 1.4,
+                                  stack : [
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'SUFFICIENTE', style: 'cellContent_7' }
+                                      ]
+                                    },
+                                    {
+                                      columns: [
+                                        {
+                                          canvas   : [
+                                            { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                                          ],
+                                          alignment: 'left',
+                                          width    : 10
+                                        },
+                                        { text: 'OTTIMO', style: 'cellContent_7', alignment: 'left', width: 'auto' }
+                                      ]
+                                    }
+                                  ],
+                                  border: [ false, false, true, true ],
+                                  width : 62
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              margin: [ 0, 2, 0, 0 ]
+            }
+          ]
+        },
+        {
+          table: {
+            widths: [ 210, 343, 210 ],
+            body  : [
+              [
+                {
+                  border : [ true, false, true, true ],
+                  columns: [
+                    {
+                      text : 'FIRMA DIRIGENTE SQUADRA "A"',
+                      style: 'tableHeaderBoldCenter',
+                      width: 100
+                    },
+                    {
+                      canvas   : [
+                        { type: 'rect', x: 0, y: 15, w: 110, h: 0, r: 0, dash: { length: 0.8, space: 2 } }
+                      ],
+                      alignment: 'center'
+                    }
+                  ]
+                },
+                {
+                  border : [ true, false, true, true ],
+                  columns: [
+                    {
+                      text  : 'ARBITRO Sig.',
+                      style : 'tableHeaderBoldCenter',
+                      width : 50,
+                      margin: [ 0, 9, 0, 0 ]
+                    },
+                    {
+                      text : '',
+                      width: 100
+                    },
+                    {
+                      stack : [
+                        {
+                          columns: [
+                            {
+                              canvas   : [
+                                { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                              ],
+                              alignment: 'left',
+                              width    : 10
+                            },
+                            { text: 'Tecnico', style: 'cellContent', alignment: 'left' }
+                          ]
+                        },
+                        {
+                          columns: [
+                            {
+                              canvas   : [
+                                { type: 'rect', x: 0, y: 0, w: 8, h: 8, r: 0 }
+                              ],
+                              width    : 10,
+                              alignment: 'left'
+                            },
+                            {
+                              columns: [
+                                { text: 'Dirigente', style: 'cellContent', width: 32 },
+                                {
+                                  text : 'FIRMA',
+                                  style: 'tableHeaderBoldCenter',
+                                  width: 50
+                                },
+                                {
+                                  canvas   : [
+                                    { type: 'rect', x: 0, y: 7, w: 90, h: 0, r: 0, dash: { length: 0.8, space: 2 } }
+                                  ],
+                                  alignment: 'center'
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      border: [ false, false, false, true ],
+                      width : 62
+                    }
+                  ]
+                },
+                {
+                  border : [ true, false, true, true ],
+                  columns: [
+                    {
+                      text : 'FIRMA DIRIGENTE SQUADRA "B"',
+                      style: 'tableHeaderBoldCenter',
+                      width: 100
+                    },
+                    {
+                      canvas   : [
+                        { type: 'rect', x: 0, y: 15, w: 110, h: 0, r: 0, dash: { length: 0.8, space: 2 } }
+                      ],
+                      alignment: 'center'
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        },
+        {
+          margin: [ 0, 0, 1, 0 ],
+          table : {
+            widths: [ '*', '*' ],
+            body  : [
+              [
+                {
+                  text      : 'FAIR PLAY SQUADRA "A" - TOTALE PUNTI',
+                  bold      : true,
+                  fontSize  : 8,
+                  border    : [ true, false, false, true ],
+                  lineHeight: 0.8
+                },
+                {
+                  text      : 'FAIR PLAY SQUADRA "B" - TOTALE PUNTI',
+                  bold      : true,
+                  fontSize  : 8,
+                  border    : [ false, false, true, true ],
+                  lineHeight: 0.8
+                }
+              ],
+              [
+                {
+                  text      : 'Da consegnare in busta chiusa, oppure a mezzo "Posta prioritaria" e/o mezzo FAX tel. ________________________ entro le 48 ore successive alla gara.',
+                  fontSize  : 8,
+                  bold      : true,
+                  alignment : 'center',
+                  colSpan   : 2,
+                  border    : [ true, true, true, false ],
+                  lineHeight: 0.4
+                },
+                {}
+              ],
+              [
+                {
+                  text     : 'Qualora gli spazi presenti sul referto di gara non fossero sufficienti, è possibile inviare fogli allegati, su carta intestata della Società, per il supplemento di informazioni debitamente firmati.',
+                  fontSize : 8,
+                  alignment: 'center',
+                  colSpan  : 2,
+                  border   : [ true, false, true, true ]
+                },
+                {}
+              ]
+            ]
+          }
+        }
+      ],
+      styles         : {
+        headerBoldCenterCenter: {
+          fontSize : 9,
+          bold     : true,
+          alignment: 'center',
+          margin   : [ 0, 5, 0, 0 ]
+        },
+        headerBoldCenter      : {
+          fontSize : 9,
+          bold     : true,
+          alignment: 'center'
+        },
+        headerBoldCenterMedium: {
+          fontSize : 9,
+          bold     : true,
+          alignment: 'center'
+        },
+        cellContent           : {
+          fontSize: 8
+        },
+        cellContent_7         : {
+          fontSize: 7
+        },
+        cellContentCenter     : {
+          fontSize : 8,
+          alignment: 'center'
+        },
+        tableHeaderBold       : {
+          fontSize: 8,
+          bold    : true
+        },
+        tableHeaderBoldCenter : {
+          fontSize : 8,
+          bold     : true,
+          alignment: 'center'
+        },
+        tableHeaderCenter     : {
+          fontSize : 8,
+          alignment: 'center'
+        }
+      }
+
+    };
+
+    /** Return the doc */
+    return this.createPdfDoc(docDefinition);
   }
 
 

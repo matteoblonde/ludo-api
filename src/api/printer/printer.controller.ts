@@ -143,6 +143,36 @@ export class PrinterController {
 
 
   /**
+   * Generates a match Adb report.
+   *
+   * @param {string} matchId - The ID of the match.
+   * @param {IUserData} userData - The user data.
+   * @param {Response} res - The response object.
+   *
+   * @returns {Promise<void>} - Resolves when the match Adb report is generated and sent as a response.
+   *
+   * @UseGuards(AccessTokenGuard)
+   * @Get('matches/:matchId/report')
+   *
+   * @example
+   * generateMatchAdbReport(matchId, userData, res);
+   */
+  @UseGuards(AccessTokenGuard)
+  @Get('matches/:matchId/adb-report')
+  public async generateMatchAdbReport(
+    @Param('matchId') matchId: string,
+    @UserData() userData: IUserData,
+    @Res() res: Response
+  ): Promise<void> {
+    const pdfBuffer = await this.printerService.generateMatchAdbReport(matchId, userData.company);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=match-report.pdf');
+    res.send(pdfBuffer);
+  }
+
+
+  /**
    * Generates a player report in PDF format and sends it as an attachment in the HTTP response.
    *
    * @param {string} playerId - The ID of the player for which the report is generated.

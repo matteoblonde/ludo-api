@@ -74,7 +74,6 @@ export const DatabaseConnectionProvider: FactoryProvider = {
       const db = accessTokenService.getMongoDatabaseName(request) ?? refreshTokenService.getMongoDatabaseName(request);
 
       // TODO: Remove this, and create season controller to update seasons, instead of using companies controller
-      console.log(request);
       if (request.method === 'GET' && request.url.includes('/companies/slugify')) {
         return createConnection('__system');
       }

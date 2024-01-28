@@ -86,6 +86,9 @@ export class Match {
   @prop()
   teamListStaff?: object;
 
+  @prop()
+  adbReport?: object;
+
 }
 
 /**
