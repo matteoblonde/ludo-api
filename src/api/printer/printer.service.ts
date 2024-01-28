@@ -1,16 +1,13 @@
 import { Inject } from '@nestjs/common';
 import axios from 'axios';
 import PdfPrinter from 'pdfmake';
-import company from '../../database/models/Company/Company';
 import CompanyModel from '../../database/models/Company/Company';
 import MatchModel from '../../database/models/Match/Match';
 import PlayerModel from '../../database/models/Player/Player';
-import player from '../../database/models/Player/Player';
 import SeasonModel from '../../database/models/Season/Season';
 import TeamModel from '../../database/models/Team/Team';
 import TrainingModel from '../../database/models/Training/Training';
 import { dateConverter, dateTimeConverter } from '../../utils/date/date-converter';
-import { IUserData } from '../auth/interfaces/UserData';
 
 
 export class PrinterService {
@@ -714,7 +711,7 @@ export class PrinterService {
     });
 
     /** Build players table heights */
-    const tableHeights = playersSorted.map((player: any) => 10);
+    const tableHeights = playersSorted.map(() => 10);
 
     /** Build players empty table */
     const playersEmptyTableData = playersSorted.map((player: any, index: number) => [
@@ -730,10 +727,109 @@ export class PrinterService {
       { text: '' }
     ]);
 
+    const staffEmptyTableData = [
+      [
+        { text: 'TECNICO A.d.B.', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {},
+        { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
+        {},
+        { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {}
+      ],
+      [
+        { text: 'DIRIGENTE ACC.', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {},
+        { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
+        {},
+        { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {}
+      ],
+      [
+        { text: 'MASSAGGIATORE', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {},
+        { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
+        {},
+        { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {}
+      ]
+    ];
+
+    /** Build the staff table */
+    const staffTableData = [
+      [
+        { text: 'TECNICO A.d.B.', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {},
+        {
+          text   : 'Sig. ' + (match.teamListStaff[2]
+            ? (match.teamListStaff[2].user.lastName + ' ' + match.teamListStaff[2].user.firstName)
+            : ''),
+          colSpan: 2,
+          style  : 'tableHeaderBold'
+        },
+        {},
+        { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {}
+      ],
+      [
+        { text: 'DIRIGENTE ACC.', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {},
+        {
+          text   : 'Sig. ' + (match.teamListStaff[0].user
+            ? (match.teamListStaff[0].user.lastName + ' ' + match.teamListStaff[0].user.firstName)
+            : ''),
+          colSpan: 2,
+          style  : 'tableHeaderBold'
+        },
+        {},
+        { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {}
+      ],
+      [
+        { text: 'MASSAGGIATORE', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {},
+        {
+          text   : 'Sig. ' + (match.teamListStaff[5].user
+            ? (match.teamListStaff[5].user.lastName + ' ' + match.teamListStaff[5].user.firstName)
+            : ''),
+          colSpan: 2,
+          style  : 'tableHeaderBold'
+        },
+        {},
+        { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
+        {},
+        {},
+        {}
+      ]
+    ];
+
+    /** Build the final variables */
     const playersHomeData = match.isHome ? playersTableData : playersEmptyTableData;
     const playersAwayData = !match.isHome ? playersTableData : playersEmptyTableData;
 
-    /** Build the staff table */
+    const staffHomeData = match.isHome ? staffTableData : staffEmptyTableData;
+    const staffAwayData = !match.isHome ? staffTableData : staffEmptyTableData;
 
     /** Build the doc */
     const docDefinition = {
@@ -918,42 +1014,7 @@ export class PrinterService {
                     { text: '3°T', style: 'tableHeaderBoldCenter' }
                   ],
                   ...playersHomeData,
-                  [
-                    { text: 'TECNICO A.d.B.', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {},
-                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
-                    {},
-                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {}
-                  ],
-                  [
-                    { text: 'DIRIGENTE ACC.', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {},
-                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
-                    {},
-                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {}
-                  ],
-                  [
-                    { text: 'MASSAGGIATORE', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {},
-                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
-                    {},
-                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {}
-                  ]
+                  ...staffHomeData
                 ]
               }
             },
@@ -1009,42 +1070,7 @@ export class PrinterService {
                   ],
                   /*!match.isHome ? finalPlayersTable : playersEmptyTable(14),*/
                   ...playersAwayData,
-                  [
-                    { text: 'TECNICO A.d.B.', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {},
-                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
-                    {},
-                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {}
-                  ],
-                  [
-                    { text: 'DIRIGENTE ACC.', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {},
-                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
-                    {},
-                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {}
-                  ],
-                  [
-                    { text: 'MASSAGGIATORE', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {},
-                    { text: 'Sig.', colSpan: 2, style: 'tableHeaderBold' },
-                    {},
-                    { text: 'Tessera n.', colSpan: 4, style: 'tableHeaderBold' },
-                    {},
-                    {},
-                    {}
-                  ]
+                  ...staffAwayData
                 ]
               }
             }
