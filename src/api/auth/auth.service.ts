@@ -250,7 +250,7 @@ export class AuthService {
     const user = new this.User({
       username: signUpDto.username,
       password: crypto.createHash('md5').update(signUpDto.password).digest('hex'),
-      company : company._id,
+      company : company._id.toString(),
       role    : { roleLevel: 100 },
       teams   : []
     });
