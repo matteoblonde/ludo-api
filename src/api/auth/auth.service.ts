@@ -431,10 +431,10 @@ export class AuthService {
 
         let seasonName;
         if (currentMonth >= 7) {
-          seasonName = `${currentYear} - ${currentYear + 1}`;
+          seasonName = `${currentYear}/${currentYear + 1}`;
         }
         else {
-          seasonName = `${currentYear - 1} - ${currentYear}`;
+          seasonName = `${currentYear - 1}/${currentYear}`;
         }
 
         season = new seasonModel({
