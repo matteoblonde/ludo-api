@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
+import company from '../database/models/Company/Company';
 import { getRequiredEnv } from '../utils';
 
 
@@ -28,13 +29,28 @@ export class S3Service {
    * @param {string} company - The company to which the file belongs.
    * @return {Promise} - A Promise that resolves to the uploaded file object, or rejects with an error.
    */
-  async uploadFile(file: any, company: string) {
+  async uploadFile(file: any, company: string): Promise<any> {
 
     return await this.s3.upload({
       Bucket     : getRequiredEnv('AWS_BUCKET_NAME'),
       Key        : `${company}/exercises/${file.originalname}.png`,
       Body       : file.buffer,
       ContentType: 'image/png'
+    }).promise();
+  }
+
+
+  /**
+   * Deletes a file with the specified objectId and company from AWS S3.
+   *
+   * @param {string} objectId - The ID of the file to be deleted.
+   * @param {string} company - The name of the company associated with the file.
+   * @returns {Promise<void>} A promise that resolves once the file is deleted from S3.
+   */
+  async deleteFile(objectId: string, company: string) {
+    return await this.s3.deleteObject({
+      Bucket: getRequiredEnv('AWS_BUCKET_NAME'),
+      Key   : `${company}/exercises/${objectId}.png`
     }).promise();
   }
 

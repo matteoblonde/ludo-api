@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller,
+  Controller, Delete,
   Param,
   Post,
   Put,
@@ -72,6 +72,23 @@ export class ExercisesController {
     /** Update exercise with the url */
     return this.exercisesService.updateExerciseImgUrl(id, imgUrl);
 
+  }
+
+
+  /**
+   * Deletes a file from the S3 service.
+   *
+   * @param {string} id - The ID of the file to delete.
+   * @param {IUserData} userData - The user data containing the company information.
+   * @returns {Promise} A promise that resolves once the file is deleted.
+   */
+  @Delete('image/:id')
+  @UseGuards(AccessTokenGuard)
+  async deleteFile(
+    @Param('id') id: string,
+    @UserData() userData: IUserData
+  ): Promise<any> {
+    return this.exercisesService.deleteExerciseImg(id, userData.company);
   }
 
 
