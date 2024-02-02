@@ -1,4 +1,5 @@
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { Target } from '../Target/Target';
 
 
 @modelOptions({ schemaOptions: { collection: 'exerciseTypes' } })
@@ -12,6 +13,9 @@ export class ExerciseType {
 
   @prop()
   public exerciseTypeNotes?: string;
+
+  @prop({ allowMixed: Severity.ALLOW })
+  public targets?: ArraySubDocumentType<Target>;
 
 }
 

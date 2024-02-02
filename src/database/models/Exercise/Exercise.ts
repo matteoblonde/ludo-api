@@ -8,6 +8,7 @@ import {
 } from '@typegoose/typegoose';
 import { ExerciseType } from '../ExerciseType/ExerciseType';
 import { Label } from '../Label/Label';
+import { Target } from '../Target/Target';
 
 
 /* --------
@@ -30,6 +31,9 @@ export class Exercise {
 
   @prop()
   public exerciseTarget?: string;
+
+  @prop({ allowMixed: Severity.ALLOW })
+  public targets?: ArraySubDocumentType<Target>;
 
   @prop()
   public exerciseNotes?: string;

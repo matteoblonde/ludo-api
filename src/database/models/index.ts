@@ -150,3 +150,10 @@ export {
   default as AttributeStory
 } from './AttributeStory/AttributeStory';
 
+/**
+ * Target Model
+ */
+export {
+  default as Target
+} from './Target/Target';
+
