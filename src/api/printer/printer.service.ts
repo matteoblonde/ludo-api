@@ -2364,7 +2364,7 @@ export class PrinterService {
               ],
               [
                 { text: 'MEDIA MINUTI A PARTITA', fontSize: 9 },
-                { text: (player.totalMinutes / player.totalMatches), bold: true, fontSize: 10 }
+                { text: (player.totalMinutes / player.totalMatches).toFixed(1), bold: true, fontSize: 10 }
               ],
               [
                 { text: 'GOAL TOTALI', fontSize: 9 },
@@ -2373,7 +2373,10 @@ export class PrinterService {
               [
                 { text: 'VOTO MEDIO', fontSize: 9 },
                 {
-                  text    : (aggregate.reduce((sum, match) => sum + match.playerStats[0].rating, 0) / aggregate.length),
+                  text    : (aggregate.reduce(
+                    (sum, match) => sum + match.playerStats[0].rating,
+                    0
+                  ) / aggregate.length).toFixed(2),
                   bold    : true,
                   fontSize: 10
                 }

@@ -26,8 +26,14 @@ export class CrudService extends AbstractedCrudService<any> {
    */
   public async insertNewRecordWithLabels(record: any): Promise<object> {
 
+    /** Build labelTypes sections query string */
+    let sectionsQuery: any = { sections: this.routeModel.collection.name };
+    if (this.routeModel.collection.name === 'matches') {
+      sectionsQuery = { $or: [ { sections: 'matches' }, { sections: 'match-report' } ] };
+    }
+
     /** If creation of labels is needed */
-    const labelTypes = await this.labelTypeModel.find({ 'sections': this.routeModel.collection.name }).exec();
+    const labelTypes = await this.labelTypeModel.find(sectionsQuery).exec();
     let labels;
 
     if (labelTypes) {
