@@ -33,6 +33,9 @@ export class SettingConfig {
   @prop()
   public creator?: string;
 
+  @prop()
+  public value?: string;
+
   @prop({ allowMixed: Severity.ALLOW })
   public exerciseTypes?: ArraySubDocumentType<ExerciseType>;
 

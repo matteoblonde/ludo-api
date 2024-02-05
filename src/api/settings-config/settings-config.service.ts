@@ -1,4 +1,5 @@
 import { Inject, Injectable, NotFoundException, PreconditionFailedException } from '@nestjs/common';
+import CompanyModel from '../../database/models/Company/Company';
 import DocumentTypeModel from '../../database/models/DocumentType/DocumentType';
 import ExerciseTypeModel from '../../database/models/ExerciseType/ExerciseType';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
@@ -13,6 +14,8 @@ import TrainingTypeModel from '../../database/models/TrainingType/TrainingType';
 export class SettingsConfigService {
 
   constructor(
+    @Inject(CompanyModel.collection.name)
+    private readonly companyModel: typeof CompanyModel,
     @Inject(SettingConfigModel.collection.name)
     private readonly settingsConfig: typeof SettingConfigModel,
     @Inject(ExerciseTypeModel.collection.name)
@@ -38,7 +41,7 @@ export class SettingsConfigService {
    *
    * @returns {Promise<Object>} A promise that resolves to the standard settings configuration.
    */
-  public async getStandardSettingsConfig() {
+  public async getStandardSettingsConfig(): Promise<object> {
     return this.settingsConfig.find({ 'isStandard': true });
   }
 
@@ -51,7 +54,7 @@ export class SettingsConfigService {
    * @throws {NotFoundException} - Throws when the configuration is not found.
    * @returns {Promise<string>} - Resolves with a success message.
    */
-  public async createConfigById(configId: string): Promise<string> {
+  public async createConfigById(configId: string, company: string): Promise<string> {
 
     /** Verify that settings are empty */
     const totalSettingsCount = await this.exerciseType.countDocuments() +
@@ -78,6 +81,9 @@ export class SettingsConfigService {
     await this.labelType.insertMany(config.labelTypes);
     await this.roleModel.insertMany(config.roles);
     await this.documentTypeModel.insertMany(config.documentTypes);
+
+    /** Update the company with the sport */
+    await this.companyModel.findByIdAndUpdate(company, { $set: { sport: config.value } });
 
     return 'Settings created correctly';
   }

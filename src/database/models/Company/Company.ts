@@ -28,6 +28,9 @@ export class Company {
   @prop()
   public currentSeason!: string;
 
+  @prop()
+  public sport?: string;
+
 }
 
 const CompanyModel = getModelForClass(Company);

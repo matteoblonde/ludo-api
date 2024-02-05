@@ -1,7 +1,9 @@
 import { Controller, Get, Param, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
+import { UserData } from '../auth/decorators';
 import { AccessTokenGuard } from '../auth/guards';
+import { IUserData } from '../auth/interfaces/UserData';
 import { SettingsConfigService } from './settings-config.service';
 
 
@@ -34,6 +36,7 @@ export class SettingsConfigController {
    *
    * @param {string} configId - The ID of the configuration.
    *
+   * @param userData
    * @returns {Promise<any>} - A Promise that resolves to the created configuration.
    *
    * @UseGuards(AccessTokenGuard)
@@ -42,9 +45,10 @@ export class SettingsConfigController {
   @UseGuards(AccessTokenGuard)
   @Get('create/:configId')
   public async createConfigById(
-    @Param('configId') configId: string
+    @Param('configId') configId: string,
+    @UserData() userData: IUserData
   ): Promise<any> {
-    return this.settingsConfigService.createConfigById(configId);
+    return this.settingsConfigService.createConfigById(configId, userData.company);
   }
 
 }

@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { DatabaseModule } from '../../database/database.module';
 import { DATABASE_CONNECTION, getModel, systemDatabaseConnection } from '../../database/database.providers';
+import CompanyModel from '../../database/models/Company/Company';
+import CompanySchema from '../../database/models/Company/Company.Schema';
 import DocumentTypeModel from '../../database/models/DocumentType/DocumentType';
 import DocumentTypeSchema from '../../database/models/DocumentType/DocumentType.schema';
 import ExerciseTypeModel from '../../database/models/ExerciseType/ExerciseType';
@@ -27,6 +29,10 @@ import { SettingsConfigService } from './settings-config.service';
   controllers: [ SettingsConfigController ],
   providers  : [
     SettingsConfigService,
+    {
+      provide   : CompanyModel.collection.name,
+      useFactory: () => systemDatabaseConnection.model(CompanyModel.collection.name, CompanySchema)
+    },
     {
       provide   : SettingConfigModel.collection.name,
       useFactory: () => systemDatabaseConnection.model(SettingConfigModel.collection.name, SettingConfigSchema)
