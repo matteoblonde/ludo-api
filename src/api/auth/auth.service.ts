@@ -438,10 +438,14 @@ export class AuthService {
         }
 
         season = new seasonModel({
-          name: seasonName
+          name           : seasonName,
+          isCurrentSeason: true
         });
         await season.save();
       }
+
+      /** Set the current season on company */
+      await this.Company.findByIdAndUpdate(companyId, { $set: { currentSeason: season._id } });
 
       /** Save and return the modified user */
       return this.User.findByIdAndUpdate(userId, {
