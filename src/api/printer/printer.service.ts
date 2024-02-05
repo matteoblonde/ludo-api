@@ -2066,6 +2066,12 @@ export class PrinterService {
       { text: player.matchNotes, fontSize: 8 }
     ]);
 
+    /** Generate match labels table */
+    const matchLabelsTable = match.labels.map((label: any) => [
+      { text: label.labelName, fontSize: 9, bold: true },
+      { text: label.labelValue, fontSize: 9 }
+    ]);
+
     /** Build the doc */
     const docDefinition = {
       footer     : {
@@ -2152,22 +2158,7 @@ export class PrinterService {
                 { text: 'RELAZIONE', style: 'tableHeader', colSpan: 2 },
                 {}
               ],
-              [
-                { text: 'FASE DI POSSESSO', fontSize: 9, bold: true },
-                { text: '', fontSize: 9 }
-              ],
-              [
-                { text: 'FASE DI NON POSSESSO', fontSize: 9, bold: true },
-                { text: '', fontSize: 9 }
-              ],
-              [
-                { text: 'COSTRUZIONE', fontSize: 9, bold: true },
-                { text: '', fontSize: 9 }
-              ],
-              [
-                { text: 'GENERALE', fontSize: 9, bold: true },
-                { text: '', fontSize: 9 }
-              ]
+              ...matchLabelsTable
             ]
           }
         }
