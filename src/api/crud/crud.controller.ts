@@ -12,6 +12,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Error } from 'mongoose';
 import { MongooseQueryParser } from 'mongoose-query-parser';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 import { UserData } from '../auth/decorators';
@@ -183,7 +184,13 @@ export class CrudController {
     }
 
     /** Apply teams filter if roleLevel is less than 50 */
-    const teamFilter = userData.roleLevel < 50 ? userData.teams : [];
+    let teamFilter: any[] = [];
+    if (userData.roleLevel < 50 && userData.teams.length > 0) {
+      teamFilter = userData.teams;
+    }
+    else if (userData.roleLevel < 50 && userData.teams.length === 0) {
+      return [];
+    }
 
     return this.crudService.get(teamFilter, parser.parse(query));
   }
