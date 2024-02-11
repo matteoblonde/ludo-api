@@ -5,6 +5,7 @@ import { LabelType } from '../LabelType/LabelType';
 import { PlayerAttribute } from '../PlayerAttribute/PlayerAttribute';
 import { PlayerRole } from '../PlayerRole/PlayerRole';
 import { Role } from '../Role/Role';
+import { Target } from '../Target/Target';
 import { TrainingType } from '../TrainingType/TrainingType';
 
 
@@ -56,6 +57,9 @@ export class SettingConfig {
 
   @prop({ allowMixed: Severity.ALLOW })
   public documentTypes?: ArraySubDocumentType<DocumentType>;
+
+  @prop({ allowMixed: Severity.ALLOW })
+  public targets?: ArraySubDocumentType<Target>;
 
 }
 

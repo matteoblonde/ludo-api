@@ -7,6 +7,7 @@ import PlayerAttributeModel from '../../database/models/PlayerAttribute/PlayerAt
 import PlayerRoleModel from '../../database/models/PlayerRole/PlayerRole';
 import RoleModel from '../../database/models/Role/Role';
 import SettingConfigModel from '../../database/models/SettingConfig/SettingConfig';
+import TargetModel from '../../database/models/Target/Target';
 import TrainingTypeModel from '../../database/models/TrainingType/TrainingType';
 
 
@@ -31,7 +32,9 @@ export class SettingsConfigService {
     @Inject(LabelTypeModel.collection.name)
     private readonly labelType: typeof LabelTypeModel,
     @Inject(DocumentTypeModel.collection.name)
-    private readonly documentTypeModel: typeof DocumentTypeModel
+    private readonly documentTypeModel: typeof DocumentTypeModel,
+    @Inject(TargetModel.collection.name)
+    private readonly targetModel: typeof TargetModel
   ) {
   }
 
@@ -50,6 +53,7 @@ export class SettingsConfigService {
    * Creates settings configuration by ID.
    *
    * @param {string} configId - The ID of the configuration.
+   * @param company
    * @throws {PreconditionFailedException} - Throws when settings already exist.
    * @throws {NotFoundException} - Throws when the configuration is not found.
    * @returns {Promise<string>} - Resolves with a success message.
@@ -81,6 +85,7 @@ export class SettingsConfigService {
     await this.labelType.insertMany(config.labelTypes);
     await this.roleModel.insertMany(config.roles);
     await this.documentTypeModel.insertMany(config.documentTypes);
+    await this.targetModel.insertMany(config.targets);
 
     /** Update the company with the sport */
     await this.companyModel.findByIdAndUpdate(company, { $set: { sport: config.value } });

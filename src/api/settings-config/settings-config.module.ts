@@ -18,6 +18,8 @@ import RoleModel from '../../database/models/Role/Role';
 import RoleSchema from '../../database/models/Role/Role.Schema';
 import SettingConfigModel from '../../database/models/SettingConfig/SettingConfig';
 import SettingConfigSchema from '../../database/models/SettingConfig/SettingConfig.schema';
+import TargetModel from '../../database/models/Target/Target';
+import TargetSchema from '../../database/models/Target/Target.Schema';
 import TrainingTypeModel from '../../database/models/TrainingType/TrainingType';
 import TrainingTypeSchema from '../../database/models/TrainingType/TrainingType.schema';
 import { AuthModule } from '../auth/auth.module';
@@ -87,6 +89,11 @@ import { SettingsConfigService } from './settings-config.service';
         PlayerAttributeModel.collection.name,
         PlayerAttributeSchema
       )
+    },
+    {
+      provide   : TargetModel.collection.name,
+      inject    : [ DATABASE_CONNECTION ],
+      useFactory: (connection: Connection) => getModel(connection, TargetModel.collection.name, TargetSchema)
     }
   ],
   imports    : [
