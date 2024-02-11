@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, Post, Redirect, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiCreatedResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Guard } from '@proedis/utils';
 import { HttpCacheInterceptor } from '../../utils/interceptors/http-cache.interceptor';
 
 import { AuthService } from './auth.service';
@@ -82,10 +81,10 @@ export class AuthController {
       /** Build url based on invitation */
       let url: string = '';
       if (invitation) {
-        url = `https://dev.ludo-sport.com/sign-up/complete-registration?refresh_token=${refreshToken}`;
+        url = `https://dev.ludo-sport.com/complete-invitation?refresh_token=${refreshToken}`;
       }
       else {
-        url = `https://dev.ludo-sport.com/complete-invitation?refresh_token=${refreshToken}`;
+        url = `https://dev.ludo-sport.com/sign-up/complete-registration?refresh_token=${refreshToken}`;
       }
 
       return verified ? { statusCode: 301, url } : false;
