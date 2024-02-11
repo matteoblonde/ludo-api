@@ -88,7 +88,7 @@ export class ExercisesService extends AbstractedCrudService<Exercise> {
     if (!exercise.imgUrl) {
       return;
     }
-
+    
     /** Delete file from S3 */
     await this.s3Service.deleteFile(id, company);
 
