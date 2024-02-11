@@ -78,7 +78,15 @@ export class AuthController {
         teams    : verified.teams
       };
       const { refreshToken } = this.authService.createAuthData(userData);
-      const url = `https://dev.ludo-sport.com/complete-registration?refresh_token=${refreshToken}&invitation=${invitation}`;
+
+      /** Build url based on invitation */
+      let url: string = '';
+      if (invitation) {
+        url = `https://dev.ludo-sport.com/sign-up/complete-invitation?refresh_token=${refreshToken}`;
+      }
+      else {
+        url = `https://dev.ludo-sport.com/complete-registration?refresh_token=${refreshToken}`;
+      }
 
       return verified ? { statusCode: 301, url } : false;
     }
@@ -88,6 +96,14 @@ export class AuthController {
   }
 
 
+  /**
+   * Retrieves and returns the user data.
+   *
+   * @param {IUserData} userData - The user data obtained from the access token.
+   * @returns {IUserData} - The user data.
+   * @UseGuards(AccessTokenGuard)
+   * @Get('me')
+   */
   @UseGuards(AccessTokenGuard)
   @Get('me')
   public getUserData(
@@ -97,6 +113,24 @@ export class AuthController {
   }
 
 
+  /**
+   * Grants an access token to an authenticated user.
+   *
+   * @param {IUserData} userData - The user data obtained from user authentication.
+   *
+   * @return {Promise<string>} - A promise that resolves to the access token.
+   *
+   * @example
+   * // userData example:
+   * // {
+   * //   id: '1234',
+   * //   username: 'JohnDoe',
+   * //   email: 'johndoe@example.com'
+   * // }
+   *
+   * @remarks
+   * This method requires the RefreshTokenGuard to be used as a guard on the corresponding route (GET /grant).
+   */
   @UseGuards(RefreshTokenGuard)
   @Get('grant')
   public grantAccessToken(
