@@ -82,10 +82,10 @@ export class AuthController {
       /** Build url based on invitation */
       let url: string = '';
       if (invitation) {
-        url = `https://dev.ludo-sport.com/sign-up/complete-invitation?refresh_token=${refreshToken}`;
+        url = `https://dev.ludo-sport.com/sign-up/complete-registration?refresh_token=${refreshToken}`;
       }
       else {
-        url = `https://dev.ludo-sport.com/complete-registration?refresh_token=${refreshToken}`;
+        url = `https://dev.ludo-sport.com/complete-invitation?refresh_token=${refreshToken}`;
       }
 
       return verified ? { statusCode: 301, url } : false;
