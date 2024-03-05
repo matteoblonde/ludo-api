@@ -35,7 +35,7 @@ export class Training {
 
   @prop({
     required: true,
-    default : new Date()
+    default : () => new Date()
   })
   public trainingDate!: Date;
 
