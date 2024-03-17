@@ -2,7 +2,7 @@ import {
   ArraySubDocumentType,
   getModelForClass,
   modelOptions,
-  prop,
+  prop, Ref,
   Severity,
   SubDocumentType
 } from '@typegoose/typegoose';
@@ -34,12 +34,12 @@ export class Match {
   opposingTeamName?: string;
 
   @prop({
-    default: roundDateToNearestQuarter(new Date())
+    default: roundDateToNearestQuarter(() => new Date())
   })
   matchDateTime?: Date;
 
   @prop({
-    default: roundDateToNearestQuarter(new Date())
+    default: roundDateToNearestQuarter(() => new Date())
   })
   meetingDateTime?: Date;
 
@@ -77,8 +77,23 @@ export class Match {
   })
   awayGoals!: number;
 
-  @prop({ allowMixed: Severity.ALLOW, default: [] })
-  players?: ArraySubDocumentType<Player>;
+  /*  @prop({ allowMixed: Severity.ALLOW, default: [] })
+    players?: ArraySubDocumentType<Player>;*/
+
+  // @ts-ignore
+  @prop({ ref: () => Player })
+  public players?: Ref<Player>[];
+
+  /*  @prop({ ref: () => Player })
+    public players?: Ref<Player[]>;
+
+    @prop({
+      ref         : () => Player,
+      foreignField: '_id',
+      localField  : 'players',
+      justOne     : false
+    })
+    public playerDetails?: Ref<Player[]>;*/
 
   @prop({ allowMixed: Severity.ALLOW })
   labels?: ArraySubDocumentType<Label>;
@@ -89,12 +104,21 @@ export class Match {
   @prop()
   adbReport?: object;
 
+
 }
+
 
 /**
  * Get Model from class
  */
-const MatchModel = getModelForClass(Match);
+const MatchModel = getModelForClass(
+  Match,
+  { schemaOptions: { toJSON: { virtuals: true }, toObject: { virtuals: true } } }
+);
+
+/*MatchModel.schema.pre('find', async function () {
+  this.populate('players');
+});*/
 
 /* --------
 * Module Exports
