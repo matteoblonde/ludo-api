@@ -34,12 +34,12 @@ export class Match {
   opposingTeamName?: string;
 
   @prop({
-    default: roundDateToNearestQuarter(() => new Date())
+    default: roundDateToNearestQuarter(new Date)
   })
   matchDateTime?: Date;
 
   @prop({
-    default: roundDateToNearestQuarter(() => new Date())
+    default: roundDateToNearestQuarter(new Date)
   })
   meetingDateTime?: Date;
 

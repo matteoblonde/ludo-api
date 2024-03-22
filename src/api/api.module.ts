@@ -9,6 +9,7 @@ import { CrudModule } from './crud/crud.module';
 import { ExercisesModule } from './exercises/exercises.module';
 import { LabelTypesModule } from './label-types/label-types.module';
 import { MatchesModule } from './matches/matches.module';
+import { MaybeUsersModule } from './maybe-users/maybe-users.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PlayersModule } from './players/players.module';
 import { PrinterModule } from './printer/printer.module';
@@ -30,6 +31,7 @@ import { UsersModule } from './users/users.module';
     CompaniesModule,
     UsersModule,
     SettingsConfigModule,
+    MaybeUsersModule,
 
     /**
      * Auth Token Connection

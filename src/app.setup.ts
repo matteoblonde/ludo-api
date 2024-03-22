@@ -18,6 +18,7 @@ const MONGOOSE_TO_OBJECT_DEFAULTS: mongoose.ToObjectOptions = {
 
 
 mongoose.set('debug', process.env.NODE_ENV === 'development');
+/*mongoose.set('debug', true);*/
 mongoose.set('toJSON', MONGOOSE_TO_OBJECT_DEFAULTS);
 mongoose.set('toObject', MONGOOSE_TO_OBJECT_DEFAULTS);
 mongoose.set('id', false);

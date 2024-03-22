@@ -25,6 +25,13 @@ export {
 } from './User/User';
 
 /**
+ * MaybeUser Model
+ */
+export {
+  default as MaybeUser
+} from './MaybeUser/MaybeUser';
+
+/**
  * Company Model
  */
 export {
@@ -86,6 +93,13 @@ export {
 export {
   default as PlayerAttribute
 } from './PlayerAttribute/PlayerAttribute';
+
+/**
+ * PlayerSubAttribute Model
+ */
+export {
+  default as PlayerSubAttribute
+} from './PlayerSubAttribute/PlayerSubAttribute';
 
 /**
  * Match Model
@@ -156,4 +170,32 @@ export {
 export {
   default as Target
 } from './Target/Target';
+
+/**
+ * ScoutedPlayer Model
+ */
+export {
+  default as ScoutedPlayer
+} from './ScoutedPlayer/ScoutedPlayer';
+
+/**
+ * ScoutingStatus Model
+ */
+export {
+  default as ScoutingStatus
+} from './ScoutingStatus/ScoutingStatus';
+
+/**
+ * Contact Model
+ */
+export {
+  default as Contact
+} from './Contact/Contact';
+
+/**
+ * ContactType Model
+ */
+export {
+  default as ContactType
+} from './ContactType/ContactType';
 
