@@ -77,12 +77,12 @@ export class Match {
   })
   awayGoals!: number;
 
-  /*  @prop({ allowMixed: Severity.ALLOW, default: [] })
-    players?: ArraySubDocumentType<Player>;*/
+  @prop({ allowMixed: Severity.ALLOW, default: [] })
+  players?: ArraySubDocumentType<Player>;
 
   // @ts-ignore
-  @prop({ ref: () => Player })
-  public players?: Ref<Player>[];
+  /*  @prop({ ref: () => Player })
+    public players?: Ref<Player>[];*/
 
   /*  @prop({ ref: () => Player })
     public players?: Ref<Player[]>;
