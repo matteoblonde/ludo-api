@@ -40,7 +40,11 @@ export class PlayersController {
     @Body() player: Player,
     @UserData() userData: IUserData
   ) {
-    return this.playersService.insertNewPlayer({ teams: userData.teams, userId: userData.userId, ...player });
+    return this.playersService.insertNewPlayer({
+      teams      : userData.teams,
+      userId     : userData.userId,
+      currentTeam: userData.teams[0], ...player
+    });
   }
 
 

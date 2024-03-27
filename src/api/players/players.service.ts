@@ -3,11 +3,12 @@ import {
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common';
-import mongoose, { Connection } from 'mongoose';
+import mongoose, { Connection, Types } from 'mongoose';
 import { DATABASE_CONNECTION, getModel, ROUTE_MODEL } from '../../database/database.providers';
 import AttributeStoryModel from '../../database/models/AttributeStory/AttributeStory';
 import LabelTypeModel from '../../database/models/LabelType/LabelType';
 import MatchModel from '../../database/models/Match/Match';
+import player from '../../database/models/Player/Player';
 
 import PlayerModel, { Player } from '../../database/models/Player/Player';
 import PlayerSchema from '../../database/models/Player/Player.Schema';
@@ -56,10 +57,15 @@ export class PlayersService extends AbstractedCrudService<Player> {
     });
 
     /** Find all player stats to insert by default */
-    const playerAttributes = await this.playerAttributeModel.find({ 'isForAllRoles': true });
+    const playerAttributes = await this.playerAttributeModel.find({}, {}, { sort: 'order' });
+
+    /** Map attributes and convert _id to string */
+    const playerAttributesConverted = playerAttributes.map((attribute: any) => {
+      return { ...attribute.toObject(), _id: attribute._id.toString() };
+    });
 
     /** Build the final record */
-    const record = new this.playerModel({ labels: labels, attributes: playerAttributes, ...player });
+    const record = new this.playerModel({ labels: labels, attributes: playerAttributesConverted, ...player });
 
     /* save the record, mongo.insertOne() */
     await record.save();
@@ -87,17 +93,67 @@ export class PlayersService extends AbstractedCrudService<Player> {
       playerId,
       { $set: { [fieldToUpdate]: attribute } },
       {
-        arrayFilters: [ { 'attr._id': attributeId } ],
+        arrayFilters: [ { 'attr._id': /*new Types.ObjectId(attributeId)*/ attributeId } ],
         new         : true
       }
     ).exec();
 
+    /** Update player total and average value */
+    /** Build the pipeline */
+    const aggregate: any = await this.playerModel.aggregate([
+      { $match: { _id: new Types.ObjectId(playerId) } },
+      {
+        $project: {
+          value       : {
+            $sum: {
+              $map: {
+                input: {
+                  $filter: {
+                    input: '$attributes',
+                    as   : 'attribute',
+                    cond : { $eq: [ '$$attribute.isText', false ] }
+                  }
+                },
+                as   : 'filteredAttribute',
+                in   : '$$filteredAttribute.value'
+              }
+            }
+          },
+          averageValue: {
+            $avg: {
+              $map: {
+                input: {
+                  $filter: {
+                    input: '$attributes',
+                    as   : 'attribute',
+                    cond : { $eq: [ '$$attribute.isText', false ] }
+                  }
+                },
+                as   : 'filteredAttribute',
+                in   : '$$filteredAttribute.value'
+              }
+            }
+          }
+        }
+      }
+    ]).exec();
+
+    /** Save the variables returned by the aggregation */
+    const { value, averageValue } = aggregate[0];
+
+    /** Update the player */
+    await this.playerModel.findByIdAndUpdate(playerId, {
+      value       : value.toFixed(1),
+      averageValue: averageValue.toFixed(1)
+    }).exec();
+
     /** Write the value in the attribute story */
-    const attributeStory = new this.attributeStoryModel({
+    //TODO: Reimplementare l'attribute Story
+    /*const attributeStory = new this.attributeStoryModel({
       playerId : playerId,
       attribute: attribute
     });
-    await attributeStory.save().catch((error: any) => console.log(error));
+    await attributeStory.save().catch((error: any) => console.log(error));*/
 
   }
 
