@@ -42,18 +42,20 @@ export const dateConverter = (date: any): string => {
  * @param {any} date - The input date to be rounded.
  * @returns {Date} - The rounded date object.
  */
-export const roundDateToNearestQuarter = (date: any): Date => {
+export const roundDateToNearestQuarter = (date?: any): Date => {
 
-  const minutes = date.getMinutes();
+  let startDate = !date ? () => new Date() : date;
+
+  const minutes = startDate.getMinutes();
   const roundedMinutes = Math.round(minutes / 15) * 15;
 
   if (roundedMinutes === 60) {
-    date.setHours(date.getHours() + 1);
-    date.setMinutes(0);
+    startDate.setHours(startDate.getHours() + 1);
+    startDate.setMinutes(0);
   }
   else {
-    date.setMinutes(roundedMinutes);
+    startDate.setMinutes(roundedMinutes);
   }
 
-  return date;
+  return startDate;
 };
