@@ -111,7 +111,8 @@ export abstract class AbstractedCrudService<T> implements ICrudService<T> {
       filter,
       sort,
       limit,
-      skip
+      skip,
+      select
     } = queryOptions || {};
 
     const teamsQueryString = teams?.map((team: string) => {
@@ -132,6 +133,10 @@ export abstract class AbstractedCrudService<T> implements ICrudService<T> {
 
     if (skip) {
       query = query.skip(skip);
+    }
+
+    if (select) {
+      query = query.select(select);
     }
 
     /** Execute the Query */
