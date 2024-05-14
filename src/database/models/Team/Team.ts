@@ -5,7 +5,7 @@ import { User } from '../User/User';
 @modelOptions({ schemaOptions: { collection: 'teams' } })
 export class Team {
 
-  @prop({ allowMixed: Severity.ALLOW })
+  @prop({ allowMixed: Severity.ALLOW, default: [] })
   users?: ArraySubDocumentType<User>;
 
   @prop()
