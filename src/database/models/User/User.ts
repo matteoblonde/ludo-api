@@ -62,6 +62,11 @@ export class User {
     default: false
   })
   emailVerified?: boolean;
+
+  @prop({
+    default: []
+  })
+  chartsSettings?: any;
 }
 
 const UserModel = getModelForClass(User);

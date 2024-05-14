@@ -43,5 +43,213 @@ export const collectionToModelMap: any = {
   'scouting-status'      : 'ScoutingStatus',
   'contacts'             : 'Contact',
   'contact-types'        : 'ContactType'
+};
 
+/**
+ * chartOptions by type
+ */
+export const chartOptions: any = {
+  'bar'                    : {
+    responsive: true,
+    plugins   : {
+      legend: {
+        labels : {
+          color: '#D1D5DB'
+        },
+        display: false
+      }
+    },
+    scales    : {
+      y: {
+        beginAtZero: true,
+        ticks      : {
+          color: '#D1D5DB'
+        },
+        grid       : {
+          color: '#4B5563'
+        }
+      },
+      x: {
+        ticks: {
+          color: '#D1D5DB'
+        },
+        grid : {
+          color: '#4B5563'
+        }
+      }
+    }
+  },
+  'doughnut'               : {
+    responsive         : true,
+    maintainAspectRatio: false,
+    plugins            : {
+      legend: {
+        position: 'top'
+      }
+    }
+  },
+  'bubble_minutes-goals'   : {
+    responsive: true,
+    plugins   : {
+      legend: {
+        labels  : {
+          color: '#D1D5DB'
+        },
+        position: 'left'
+      }
+    },
+    scales    : {
+      y: {
+        title: {
+          display: true,
+          text   : 'Goals',
+          color  : '#D1D5DB'
+        },
+        ticks: {
+          color   : '#D1D5DB',
+          stepSize: 2
+        },
+        grid : {
+          color: '#4B5563'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text   : 'Minuti',
+          color  : '#D1D5DB'
+        },
+        ticks: {
+          color: '#D1D5DB'
+        },
+        grid : {
+          color: '#4B5563'
+        }
+      }
+    }
+  },
+  'bubble_matches-minutes' : {
+    responsive: true,
+    plugins   : {
+      legend: {
+        labels  : {
+          color: '#D1D5DB'
+        },
+        position: 'left'
+      }
+    },
+    scales    : {
+      y: {
+        title: {
+          display: true,
+          text   : 'Minuti',
+          color  : '#D1D5DB'
+        },
+        ticks: {
+          color: '#D1D5DB'
+        },
+        grid : {
+          color: '#4B5563'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text   : 'Partite',
+          color  : '#D1D5DB'
+        },
+        ticks: {
+          color   : '#D1D5DB',
+          stepSize: 1
+        },
+        grid : {
+          color: '#4B5563'
+        }
+      }
+    }
+  },
+  'radar_player-attributes': {
+    plugins            : {
+      legend: {
+        display: false
+      }
+    },
+    scales             : {
+      r: {
+        grid       : {
+          color: '#6B7280'
+        },
+        min        : 0,
+        max        : 10,
+        ticks      : {
+          display : false,
+          stepSize: 2
+        },
+        pointLabels: {
+          color: '#F9FAFB',
+          font : {
+            size: 12
+          }
+        }
+      }
+    },
+    responsive         : true,
+    maintainAspectRatio: false,
+    aspectRatio        : 1,
+    elements           : {
+      line : {
+        borderJoinStyle: 'round',
+        borderWidth    : 5,
+        borderCapStyle : 'round',
+        tension        : 0.02
+      },
+      point: {
+        radius: 5
+      }
+    }
+  },
+  'radar_players-compare'  : {
+    plugins            : {
+      legend: {
+        display : true,
+        position: 'left',
+        labels  : {
+          color: '#D1D5DB'
+        }
+      }
+    },
+    scales             : {
+      r: {
+        grid       : {
+          color: '#6B7280'
+        },
+        min        : 0,
+        max        : 10,
+        ticks      : {
+          display : false,
+          stepSize: 2
+        },
+        pointLabels: {
+          color: '#F9FAFB',
+          font : {
+            size: 12
+          }
+        }
+      }
+    },
+    responsive         : true,
+    maintainAspectRatio: false,
+    aspectRatio        : 1,
+    elements           : {
+      line : {
+        borderJoinStyle: 'round',
+        borderWidth    : 3,
+        borderCapStyle : 'round',
+        tension        : 0.02
+      },
+      point: {
+        radius: 3
+      }
+    }
+  }
 };
