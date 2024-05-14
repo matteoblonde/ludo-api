@@ -7,6 +7,7 @@ import {
   Severity
 } from '@typegoose/typegoose';
 import { Residence } from '../../interfaces';
+import { Contact } from '../Contact/Contact';
 import { Document } from '../Document/Document';
 import { Label } from '../Label/Label';
 import { PlayerAttribute } from '../PlayerAttribute/PlayerAttribute';
@@ -38,15 +39,23 @@ export class Player {
   public playerImgUrl?: string;
 
   @prop()
+  public nationality?: string;
+
+  @prop()
   public height?: number;
 
   @prop()
   public weight?: number;
 
   @prop({
-    default: 60
+    default: 0
   })
   public value?: number;
+
+  @prop({
+    default: 0
+  })
+  public averageValue?: number;
 
   @prop({
     default   : [ 'Right' ],
@@ -68,6 +77,9 @@ export class Player {
 
   @prop({ allowMixed: Severity.ALLOW })
   public attributes?: ArraySubDocumentType<PlayerAttribute>;
+
+  @prop({ allowMixed: Severity.ALLOW })
+  public contacts?: ArraySubDocumentType<Contact>;
 
   /** Fields for personal details */
   @prop()

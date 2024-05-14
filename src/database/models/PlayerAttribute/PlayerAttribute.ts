@@ -1,5 +1,6 @@
 import { ArraySubDocumentType, getModelForClass, modelOptions, prop, Severity } from '@typegoose/typegoose';
 import { PlayerRole } from '../PlayerRole/PlayerRole';
+import { PlayerSubAttribute } from '../PlayerSubAttribute/PlayerSubAttribute';
 
 
 @modelOptions({ schemaOptions: { collection: 'playerAttributes' } })
@@ -14,32 +15,50 @@ export class PlayerAttribute {
   @prop()
   public order?: number;
 
-  @prop({ allowMixed: Severity.ALLOW })
-  public playerRoles?: ArraySubDocumentType<PlayerRole>;
+  /*  @prop({ allowMixed: Severity.ALLOW })
+    public playerRoles?: ArraySubDocumentType<PlayerRole>;
+  
+    @prop({
+      required: true,
+      default : true
+    })
+    public isForAllRoles!: boolean; */
+
+  /*  @prop({
+      required: true,
+      default : 0
+    })
+    public minValue!: number;
+  
+    @prop({
+      required: true,
+      default : 10
+    })
+    public maxValue!: number;
+  
+    @prop({
+      required: true,
+      default : 6
+    })
+    public value!: number;*/
 
   @prop({
-    required: true,
-    default : true
+    default: 6
   })
-  public isForAllRoles!: boolean;
+  public value?: number;
 
   @prop({
-    required: true,
-    default : 0
+    default: false
   })
-  public minValue!: number;
+  public isText?: boolean;
 
   @prop({
-    required: true,
-    default : 100
+    default: ''
   })
-  public maxValue!: number;
+  public textValue?: string;
 
-  @prop({
-    required: true,
-    default : 60
-  })
-  public value!: number;
+  @prop({ allowMixed: Severity.ALLOW, default: [] })
+  public subAttributes?: ArraySubDocumentType<PlayerSubAttribute>;
 
 }
 
