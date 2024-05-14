@@ -32,7 +32,7 @@ export class Exercise {
   @prop()
   public exerciseTarget?: string;
 
-  @prop({ allowMixed: Severity.ALLOW })
+  @prop({ allowMixed: Severity.ALLOW, default: [] })
   public targets?: ArraySubDocumentType<Target>;
 
   @prop()
