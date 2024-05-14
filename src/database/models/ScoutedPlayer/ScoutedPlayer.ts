@@ -7,9 +7,10 @@ import {
   getModelForClass,
   modelOptions,
   prop,
-  Severity
+  Severity, SubDocumentType
 } from '@typegoose/typegoose';
 import { Residence } from '../../interfaces';
+import { Nationality } from '../../interfaces/Nationality';
 import { Contact } from '../Contact/Contact';
 import { Label } from '../Label/Label';
 import PlayerModel from '../Player/Player';
@@ -34,12 +35,35 @@ export class ScoutedPlayer {
   public currentTeam?: string;
 
   @prop()
+  public height?: number;
+
+  @prop()
+  public weight?: number;
+
+  @prop()
   public notes?: string;
+
+  @prop()
+  public nationality?: DocumentType<Nationality>;
+
+  @prop()
+  public playerImgUrl?: string;
+
+  @prop({
+    default   : [ 'Right' ],
+    allowMixed: Severity.ALLOW
+  })
+  public foot?: string[];
 
   @prop({
     default: 0
   })
-  public value!: number;
+  public value?: number;
+
+  @prop({
+    default: 0
+  })
+  public averageValue?: number;
 
   @prop()
   public birthDate?: Date;
@@ -71,7 +95,7 @@ export class ScoutedPlayer {
   public residence?: DocumentType<Residence>;
 
   @prop({ allowMixed: Severity.ALLOW })
-  public roles?: ArraySubDocumentType<PlayerRole>;
+  public role?: SubDocumentType<PlayerRole>;
 
 }
 
