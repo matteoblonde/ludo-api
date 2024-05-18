@@ -48,12 +48,12 @@ export class Player {
   public weight?: number;
 
   @prop({
-    default: 0
+    default: 6
   })
   public value?: number;
 
   @prop({
-    default: 0
+    default: 6
   })
   public averageValue?: number;
 
