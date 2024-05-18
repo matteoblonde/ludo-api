@@ -57,11 +57,8 @@ export class Player {
   })
   public averageValue?: number;
 
-  @prop({
-    default   : [ 'Right' ],
-    allowMixed: Severity.ALLOW
-  })
-  public foot?: string[];
+  @prop()
+  public foot?: string;
 
   @prop()
   public notes?: string;
