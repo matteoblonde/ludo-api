@@ -11,6 +11,7 @@ import PlayerModel, { Player } from '../../database/models/Player/Player';
 import PlayerSchema from '../../database/models/Player/Player.Schema';
 import PlayerAttributeModel, { PlayerAttribute } from '../../database/models/PlayerAttribute/PlayerAttribute';
 import { ScoutedPlayer } from '../../database/models/ScoutedPlayer/ScoutedPlayer';
+import ScoutingStatusModel from '../../database/models/ScoutingStatus/ScoutingStatus';
 import { AbstractedCrudService } from '../abstractions/abstracted-crud.service';
 
 
@@ -24,6 +25,8 @@ export class ScoutedPlayersService extends AbstractedCrudService<Player> {
     private readonly labelTypeModel: typeof LabelTypeModel,
     @Inject(PlayerAttributeModel.collection.name)
     private readonly playerAttributeModel: typeof PlayerAttributeModel,
+    @Inject(ScoutingStatusModel.collection.name)
+    private readonly scoutingStatusModel: typeof ScoutingStatusModel,
     @Inject(DATABASE_CONNECTION)
     private connection: Connection
   ) {
@@ -57,10 +60,14 @@ export class ScoutedPlayersService extends AbstractedCrudService<Player> {
       return { ...attribute.toObject(), _id: attribute._id.toString() };
     });
 
+    /** Find default scouting status */
+    const defaultScoutingStatus = await this.scoutingStatusModel.find({ isDefault: true }, {}, { sort: 'order' });
+
     /** Build the final record */
     const record = new this.scoutedPlayerModel({
-      labels    : labels,
-      attributes: scoutedPlayerAttributesConverted,
+      labels        : labels,
+      attributes    : scoutedPlayerAttributesConverted,
+      scoutingStatus: defaultScoutingStatus ? defaultScoutingStatus[0] : null,
       ...scoutedPlayer
     });
 

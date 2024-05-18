@@ -53,22 +53,24 @@ export class ScoutedPlayer {
     default   : [ 'Right' ],
     allowMixed: Severity.ALLOW
   })
-  public foot?: string[];
+  public foot?: string;
 
   @prop({
-    default: 0
+    default: 30
   })
   public value?: number;
 
   @prop({
-    default: 0
+    default: 6
   })
   public averageValue?: number;
 
   @prop()
   public birthDate?: Date;
 
-  @prop()
+  @prop({
+    default: () => new Date()
+  })
   public firstContactDate?: Date;
 
   @prop({ allowMixed: Severity.ALLOW })
