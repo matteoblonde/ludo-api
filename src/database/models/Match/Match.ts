@@ -7,6 +7,7 @@ import {
   SubDocumentType
 } from '@typegoose/typegoose';
 import { roundDateToNearestQuarter } from '../../../utils/date/date-converter';
+import { LineUp } from '../../interfaces';
 import { Label } from '../Label/Label';
 import { Player } from '../Player/Player';
 import { Team } from '../Team/Team';
@@ -42,7 +43,6 @@ export class Match {
     default: roundDateToNearestQuarter(new Date)
   })
   meetingDateTime?: Date;
-
 
   @prop()
   address?: string;
@@ -103,6 +103,11 @@ export class Match {
 
   @prop()
   adbReport?: object;
+
+  @prop({
+    default: []
+  })
+  lineUp?: ArraySubDocumentType<LineUp>;
 
 
 }
